@@ -12,6 +12,10 @@
 //
 // Alle Typen können zusätzlich einen Lesetext haben:
 //   lesetext: "<id aus texte.js>"  oder  { titel, text, quelle }
+//
+// Eine Aufgabe kann auch eine Funktion sein, die den Spielstand bekommt und die
+// Aufgabe liefert. So lassen sich Angaben aus dem Heldenpass einbauen:
+//   (z) => ({ typ: "auswahl", frage: `… ${z.held.beruf} …`, … })
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { mischen, woerterZaehlen } from "../hilfen.js";
@@ -364,6 +368,11 @@ export function aufgabeErstellen(aufgabe) {
 
 export { lesetextElement };
 
+/** Wandelt eine Aufgaben-Funktion in eine Aufgabe um (mit dem aktuellen Spielstand). */
+export function aufgabeAufloesen(aufgabe) {
+  return typeof aufgabe === "function" ? aufgabe(zustand) : aufgabe;
+}
+
 // ---------- Ablauf ----------
 
 /**
@@ -372,7 +381,8 @@ export { lesetextElement };
  * kann man sich die Lösung zeigen lassen.
  * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst).
  */
-export async function aufgabenFolge({ titel, untertitel, aufgaben, lesetext }) {
+export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext }) {
+  const aufgaben = roh.map(aufgabeAufloesen);
   let ersterVersuch = 0;
   for (let i = 0; i < aufgaben.length; i++) {
     const a = aufgaben[i];

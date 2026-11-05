@@ -1,6 +1,14 @@
 // Aufgaben im Dorf der Ankömmlinge (Level 1: Grundfertigkeiten).
 // Format der Aufgaben: siehe src/ui/aufgaben.js
 
+// Traumberuf aus dem Heldenpass. Falls nichts Brauchbares eingetragen ist,
+// nimmt die Aufgabe ein Beispiel.
+function traumberuf(z) {
+  let b = (z.held?.beruf ?? "").trim().replace(/[.!?,;:]+$/, "").trim();
+  if (!b || b.split(/\s+/).length > 4 || /\b(möchte|werden|ich)\b/i.test(b)) return "Krankenpfleger";
+  return b[0].toUpperCase() + b.slice(1);
+}
+
 export const VORSTELLEN = [
   {
     typ: "luecke",
@@ -17,12 +25,15 @@ export const VORSTELLEN = [
     loesungen: ["Ich spiele in meiner Freizeit gern Gitarre."],
     erklaerung: "Im Aussagesatz steht das Verb immer auf Position 2.",
   },
-  {
-    typ: "auswahl",
-    frage: "Du möchtest deinen Traumberuf nennen. Welcher Satz ist richtig?",
-    optionen: ["Ich möchte Krankenpfleger werden.", "Ich werde möchte Krankenpfleger.", "Ich möchte werden Krankenpfleger."],
-    richtig: 0,
-    erklaerung: "möchte + Infinitiv: Der Infinitiv (werden) steht am Ende.",
+  (z) => {
+    const beruf = traumberuf(z);
+    return {
+      typ: "auswahl",
+      frage: `Du möchtest dem Rat deinen Traumberuf nennen: ${beruf}. Welcher Satz ist richtig?`,
+      optionen: [`Ich möchte ${beruf} werden.`, `Ich werde möchte ${beruf}.`, `Ich möchte werden ${beruf}.`],
+      richtig: 0,
+      erklaerung: "möchte + Infinitiv: Der Infinitiv (werden) steht am Ende.",
+    };
   },
   {
     typ: "freitext",

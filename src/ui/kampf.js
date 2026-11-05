@@ -2,7 +2,7 @@
 // jede falsche Antwort kostet ein Herz. Kein zweiter Versuch pro Frage.
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
-import { aufgabeErstellen, lesetextElement } from "./aufgaben.js";
+import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
 import { hatEffekt } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 
@@ -11,7 +11,8 @@ import { mischen, zufall } from "../hilfen.js";
  * fragen: Aufgaben (wie in aufgaben.js)
  * Liefert true bei Sieg, false bei Niederlage.
  */
-export async function kampf(gegner, fragen) {
+export async function kampf(gegner, roheFragen) {
+  const fragen = roheFragen.map(aufgabeAufloesen);
   const herzenMax = 3 + (hatEffekt("extra_herz") ? 1 : 0);
   let herzen = herzenMax;
   let lp = gegner.lp;

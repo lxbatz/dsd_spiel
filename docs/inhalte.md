@@ -86,6 +86,21 @@ Mehrere richtige Lösungen mit `|` trennen: `{stammt|kommt}`. Beim Schreiben wir
 ```
 `such` ist ein regulärer Ausdruck (Groß-/Kleinschreibung egal). Freie Texte werden nicht bewertet: Die Schülerin/der Schüler muss die Mindestwortzahl erreichen und den Selbstcheck abhaken. Die Lehrkraft liest den Text im Heldenpass und vergibt ggf. einen Lehrercode.
 
+### Angaben aus dem Heldenpass einbauen
+
+Statt eines festen Objekts kann eine Aufgabe auch eine Funktion sein. Sie bekommt den Spielstand `z` und liefert die Aufgabe. Die Angaben aus dem Heldenpass stehen in `z.held` (`name`, `alter`, `land`, `wohnort`, `sprachen`, `hobbys`, `beruf`, `klasse`).
+
+```js
+(z) => ({
+  typ: "auswahl",
+  frage: `Du möchtest deinen Traumberuf nennen: ${z.held.beruf}. Welcher Satz ist richtig?`,
+  optionen: [`Ich möchte ${z.held.beruf} werden.`, `Ich werde möchte ${z.held.beruf}.`],
+  richtig: 0,
+})
+```
+
+Vorsicht bei Angaben, die die Grammatik ändern (z. B. „aus Polen“, aber „aus der Türkei“). Ein Beispiel mit Rückfallwert steht in `dorf.js` (Funktion `traumberuf`).
+
 ## Übungsmodus und Kampfmodus
 
 - **Quests und Tore (Übungsmodus):** Bei einem Fehler darf man es noch einmal versuchen. Nach zwei Fehlversuchen erscheint „Lösung zeigen“.
