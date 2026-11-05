@@ -1,30 +1,85 @@
 // Aufgaben im Dorf der Ankömmlinge (Level 1: Grundfertigkeiten).
 // Format der Aufgaben: siehe src/ui/aufgaben.js
 
-// Traumberuf aus dem Heldenpass. Falls nichts Brauchbares eingetragen ist,
-// nimmt die Aufgabe ein Beispiel.
+import { sauber, grossAnfang, ortMit, teileListe, aufzaehlen, alterAlsZahl } from "./sprachhilfen.js";
+
+// Die Vorstellungs-Quest benutzt die Angaben aus dem Heldenpass.
+// Fehlt eine Angabe oder ist sie unbrauchbar, fällt der passende Satz weg
+// bzw. die Aufgabe nimmt das Beispiel von Mira.
+
+const zuLang = (text, maxWoerter) => text.split(/\s+/).length > maxWoerter;
+
 function traumberuf(z) {
-  let b = (z.held?.beruf ?? "").trim().replace(/[.!?,;:]+$/, "").trim();
-  if (!b || b.split(/\s+/).length > 4 || /\b(möchte|werden|ich)\b/i.test(b)) return "Krankenpfleger";
-  return b[0].toUpperCase() + b.slice(1);
+  const b = sauber(z.held?.beruf);
+  if (!b || zuLang(b, 4) || /\b(möchte|werden|ich)\b/i.test(b)) return "Krankenpfleger";
+  return grossAnfang(b);
 }
 
-export const VORSTELLEN = [
-  {
+function vorstellungsLuecke(z) {
+  const h = z.held ?? {};
+  const name = sauber(h.name);
+  const alter = alterAlsZahl(h.alter);
+  const land = sauber(h.land);
+  const ort = sauber(h.wohnort);
+  const sprachen = teileListe(h.sprachen ?? "");
+
+  const zeilen = [];
+  if (name && !zuLang(name, 3)) zeilen.push(`Hallo! Ich {heiße} ${name}.`);
+  if (alter) zeilen.push(`Ich {bin} ${alter} Jahre alt.`);
+  if (land && !zuLang(land, 4) && ort && !zuLang(ort, 4)) {
+    zeilen.push(`Ich {komme} ${ortMit("aus", land)} und {wohne} jetzt ${ortMit("in", ort)}.`);
+  } else if (land && !zuLang(land, 4)) {
+    zeilen.push(`Ich {komme} ${ortMit("aus", land)}.`);
+  } else if (ort && !zuLang(ort, 4)) {
+    zeilen.push(`Ich {wohne} ${ortMit("in", ort)}.`);
+  }
+  if (sprachen.length && !sprachen.some((s) => zuLang(s, 2))) zeilen.push(`Ich {spreche} ${aufzaehlen(sprachen)}.`);
+
+  const luecken = zeilen.join(" ").match(/\{/g)?.length ?? 0;
+  if (luecken >= 3) {
+    return {
+      typ: "luecke",
+      frage: "So stellst du dich dem Rat vor. Ergänze die Verben.",
+      text: zeilen.join("\n"),
+      auswahl: true,
+      ablenker: ["habe", "gehe", "heißt", "bist"].filter((w) => !zeilen.join(" ").includes(`{${w}}`)),
+      erklaerung: "ich heiße … · ich bin … Jahre alt · ich komme aus … · ich wohne in … · ich spreche …",
+    };
+  }
+  return {
     typ: "luecke",
     frage: "Mira stellt sich dem Rat vor. Ergänze die Verben.",
     text: "Hallo! Ich {heiße} Mira. Ich {bin} 16 Jahre alt.\nIch {komme} aus Polen und {wohne} jetzt in Köln.\nIch {spreche} Polnisch, Englisch und ein bisschen Deutsch.",
     auswahl: true,
     ablenker: ["habe", "gehe"],
     erklaerung: "ich heiße … · ich bin … Jahre alt · ich komme aus … · ich wohne in … · ich spreche …",
-  },
-  {
+  };
+}
+
+function hobbySatz(z) {
+  const hobbys = teileListe(z.held?.hobbys ?? "").slice(0, 3);
+  if (hobbys.length && !hobbys.some((x) => zuLang(x, 2))) {
+    const liste = aufzaehlen(hobbys);
+    return {
+      typ: "ordnen",
+      frage: "Erzähl dem Rat von deinen Hobbys. Bau den Satz richtig zusammen.",
+      teile: ["In meiner Freizeit", "mag", "ich", "am liebsten", `${liste}.`],
+      loesungen: [`Ich mag in meiner Freizeit am liebsten ${liste}.`, `Am liebsten mag ich in meiner Freizeit ${liste}.`],
+      erklaerung: "Im Aussagesatz steht das Verb (mag) immer auf Position 2.",
+    };
+  }
+  return {
     typ: "ordnen",
     frage: "Bau den Satz richtig zusammen.",
     teile: ["In meiner Freizeit", "spiele", "ich", "gern", "Gitarre."],
     loesungen: ["Ich spiele in meiner Freizeit gern Gitarre."],
     erklaerung: "Im Aussagesatz steht das Verb immer auf Position 2.",
-  },
+  };
+}
+
+export const VORSTELLEN = [
+  vorstellungsLuecke,
+  hobbySatz,
   (z) => {
     const beruf = traumberuf(z);
     return {

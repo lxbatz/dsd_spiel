@@ -126,7 +126,7 @@ button { font: inherit; cursor: pointer; }
   flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--pergament-2);
   display: inline-flex; align-items: center; justify-content: center; font-weight: bold;
 }
-.lueckentext { font-size: 17px; line-height: 2.3; }
+.lueckentext { font-size: 17px; line-height: 2.3; white-space: pre-line; }
 .lueckentext input, .lueckentext select {
   font: inherit; font-size: 16px; padding: 2px 6px; min-width: 90px;
   border: none; border-bottom: 2px solid var(--tinte-2); background: #fffaf0; color: var(--tinte);
