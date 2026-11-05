@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lehrercodes erzeugen</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; color: #2b2116; background: #f6efdc; }
+    h1 { font-family: Georgia, serif; }
+    fieldset { border: 1px solid #b59a6a; border-radius: 8px; margin-bottom: 16px; }
+    label { display: block; margin: 8px 0; }
+    input, select { font: inherit; padding: 4px 6px; }
+    button { font: inherit; padding: 8px 16px; background: #d9a441; border: 2px solid #a8741d; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    textarea { width: 100%; min-height: 160px; font-family: monospace; font-size: 12px; }
+    .karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-top: 12px; }
+    .karte { border: 2px dashed #7a5a2e; border-radius: 8px; padding: 10px; text-align: center; background: white; }
+    .karte b { font-family: monospace; font-size: 18px; letter-spacing: 1px; display: block; margin: 6px 0; }
+    .hinweis { background: #fff8e1; border-left: 4px solid #d9a441; padding: 8px 12px; }
+    @media print {
+      body { background: white; margin: 0; }
+      .nicht-drucken { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nicht-drucken">
+    <h1>🔑 Lehrercodes erzeugen</h1>
+    <p class="hinweis">
+      So geht's: Belohnung wählen, Anzahl eingeben, „Codes erzeugen“ klicken.
+      Dann den Block unter <b>1.</b> in die Datei <code>src/inhalte/codes.js</code> einfügen (vor der letzten Zeile <code>};</code>), committen und veröffentlichen.
+      Die Codes unter <b>2.</b> ausdrucken oder einzeln an die Schülerinnen und Schüler geben.
+      Jeder Code funktioniert pro Gerät einmal. Gib jeden Code nur an eine Person.
+    </p>
+    <fieldset>
+      <legend>Belohnung</legend>
+      <label>Art:
+        <select id="art">
+          <option value="20|Teamarbeit">Teamarbeit (20 XP)</option>
+          <option value="10|Mündlicher Beitrag">Mündlicher Beitrag (10 XP)</option>
+          <option value="25|Bonusaufgabe">Bonusaufgabe (25 XP)</option>
+          <option value="50|Quest im Unterricht">Quest im Unterricht (50 XP)</option>
+          <option value="100|DSD-Mission">DSD-Mission (100 XP)</option>
+          <option value="eigen">Eigene Belohnung …</option>
+        </select>
+      </label>
+      <label id="eigen" hidden>XP: <input id="xp" type="number" value="30" min="1" max="1000"> Grund: <input id="grund" value="Sehr guter Text"></label>
+      <label>Anzahl Codes: <input id="anzahl" type="number" value="25" min="1" max="200"></label>
+      <button id="los">Codes erzeugen</button>
+    </fieldset>
+    <h2>1. In <code>src/inhalte/codes.js</code> einfügen</h2>
+    <textarea id="ausgabe" readonly></textarea>
+    <h2>2. Codes zum Verteilen <button onclick="print()">🖨 Drucken</button></h2>
+  </div>
+  <div class="karten" id="karten"></div>
+
+  <script>
+    const ZEICHEN = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // ohne 0/O und 1/I
+    const art = document.getElementById("art");
+    art.addEventListener("change", () => { document.getElementById("eigen").hidden = art.value !== "eigen"; });
+
+    function block() {
+      const z = crypto.getRandomValues(new Uint32Array(4));
+      return [...z].map((n) => ZEICHEN[n % ZEICHEN.length]).join("");
+    }
+
+    async function sha256(text) {
+      const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    document.getElementById("los").addEventListener("click", async () => {
+      let xp, grund;
+      if (art.value === "eigen") {
+        xp = Number(document.getElementById("xp").value);
+        grund = document.getElementById("grund").value.trim() || "Belohnung";
+      } else {
+        [xp, grund] = art.value.split("|");
+        xp = Number(xp);
+      }
+      const anzahl = Math.min(200, Math.max(1, Number(document.getElementById("anzahl").value)));
+      const datum = new Date().toLocaleDateString("de-DE");
+      const zeilen = [`  // ${grund} (${xp} XP), erzeugt am ${datum}`];
+      const karten = document.getElementById("karten");
+      karten.replaceChildren();
+      for (let i = 0; i < anzahl; i++) {
+        const code = `ELD-${block()}-${block()}`;
+        zeilen.push(`  "${await sha256(code)}": { xp: ${xp}, grund: ${JSON.stringify(grund)} },`);
+        const k = document.createElement("div");
+        k.className = "karte";
+        k.innerHTML = `<small>Die Chroniken von Eldoria</small><b></b><small></small>`;
+        k.querySelector("b").textContent = code;
+        k.querySelectorAll("small")[1].textContent = `${grund} · +${xp} XP`;
+        karten.append(k);
+      }
+      document.getElementById("ausgabe").value = zeilen.join("\n");
+    });
+  </script>
+</body>
+</html>

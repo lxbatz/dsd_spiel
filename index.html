@@ -3,18 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DSD-Spiel</title>
-  <style>
-    :root { color-scheme: dark; }
-    html, body { margin: 0; height: 100%; background: #1b1d2a; color: #e8e6f0; font-family: system-ui, sans-serif; }
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-    canvas { image-rendering: pixelated; width: min(96vw, 768px); height: auto; border: 2px solid #3a3e5c; background: #2b3050; }
-    p { margin: 0; font-size: 14px; opacity: 0.8; }
-  </style>
+  <title>Die Chroniken von Eldoria</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <canvas id="game" width="192" height="128"></canvas>
-  <p>Pfeiltasten oder WASD zum Bewegen</p>
-  <script type="module" src="js/main.js"></script>
+  <header id="hud" hidden>
+    <div class="hud-held">
+      <img id="hud-bild" alt="">
+      <div>
+        <div id="hud-name">–</div>
+        <div id="hud-stufe">Stufe 1</div>
+      </div>
+    </div>
+    <div class="hud-xp" title="Erfahrungspunkte">
+      <div class="xp-balken"><div id="hud-xp-fuellung"></div></div>
+      <div id="hud-xp-text">0 XP</div>
+    </div>
+    <nav class="hud-knoepfe">
+      <button data-aktion="ziele" title="Aufgaben (Q)">📋 Aufgaben</button>
+      <button data-aktion="inventar" title="Inventar (I)">🎒 Inventar</button>
+      <button data-aktion="heldenpass" title="Heldenpass (P)">🪪 Heldenpass</button>
+      <button data-aktion="code" title="Lehrercode einlösen">🔑 Code</button>
+      <button data-aktion="menue" title="Menü (Esc)">☰</button>
+    </nav>
+  </header>
+
+  <main id="buehne">
+    <div id="spiel"></div>
+    <div id="hinweis" hidden></div>
+  </main>
+
+  <div id="overlay" hidden>
+    <div id="fenster" role="dialog" aria-modal="true"></div>
+  </div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script src="vendor/phaser.min.js"></script>
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>
