@@ -103,6 +103,16 @@ export function frage(sprecher, text, optionen, bildUrl) {
   });
 }
 
+/** Fragt nach einer Bestätigung im Spielfenster (statt confirm()). Liefert true/false. */
+export function bestaetigen(titel, text, ja, nein = "Abbrechen") {
+  return new Promise((antwort) => {
+    const n = knopf(nein, () => antwort(false), "knopf zweitrangig");
+    const j = knopf(ja, () => antwort(true));
+    zeigen(el("h2", {}, titel), el("p", {}, text), el("div", { class: "knopfleiste" }, n, j));
+    fokus(n);
+  });
+}
+
 /** Zeigt einen Lesetext mit Titel. */
 export function textZeigen(titel, text, quelle) {
   return new Promise((weiter) => {

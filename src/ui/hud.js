@@ -1,6 +1,6 @@
 // Kopfleiste (Name, Stufe, XP) und die Fenster Aufgaben, Inventar, Code, Menü.
 
-import { el, zeigen, knopf, fokus, schliessen, istOffen, toast, textZeigen } from "./fenster.js";
+import { el, zeigen, knopf, fokus, schliessen, istOffen, toast, textZeigen, bestaetigen } from "./fenster.js";
 import { bild } from "./bilder.js";
 import { heldenpassAnzeigen } from "./heldenpass.js";
 import {
@@ -142,11 +142,11 @@ function menueAnzeigen() {
     }, "knopf zweitrangig"),
     meldung,
     el("h3", {}, "Neues Spiel"),
-    knopf("Alles löschen und neu beginnen", () => {
-      if (confirm("Wirklich alles löschen? Dein Fortschritt geht verloren.")) {
-        zuruecksetzen();
-        location.reload();
-      }
+    knopf("Alles löschen und neu beginnen", async () => {
+      const ja = await bestaetigen("Wirklich alles löschen?", "Dein ganzer Fortschritt auf diesem Gerät geht verloren.", "Ja, alles löschen");
+      if (!ja) return menueAnzeigen();
+      zuruecksetzen();
+      location.reload();
     }, "knopf zweitrangig"),
     el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen)),
   );

@@ -1,7 +1,7 @@
 import { BootSzene } from "./szenen/boot.js";
 import { KartenSzene } from "./szenen/karte.js";
 import { zustand, zuruecksetzen } from "./zustand.js";
-import { el, zeigen, knopf, fokus, schliessen, dialog } from "./ui/fenster.js";
+import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
 import { hudZeigen } from "./ui/hud.js";
 
 const spiel = new Phaser.Game({
@@ -41,8 +41,10 @@ async function neuesSpiel() {
 function titel() {
   const hatSpielstand = Boolean(zustand.held) || zustand.xp > 0;
   const knoepfe = hatSpielstand
-    ? [knopf("▶ Weiterspielen", starten), knopf("Neues Spiel", () => {
-        if (confirm("Neues Spiel beginnen? Dein bisheriger Fortschritt auf diesem Gerät wird gelöscht.")) neuesSpiel();
+    ? [knopf("▶ Weiterspielen", starten), knopf("Neues Spiel", async () => {
+        const ja = await bestaetigen("Neues Spiel?", "Dein bisheriger Fortschritt auf diesem Gerät wird gelöscht.", "Ja, neu beginnen");
+        if (ja) neuesSpiel();
+        else titel();
       }, "knopf zweitrangig")]
     : [knopf("▶ Das Abenteuer beginnt", neuesSpiel)];
   zeigen(
