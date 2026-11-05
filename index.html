@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSD-Spiel</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; height: 100%; background: #1b1d2a; color: #e8e6f0; font-family: system-ui, sans-serif; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+    canvas { image-rendering: pixelated; width: min(96vw, 768px); height: auto; border: 2px solid #3a3e5c; background: #2b3050; }
+    p { margin: 0; font-size: 14px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="192" height="128"></canvas>
+  <p>Pfeiltasten oder WASD zum Bewegen</p>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
