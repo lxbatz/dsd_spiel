@@ -5,6 +5,7 @@ import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
 import { hatEffekt } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
+import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
 
 /**
  * gegner: { name, bild (Data-URL), lp, schaden, einleitung, spott: [..], sieg: [..], niederlage: [..] }
@@ -19,6 +20,8 @@ export async function kampf(gegner, roheFragen) {
   const schaden = gegner.schaden ?? 20;
   let stapel = mischen(fragen);
   let runde = 0;
+  const musikVorher = aktuelleMusik();
+  musik("kampf");
 
   await new Promise((los) => {
     const k = knopf("⚔️ Kampf beginnen", los);
@@ -101,6 +104,9 @@ export async function kampf(gegner, roheFragen) {
   }
 
   const sieg = lp <= 0;
+  // Nach dem Kampf wieder die Musik der Karte; bei einem Sieg vorher die Siegesfanfare.
+  if (sieg) spieleJingle("sieg");
+  musik(musikVorher, { sofort: sieg });
   await new Promise((weiter) => {
     const k = knopf("Weiter", weiter);
     zeigen(

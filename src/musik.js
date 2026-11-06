@@ -2,15 +2,19 @@
 // Die Dateien liegen im Ordner Sound/. Welche Musik wo läuft:
 //   - Intro-Text (Prolog):           MUSIK.intro
 //   - Karten: Feld "musik" in der Kartendefinition (src/welt/*.js)
+//   - Bosskampf:                     MUSIK.kampf, Sieg: JINGLES.sieg (src/ui/kampf.js)
 //   - Quest abgeschlossen:           JINGLES.fanfare (über belohnung({ fanfare: true }))
 
 export const MUSIK = {
   intro: "Sound/opening_03.mp3",
   dorf: "Sound/town_03.mp3",
+  halle: "Sound/castle_01.mp3",
+  kampf: "Sound/battle_02.mp3",
 };
 
 export const JINGLES = {
   fanfare: "Sound/fanfare_01.mp3",
+  sieg: "Sound/fanfare_03.mp3",
 };
 
 const LAUTSTAERKE = 0.45;
@@ -39,10 +43,19 @@ function abspielen(audio) {
   audio.play().catch(() => { /* Browser erlaubt noch keinen Ton oder Datei fehlt */ });
 }
 
-/** Startet die Hintergrundmusik mit dieser ID (oder stoppt sie bei null). */
-export function musik(id) {
+/** ID der laufenden Hintergrundmusik (oder null). */
+export function aktuelleMusik() {
+  return aktuell?.id ?? null;
+}
+
+/**
+ * Startet die Hintergrundmusik mit dieser ID (oder stoppt sie bei null).
+ * sofort: true stoppt die alte Musik ohne Ausblenden.
+ */
+export function musik(id, { sofort = false } = {}) {
   if (aktuell?.id === id) return;
-  if (aktuell) ausblenden(aktuell.audio);
+  if (aktuell && sofort) { aktuell.audio.pause(); }
+  else if (aktuell) ausblenden(aktuell.audio);
   aktuell = null;
   if (!id || !MUSIK[id]) return;
   const audio = new Audio(MUSIK[id]);
