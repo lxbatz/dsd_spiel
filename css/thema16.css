@@ -1,0 +1,66 @@
+/* 16-Bit-Thema: Fenster im Stil klassischer SNES-Rollenspiele.
+   Lese- und Antwortbereiche bleiben hell, damit Texte gut lesbar sind. */
+
+:root {
+  --snes-blau-1: #22337e;
+  --snes-blau-2: #111a4a;
+  --snes-rahmen: #eef0ff;
+  --snes-rahmen-innen: #7484dc;
+  --snes-text: #f4f4ff;
+  --snes-text-2: #b9c2f2;
+  --snes-gold: #ffd860;
+  --pixel: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
+}
+
+body { background: #0b0a16; }
+#spiel canvas { image-rendering: pixelated; }
+
+/* Kopfleiste */
+#hud { background: linear-gradient(#1a2460, #0f1438); border-bottom: 3px solid var(--snes-rahmen-innen); }
+#hud-name { font-family: var(--pixel); color: var(--snes-gold); font-size: 17px; }
+#hud-bild { width: 36px; height: 36px; border: 2px solid var(--snes-rahmen); border-radius: 3px; }
+.hud-knoepfe button { background: #26347e; border: 2px solid var(--snes-rahmen-innen); border-radius: 4px; font-family: var(--pixel); }
+.hud-knoepfe button:hover { background: #34449a; }
+.xp-balken { border: 2px solid var(--snes-rahmen-innen); height: 12px; border-radius: 2px; }
+#hud-xp-fuellung { background: linear-gradient(#7ef08a, #2aa04a); }
+#hinweis { background: var(--snes-blau-2); border: 2px solid var(--snes-rahmen); border-radius: 4px; font-family: var(--pixel); }
+
+/* Fenster */
+#fenster {
+  background: linear-gradient(var(--snes-blau-1), var(--snes-blau-2));
+  color: var(--snes-text);
+  border: 3px solid var(--snes-rahmen);
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px #0a0a1a, inset 0 0 0 2px var(--snes-rahmen-innen), 0 14px 40px #000c;
+}
+#fenster h2, #fenster h3, .titelbild h1 { font-family: var(--pixel); color: var(--snes-gold); letter-spacing: .5px; }
+.sprecher { font-family: var(--pixel); color: var(--snes-gold); font-size: 20px; }
+.rede { font-size: 18px; }
+.untertitel, .fortschritt, .wortzahl, .spott, .titelbild p, .titel-steuerung, .pass-ansicht dt { color: var(--snes-text-2); }
+.titel-version { color: #7ef0ff; font-family: var(--pixel); font-size: 18px; }
+.ziel-liste li { border-color: #3a4a9a; }
+.ziel-liste li.erledigt { color: #8a92c0; }
+
+/* Porträts groß und pixelscharf */
+.portrait {
+  width: 128px; height: 128px; image-rendering: pixelated;
+  border: 3px solid var(--snes-rahmen); border-radius: 4px; background: #000;
+  box-shadow: 0 0 0 2px #0a0a1a;
+}
+.kampf-kopf .portrait { width: 128px; height: 128px; }
+.dialog { align-items: center; }
+
+/* Helle Bereiche mit dunkler Schrift */
+.lesetext, .stichpunkte, .gegenstand, .feedback { color: #2b2116; }
+.lesetext { background: #f6f0dc; border-left-color: var(--snes-gold); }
+.gegenstand { background: #f6f0dc; }
+.knopf { font-family: var(--pixel); font-size: 16px; }
+.knopf.zweitrangig { color: var(--snes-text-2); border-color: var(--snes-rahmen-innen); }
+.knopf.zweitrangig:hover { color: #fff; }
+.rf-zeile { border-color: #3a4a9a; }
+.zuordnen-tabelle td { border-color: #3a4a9a; }
+.analyse li.ok { color: #8af09a; }
+.analyse li.fehlt { color: #ff9a9a; }
+.lp-balken { border-color: var(--snes-rahmen); }
+.klasse img { width: 64px; height: 64px; border-radius: 3px; }
+.klasse { background: #f6f0dc; }

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>16-Bit-Grafik – Vorschau</title>
+  <style>
+    body { background: #2a2f4a; color: #eee; font-family: system-ui, sans-serif; margin: 16px; }
+    h2 { margin: 18px 0 6px; font-size: 16px; }
+    .reihe { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+    .karte { background: #4f8a3c; padding: 6px; border-radius: 6px; text-align: center; font-size: 11px; }
+    canvas { image-rendering: pixelated; display: block; }
+  </style>
+</head>
+<body>
+  <h2>Figuren (unten · oben · seite, je stehen / Schritt A / Schritt B / atmen)</h2>
+  <div class="reihe" id="figuren"></div>
+  <h2>Porträts</h2>
+  <div class="reihe" id="portraits"></div>
+  <h2>Objekte</h2>
+  <div class="reihe" id="objekte"></div>
+  <script type="module">
+    import { AUSSEHEN, figurBlatt, torwaechterBild } from "../src/grafik16/figuren.js";
+    const ziel = (id) => document.getElementById(id);
+    const karte = (titel, canvas, bereich) => {
+      const k = document.createElement("div");
+      k.className = "karte";
+      k.append(canvas, titel);
+      ziel(bereich).append(k);
+    };
+    for (const [name, d] of Object.entries(AUSSEHEN)) karte(name, figurBlatt(d).alsCanvas(4), "figuren");
+    karte("torwaechter", torwaechterBild(0).alsCanvas(4), "figuren");
+    try {
+      const { PORTRAITS, portraitBild } = await import("../src/grafik16/portraits.js");
+      for (const name of Object.keys(PORTRAITS)) karte(name, portraitBild(name).alsCanvas(3), "portraits");
+    } catch (e) { console.warn(e); }
+    try {
+      const { objektBilder, hausBild } = await import("../src/grafik16/welt.js");
+      for (const [name, b] of Object.entries(objektBilder())) karte(name, b.alsCanvas(3), "objekte");
+      for (const art of ["wohnhaus", "rathaus", "schmiede"]) {
+        const w = art === "rathaus" ? 7 : 5;
+        karte(art, hausBild({ x: 0, y: 0, w, h: 3, tuer: art === "wohnhaus" ? 2 : 3, art }).alsCanvas(3), "objekte");
+      }
+    } catch (e) { console.warn(e); }
+    document.body.dataset.fertig = "1";
+  </script>
+</body>
+</html>
