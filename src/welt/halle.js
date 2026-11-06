@@ -2,6 +2,7 @@
 
 import { dialog, frage, textZeigen } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
+import { questStarten } from "./quest.js";
 import { belohnung } from "../ui/belohnung.js";
 import { kampf } from "../ui/kampf.js";
 import { bild } from "../ui/bilder.js";
@@ -57,8 +58,14 @@ function torAktion(torId) {
       await dialog(tor.name, "Das Tor ist verschlossen. Sprich zuerst mit Meisterin Lyra am Eingang.");
       return;
     }
-    await dialog(tor.name, `In das Tor sind leuchtende Buchstaben geschnitzt:\n„${tor.inschrift}“`);
-    await aufgabenFolge({ titel: tor.name, untertitel: "Die Schriftrolle des Beobachters", aufgaben: tor.aufgaben });
+    const geschafft = await questStarten({
+      sprecher: tor.name,
+      frageText: `In das Tor sind leuchtende Buchstaben geschnitzt:\n„${tor.inschrift}“\n\nWillst du das Rätsel des Tores jetzt lösen?`,
+      ja: "Ja, das Rätsel lösen",
+      spaeter: "Die Buchstaben leuchten weiter. Das Tor wartet auf dich.",
+      folge: { titel: tor.name, untertitel: "Die Schriftrolle des Beobachters", aufgaben: tor.aufgaben },
+    });
+    if (!geschafft) return;
     erledigen(`lythara_${torId}`);
     welt.aktualisieren();
     welt.erschuettern();
@@ -73,8 +80,14 @@ async function pult() {
     await aufgabenFolge({ titel: "Pult des Beobachters", untertitel: "Deine Einleitung überarbeiten", aufgaben: [EINLEITUNG] });
     return;
   }
-  await dialog("Pult des Beobachters", "Auf dem Pult liegt ein leeres Pergament und eine Feder. Hier schreibst du deine eigene Einleitung.");
-  await aufgabenFolge({ titel: "Pult des Beobachters", untertitel: "Schreibe deine Einleitung", aufgaben: [EINLEITUNG] });
+  const geschafft = await questStarten({
+    sprecher: "Pult des Beobachters",
+    frageText: "Auf dem Pult liegt ein leeres Pergament und eine Feder. Hier schreibst du deine eigene Einleitung. Möchtest du jetzt schreiben?",
+    ja: "Ja, jetzt schreiben",
+    spaeter: "Das Pergament bleibt hier liegen. Du kannst später schreiben.",
+    folge: { titel: "Pult des Beobachters", untertitel: "Schreibe deine Einleitung", aufgaben: [EINLEITUNG] },
+  });
+  if (!geschafft) return;
   erledigen("lythara_einleitung");
   await belohnung({ xp: 25, grund: "Bonusaufgabe: Deine eigene Einleitung" });
 }

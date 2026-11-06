@@ -13,7 +13,7 @@ const FELDER = [
   ["beruf", "Traumberuf", "z. B. Mechatronikerin"],
 ];
 
-/** Formular zum Ausfüllen des Heldenpasses. Liefert das Held-Objekt. */
+/** Formular zum Ausfüllen des Heldenpasses. Liefert das Held-Objekt oder null („Später“). */
 export function heldenpassFormular() {
   return new Promise((fertig) => {
     let klasse = "barde";
@@ -56,7 +56,7 @@ export function heldenpassFormular() {
       el("h3", {}, "Wähle deine Heldenklasse"),
       el("div", { class: "klassen" }, klassenKnoepfe),
       meldung,
-      el("div", { class: "knopfleiste" }, ok),
+      el("div", { class: "knopfleiste" }, knopf("Später", () => fertig(null), "knopf zweitrangig"), ok),
     );
     fokus(eingaben.name);
   });

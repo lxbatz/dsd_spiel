@@ -91,6 +91,9 @@ button { font: inherit; cursor: pointer; }
 .knopf:hover, .knopf:focus-visible { background: #e8b858; outline: 2px solid var(--tinte); outline-offset: 1px; }
 .knopf.zweitrangig { background: transparent; border-color: var(--tinte-2); color: var(--tinte-2); }
 .knopf:disabled { opacity: .5; cursor: not-allowed; }
+.knopfzeile { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.knopfzeile .knopfleiste { margin-top: 0; margin-left: auto; }
+.knopf.abbrechen { font-weight: normal; font-size: 14px; padding: 6px 12px; }
 
 /* Dialog */
 .dialog { display: flex; gap: 16px; align-items: flex-start; }

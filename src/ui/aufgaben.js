@@ -375,11 +375,15 @@ export function aufgabeAufloesen(aufgabe) {
 
 // ---------- Ablauf ----------
 
+const ABBRUCH = Symbol("abbruch");
+
 /**
  * Zeigt eine Folge von Aufgaben im Übungsmodus:
  * Bei Fehlern darf man es noch einmal versuchen, nach zwei Fehlversuchen
  * kann man sich die Lösung zeigen lassen.
- * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst).
+ * Mit „Quest abbrechen“ kann man jederzeit aufhören; dann wird nichts gespeichert.
+ * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst)
+ * oder { abgebrochen: true }.
  */
 export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext }) {
   const aufgaben = roh.map(aufgabeAufloesen);
@@ -388,6 +392,7 @@ export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext
     const a = aufgaben[i];
     const ok = await new Promise((fertig) => {
       const r = aufgabeErstellen(a);
+      const abbruch = knopf("Quest abbrechen", () => fertig(ABBRUCH), "knopf zweitrangig abbrechen");
       const feedback = el("div", { class: "feedback", hidden: true });
       const leiste = el("div", { class: "knopfleiste" });
       let versuche = 0;
@@ -433,10 +438,11 @@ export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext
         el("div", { class: "frage" }, a.frage),
         r.element,
         feedback,
-        leiste,
+        el("div", { class: "knopfzeile" }, abbruch, leiste),
       );
       fokus(r.erstesFeld);
     });
+    if (ok === ABBRUCH) return { abgebrochen: true };
     if (ok) ersterVersuch++;
   }
   return { gesamt: aufgaben.length, ersterVersuch };

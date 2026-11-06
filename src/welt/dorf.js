@@ -1,7 +1,7 @@
 // Das Dorf der Ankömmlinge (Level 1)
 
 import { dialog, frage } from "../ui/fenster.js";
-import { aufgabenFolge } from "../ui/aufgaben.js";
+import { questStarten } from "./quest.js";
 import { belohnung } from "../ui/belohnung.js";
 import { heldenpassFormular } from "../ui/heldenpass.js";
 import { bild } from "../ui/bilder.js";
@@ -25,18 +25,32 @@ async function aldric(welt) {
   const B = bild("npc_aldric");
 
   if (!istErledigt("dorf_heldenpass")) {
-    await dialog(S, [
-      "Willkommen im Dorf der Ankömmlinge!\nIch bin Aldric, der Älteste im Rat der Weisen.",
-      "Eldoria ist in großer Gefahr. Der dunkle Zauberer Morgrath hat das Sprachsiegel zerbrochen. Seitdem verstehen sich die Völker nicht mehr.",
-      "Eine alte Prophezeiung sagt: Nur wer die vier Sprachkräfte meistert – Hören, Lesen, Schreiben und Sprechen – kann das Siegel erneuern.",
-      "Vielleicht bist du eine Heldin oder ein Held aus der Prophezeiung? Zuerst brauchst du einen Heldenpass. Bitte füll ihn aus.",
-    ], B);
-    const held = await heldenpassFormular();
-    heldSetzen(held);
-    geben("heldenpass");
-    welt.aktualisieren();
-    await dialog(S, `${held.name} – ein schöner Name! Jetzt stell dich dem Rat richtig vor. Zeig uns, was du schon kannst.`, B);
-    await aufgabenFolge({ titel: "Quest: Stell dich vor", untertitel: "Dorf der Ankömmlinge", aufgaben: VORSTELLEN });
+    const spaeter = "Kein Problem. Sieh dich ruhig im Dorf um. Komm zu mir, wenn du bereit bist.";
+    if (!zustand.held) {
+      await dialog(S, [
+        "Willkommen im Dorf der Ankömmlinge!\nIch bin Aldric, der Älteste im Rat der Weisen.",
+        "Eldoria ist in großer Gefahr. Der dunkle Zauberer Morgrath hat das Sprachsiegel zerbrochen. Seitdem verstehen sich die Völker nicht mehr.",
+        "Eine alte Prophezeiung sagt: Nur wer die vier Sprachkräfte meistert – Hören, Lesen, Schreiben und Sprechen – kann das Siegel erneuern.",
+        "Vielleicht bist du eine Heldin oder ein Held aus der Prophezeiung? Zuerst brauchst du einen Heldenpass. Bitte füll ihn aus.",
+      ], B);
+      const neuerHeld = await heldenpassFormular();
+      if (!neuerHeld) {
+        await dialog(S, spaeter, B);
+        return;
+      }
+      heldSetzen(neuerHeld);
+      geben("heldenpass");
+      welt.aktualisieren();
+    }
+    const held = zustand.held;
+    const geschafft = await questStarten({
+      sprecher: S, bild: B,
+      frageText: `${held.name} – ein schöner Name! Jetzt stell dich dem Rat richtig vor. Zeig uns, was du schon kannst. Bist du bereit?`,
+      ja: "Ja, ich stelle mich vor!",
+      spaeter,
+      folge: { titel: "Quest: Stell dich vor", untertitel: "Dorf der Ankömmlinge", aufgaben: VORSTELLEN },
+    });
+    if (!geschafft) return;
     erledigen("dorf_heldenpass");
     await belohnung({ xp: 50, grund: "Quest abgeschlossen: Stell dich vor", fanfare: true });
     await dialog(S, [
@@ -80,11 +94,15 @@ async function wilma() {
     await dialog(S, "Frisches Brot, rote Äpfel! Und denk daran: Ein gutes Gespräch beginnt mit einer guten Frage.", B);
     return;
   }
-  await dialog(S, [
-    "Hallo! Ich bin Wilma. Ich verkaufe hier Brot, Obst und Gemüse.",
-    "Seit Morgraths Fluch verstehe ich meine Kunden nicht mehr. Alle meine Fragen sind durcheinander! Hilfst du mir?",
-  ], B);
-  await aufgabenFolge({ titel: "Quest: Wilmas Fragen", untertitel: "Fragen stellen", aufgaben: FRAGEN_STELLEN });
+  await dialog(S, "Hallo! Ich bin Wilma. Ich verkaufe hier Brot, Obst und Gemüse.", B);
+  const geschafft = await questStarten({
+    sprecher: S, bild: B,
+    frageText: "Seit Morgraths Fluch verstehe ich meine Kunden nicht mehr. Alle meine Fragen sind durcheinander! Hilfst du mir?",
+    ja: "Ja, ich helfe dir!",
+    spaeter: "Schade! Komm einfach wieder, wenn du Zeit hast. Ich bin immer hier am Markt.",
+    folge: { titel: "Quest: Wilmas Fragen", untertitel: "Fragen stellen", aufgaben: FRAGEN_STELLEN },
+  });
+  if (!geschafft) return;
   erledigen("dorf_wilma");
   await dialog(S, "Wunderbar! Jetzt kann ich wieder mit allen sprechen. Hier, nimm das. Meine Großmutter hat es gefunden – es ist ein altes Artefakt!", B);
   await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wilmas Fragen", gegenstaende: ["amulett_wortschaetze"], fanfare: true });
@@ -98,11 +116,15 @@ async function borin() {
     await dialog(S, "Finn ist wieder da! Er war bei der Katze von Wilma. Danke noch einmal!", B);
     return;
   }
-  await dialog(S, [
-    "Hallo! Ich bin Borin, der Schmied. Ich habe ein großes Problem: Mein Lehrling Finn ist verschwunden!",
-    "Ich habe einen Steckbrief geschrieben. Lies ihn bitte genau. Dann kannst du mir helfen, Finn zu finden.",
-  ], B);
-  await aufgabenFolge({ titel: "Quest: Wo ist Finn?", untertitel: "Personen beschreiben", aufgaben: PERSONEN_BESCHREIBEN });
+  await dialog(S, "Hallo! Ich bin Borin, der Schmied. Ich habe ein großes Problem: Mein Lehrling Finn ist verschwunden!", B);
+  const geschafft = await questStarten({
+    sprecher: S, bild: B,
+    frageText: "Ich habe einen Steckbrief geschrieben. Liest du ihn und hilfst mir, Finn zu finden?",
+    ja: "Ja, ich helfe dir!",
+    spaeter: "Na gut. Aber bitte komm bald wieder – ich mache mir Sorgen um Finn!",
+    folge: { titel: "Quest: Wo ist Finn?", untertitel: "Personen beschreiben", aufgaben: PERSONEN_BESCHREIBEN },
+  });
+  if (!geschafft) return;
   erledigen("dorf_borin");
   await dialog(S, "Rote Haare, braune Jacke, eine Katze … Das war Finn! Danke! Jetzt weiß ich, wo ich ihn suchen muss.", B);
   await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?", fanfare: true });
@@ -117,8 +139,14 @@ async function brett() {
     await dialog("Schwarzes Brett", "Der Aushang zum Erntefest hängt noch hier. Du hast ihn schon gelesen.");
     return;
   }
-  await dialog("Schwarzes Brett", "Am Brett hängt ein neuer Aushang des Rates. Lies ihn genau und beantworte die Fragen.");
-  await aufgabenFolge({ titel: "Quest: Der Aushang", untertitel: "Einfache Texte verstehen", aufgaben: AUSHANG });
+  const geschafft = await questStarten({
+    sprecher: "Schwarzes Brett",
+    frageText: "Am Brett hängt ein neuer Aushang des Rates. Möchtest du ihn jetzt lesen und die Fragen beantworten?",
+    ja: "Ja, jetzt lesen",
+    spaeter: "Der Aushang hängt hier noch. Du kannst ihn später lesen.",
+    folge: { titel: "Quest: Der Aushang", untertitel: "Einfache Texte verstehen", aufgaben: AUSHANG },
+  });
+  if (!geschafft) return;
   erledigen("dorf_brett");
   await belohnung({ xp: 50, grund: "Quest abgeschlossen: Der Aushang", fanfare: true });
 }
