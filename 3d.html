@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eldoria 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/thema3d.css">
+</head>
+<body>
+  <header id="hud" hidden>
+    <div class="hud-held">
+      <img id="hud-bild" alt="">
+      <div>
+        <div id="hud-name">–</div>
+        <div id="hud-stufe">Stufe 1</div>
+      </div>
+    </div>
+    <div class="hud-xp" title="Erfahrungspunkte">
+      <div class="xp-balken"><div id="hud-xp-fuellung"></div></div>
+      <div id="hud-xp-text">0 XP</div>
+    </div>
+    <nav class="hud-knoepfe">
+      <button data-aktion="ziele" title="Aufgaben (Q)">📋 Aufgaben</button>
+      <button data-aktion="inventar" title="Inventar (I)">🎒 Inventar</button>
+      <button data-aktion="heldenpass" title="Heldenpass (P)">🪪 Heldenpass</button>
+      <button data-aktion="code" title="Lehrercode einlösen">🔑 Code</button>
+      <button data-aktion="ton" id="ton-knopf" title="Musik an/aus (M)">🔊</button>
+      <button data-aktion="menue" title="Menü (Esc)">☰</button>
+    </nav>
+  </header>
+
+  <main id="buehne">
+    <div id="spiel"></div>
+    <div id="hinweis" hidden></div>
+  </main>
+
+  <div id="overlay" hidden>
+    <div id="fenster" role="dialog" aria-modal="true"></div>
+  </div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="src/main3d.js"></script>
+</body>
+</html>

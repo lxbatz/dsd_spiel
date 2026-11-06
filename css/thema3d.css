@@ -1,0 +1,62 @@
+/* 3D-Thema: ruhige Fantasy-Fenster, leicht durchscheinend, goldener Rand.
+   Lese- und Antwortbereiche bleiben hell, damit Texte gut lesbar sind. */
+
+:root {
+  --glas: rgba(22, 20, 34, 0.88);
+  --glas-2: rgba(34, 30, 52, 0.92);
+  --goldrand: #c9a24e;
+  --hell: #f5efe2;
+  --hell-2: #c8bfae;
+  --gold-text: #f2cf74;
+  --titelschrift: "Cinzel", Georgia, "Times New Roman", serif;
+}
+
+body { background: #10121a; }
+#spiel canvas { image-rendering: auto; }
+
+#hud { background: linear-gradient(rgba(20, 18, 30, .92), rgba(20, 18, 30, .78)); border-bottom: 1px solid var(--goldrand); }
+#hud-name { font-family: var(--titelschrift); color: var(--gold-text); }
+#hud-bild { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--goldrand); image-rendering: auto; }
+.hud-knoepfe button { background: rgba(255, 255, 255, .06); border: 1px solid rgba(201, 162, 78, .6); border-radius: 999px; padding: 5px 12px; }
+.hud-knoepfe button:hover { background: rgba(255, 255, 255, .14); }
+#hud-xp-fuellung { background: linear-gradient(90deg, #b8862a, #f2cf74); }
+#hinweis { background: var(--glas); border: 1px solid var(--goldrand); border-radius: 999px; padding: 7px 16px; backdrop-filter: blur(4px); }
+
+#overlay { background: rgba(8, 8, 14, .35); }
+#fenster {
+  background: linear-gradient(var(--glas-2), var(--glas));
+  color: var(--hell);
+  border: 1px solid var(--goldrand);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .08), 0 20px 50px rgba(0, 0, 0, .6);
+  backdrop-filter: blur(6px);
+}
+#fenster h2, #fenster h3, .titelbild h1 { font-family: var(--titelschrift); color: var(--gold-text); letter-spacing: .5px; }
+.sprecher { font-family: var(--titelschrift); color: var(--gold-text); font-size: 19px; }
+.rede { font-size: 18px; }
+.untertitel, .fortschritt, .wortzahl, .spott, .titelbild p, .titel-steuerung, .pass-ansicht dt { color: var(--hell-2); }
+.titel-version { color: #9fd8ff; font-family: var(--titelschrift); }
+.ziel-liste li { border-color: rgba(201, 162, 78, .25); }
+.ziel-liste li.erledigt { color: #8a8478; }
+
+.portrait {
+  width: 128px; height: 128px; image-rendering: auto;
+  border: 2px solid var(--goldrand); border-radius: 50%; background: #000;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
+}
+.kampf-kopf .portrait { width: 128px; height: 128px; }
+.dialog { align-items: center; }
+
+.lesetext, .stichpunkte, .gegenstand, .feedback { color: #2b2116; }
+.lesetext { background: #f6f0dc; }
+.gegenstand { background: #f6f0dc; }
+.knopf { border-radius: 999px; }
+.knopf.zweitrangig { color: var(--hell-2); border-color: rgba(201, 162, 78, .7); }
+.knopf.zweitrangig:hover { color: #fff; }
+.rf-zeile, .zuordnen-tabelle td { border-color: rgba(201, 162, 78, .25); }
+.analyse li.ok { color: #8af09a; }
+.analyse li.fehlt { color: #ff9a9a; }
+.lp-balken { border-color: var(--goldrand); }
+.klasse { background: #f6f0dc; }
+.klasse img { width: 72px; height: 72px; border-radius: 50%; image-rendering: auto; }
+.titelbild img { border-radius: 50%; border: 2px solid var(--goldrand); }
