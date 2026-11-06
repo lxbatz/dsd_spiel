@@ -10,3 +10,17 @@ Geplant sind zum Beispiel:
 Empfohlenes Format: **MP3** (läuft in allen Browsern). Dateinamen bitte ohne Leerzeichen und Umlaute, z. B. `aurelia_markt_dialog1.mp3`.
 
 Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber, Lizenz).
+
+## Dateien und Lizenzen
+
+| Datei | Verwendung im Spiel | Herkunft |
+|---|---|---|
+| `opening_03` | Intro-Text (Prolog) | MIDI von einer Website für RPG-Maker-Spiele, frei verwendbar (Platzhalter) |
+| `town_03` | Dorf der Ankömmlinge | wie oben (Platzhalter) |
+| `fanfare_01` | Quest abgeschlossen | wie oben (Platzhalter) |
+| `fanfare_02`, `fanfare_03` | noch nicht verwendet | wie oben (Platzhalter) |
+| `evil_03` | noch nicht verwendet (Idee: Bosskampf) | wie oben (Platzhalter) |
+
+Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit FluidSynth und dem Klangsatz „FluidR3 GM“ (MIT-Lizenz, Frank Wen) erzeugt; die Stille am Ende wurde abgeschnitten, damit die Musik ohne Lücke in Schleife läuft.
+
+Welche Datei wo läuft, steht in `src/musik.js`.

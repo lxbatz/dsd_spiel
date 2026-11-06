@@ -7,6 +7,7 @@ import { KLASSEN } from "../inhalte/klassen.js";
 import { zustand, ortSetzen } from "../zustand.js";
 import { istOffen, schliessen, hinweis, toast, beimSchliessen } from "../ui/fenster.js";
 import { hudSperreSetzen } from "../ui/hud.js";
+import { musik } from "../musik.js";
 
 const TEMPO = 72;
 const REICHWEITE = 14; // Pixel Abstand für Interaktionen
@@ -28,6 +29,7 @@ export class KartenSzene extends Phaser.Scene {
     const def = KARTEN[this.kartenId] ?? KARTEN.dorf;
     this.def = def;
     ortSetzen(def.id, this.spawnId);
+    musik(def.musik ?? null);
 
     // Kacheln
     const daten = def.raster.map((zeile) => [...zeile].map((z) => KACHELN[z] ?? 0));

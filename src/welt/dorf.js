@@ -38,7 +38,7 @@ async function aldric(welt) {
     await dialog(S, `${held.name} – ein schöner Name! Jetzt stell dich dem Rat richtig vor. Zeig uns, was du schon kannst.`, B);
     await aufgabenFolge({ titel: "Quest: Stell dich vor", untertitel: "Dorf der Ankömmlinge", aufgaben: VORSTELLEN });
     erledigen("dorf_heldenpass");
-    await belohnung({ xp: 50, grund: "Quest abgeschlossen: Stell dich vor" });
+    await belohnung({ xp: 50, grund: "Quest abgeschlossen: Stell dich vor", fanfare: true });
     await dialog(S, [
       `Sehr gut, ${held.name}! Der Rat freut sich, dich kennenzulernen.`,
       "Bevor du auf die große Reise gehst, brauchen drei Menschen im Dorf deine Hilfe:\n• Händlerin Wilma am Markt\n• Schmied Borin an der Schmiede\n• und am Brunnen hängt ein Aushang am Schwarzen Brett.",
@@ -59,7 +59,7 @@ async function aldric(welt) {
       "Dafür bekommst du das Bronze-Abzeichen der Ankömmlinge. Es schützt dich in schweren Kämpfen.",
     ], B);
     erledigen("dorf_abschluss");
-    await belohnung({ xp: 0, grund: "Das Dorf der Ankömmlinge ist gemeistert!", gegenstaende: ["bronze_abzeichen"] });
+    await belohnung({ xp: 0, grund: "Das Dorf der Ankömmlinge ist gemeistert!", gegenstaende: ["bronze_abzeichen"], fanfare: true });
     welt.aktualisieren();
     await dialog(S, [
       "Jetzt bist du bereit. Das Portal im Süden des Dorfes ist offen.",
@@ -87,7 +87,7 @@ async function wilma() {
   await aufgabenFolge({ titel: "Quest: Wilmas Fragen", untertitel: "Fragen stellen", aufgaben: FRAGEN_STELLEN });
   erledigen("dorf_wilma");
   await dialog(S, "Wunderbar! Jetzt kann ich wieder mit allen sprechen. Hier, nimm das. Meine Großmutter hat es gefunden – es ist ein altes Artefakt!", B);
-  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wilmas Fragen", gegenstaende: ["amulett_wortschaetze"] });
+  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wilmas Fragen", gegenstaende: ["amulett_wortschaetze"], fanfare: true });
 }
 
 async function borin() {
@@ -105,7 +105,7 @@ async function borin() {
   await aufgabenFolge({ titel: "Quest: Wo ist Finn?", untertitel: "Personen beschreiben", aufgaben: PERSONEN_BESCHREIBEN });
   erledigen("dorf_borin");
   await dialog(S, "Rote Haare, braune Jacke, eine Katze … Das war Finn! Danke! Jetzt weiß ich, wo ich ihn suchen muss.", B);
-  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?" });
+  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?", fanfare: true });
 }
 
 async function brett() {
@@ -120,7 +120,7 @@ async function brett() {
   await dialog("Schwarzes Brett", "Am Brett hängt ein neuer Aushang des Rates. Lies ihn genau und beantworte die Fragen.");
   await aufgabenFolge({ titel: "Quest: Der Aushang", untertitel: "Einfache Texte verstehen", aufgaben: AUSHANG });
   erledigen("dorf_brett");
-  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Der Aushang" });
+  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Der Aushang", fanfare: true });
 }
 
 async function brunnen() {
@@ -139,6 +139,7 @@ async function portal(welt) {
 export default {
   id: "dorf",
   name: "Das Dorf der Ankömmlinge",
+  musik: "dorf",
   raster: [
     "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
     "TTT........................TTT",

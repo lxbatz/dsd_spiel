@@ -91,7 +91,7 @@ async function torwaechter(welt) {
   if (!sieg) return;
   erledigen("lythara_q1_boss");
   welt.aktualisieren();
-  await belohnung({ xp: 150, grund: "Bosskampf gewonnen und Quest abgeschlossen: Die Schriftrolle des Beobachters", gegenstaende: ["rolle_beobachter"] });
+  await belohnung({ xp: 150, grund: "Bosskampf gewonnen und Quest abgeschlossen: Die Schriftrolle des Beobachters", gegenstaende: ["rolle_beobachter"], fanfare: true });
   await dialog(LYRA, "Lyras Stimme hallt durch die Halle: „Du hast es geschafft! Komm zu mir zum Eingang.“", bild("npc_lyra"));
 }
 

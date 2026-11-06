@@ -3,6 +3,7 @@ import { KartenSzene } from "./szenen/karte.js";
 import { zustand, zuruecksetzen } from "./zustand.js";
 import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
 import { hudZeigen } from "./ui/hud.js";
+import { musik } from "./musik.js";
 
 const spiel = new Phaser.Game({
   type: Phaser.AUTO,
@@ -34,6 +35,7 @@ function starten() {
 
 async function neuesSpiel() {
   zuruecksetzen();
+  musik("intro");
   await dialog("Die Chroniken von Eldoria", PROLOG);
   starten();
 }

@@ -1,9 +1,11 @@
 import { el, zeigen, knopf, fokus, toast } from "./fenster.js";
 import { xpGeben, geben } from "../zustand.js";
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
+import { spieleJingle } from "../musik.js";
 
-/** Vergibt XP und Gegenstände und zeigt einen Belohnungsbildschirm. */
-export function belohnung({ xp = 0, grund = "", gegenstaende = [] }) {
+/** Vergibt XP und Gegenstände und zeigt einen Belohnungsbildschirm. fanfare: true bei abgeschlossenen Quests. */
+export function belohnung({ xp = 0, grund = "", gegenstaende = [], fanfare = false }) {
+  if (fanfare) spieleJingle("fanfare");
   const neu = gegenstaende.filter((id) => geben(id));
   const ergebnis = xp ? xpGeben(xp, grund) : null;
 

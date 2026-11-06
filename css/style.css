@@ -234,3 +234,6 @@ input.code-eingabe { font: inherit; font-size: 20px; letter-spacing: 2px; text-t
   #fenster { padding: 14px; }
   .hud-knoepfe button { padding: 4px 7px; font-size: 12px; }
 }
+
+/* Der Tonknopf bleibt auch bei offenem Fenster bedienbar */
+#ton-knopf { position: relative; z-index: 11; }

@@ -13,6 +13,7 @@ import { CODES } from "../inhalte/codes.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
+import { istStumm, stummSchalten, beimStummschalten } from "../musik.js";
 
 const hud = document.getElementById("hud");
 
@@ -119,7 +120,7 @@ function menueAnzeigen() {
     el("h2", {}, "☰ Menü"),
     el("h3", {}, "Steuerung"),
     el("p", {}, "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · ",
-      "Aufgaben: Q · Inventar: I · Heldenpass: P · Menü: Esc"),
+      "Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc"),
     el("h3", {}, "Spielstand sichern"),
     el("p", {}, "Dein Spiel wird automatisch in diesem Browser gespeichert. Willst du auf einem anderen Gerät weiterspielen? Dann kopiere diesen Code und füge ihn dort ein."),
     knopf("Code erzeugen", async () => {
@@ -152,6 +153,14 @@ function menueAnzeigen() {
   );
 }
 
+function tonKnopfAktualisieren() {
+  const k = document.getElementById("ton-knopf");
+  k.textContent = istStumm() ? "🔇" : "🔊";
+  k.title = istStumm() ? "Musik einschalten (M)" : "Musik ausschalten (M)";
+}
+beimStummschalten(tonKnopfAktualisieren);
+tonKnopfAktualisieren();
+
 const AKTIONEN = {
   ziele: aufgabenAnzeigen,
   inventar: inventarAnzeigen,
@@ -159,6 +168,7 @@ const AKTIONEN = {
   code: codeAnzeigen,
   menue: menueAnzeigen,
 };
+const OHNE_FENSTER = { ton: () => stummSchalten() };
 
 let hudGesperrt = () => false;
 /** Die Spielszene meldet hier, wann gerade eine Interaktion läuft. */
@@ -168,6 +178,7 @@ hud.addEventListener("click", (ev) => {
   const b = ev.target.closest("button[data-aktion]");
   if (!b) return;
   b.blur();
+  if (OHNE_FENSTER[b.dataset.aktion]) return OHNE_FENSTER[b.dataset.aktion]();
   if (istOffen() || hudGesperrt()) return;
   AKTIONEN[b.dataset.aktion]?.();
 });
@@ -176,6 +187,7 @@ document.addEventListener("keydown", (ev) => {
   if (hud.hidden) return;
   const tag = ev.target?.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  if (ev.key.toLowerCase() === "m") return stummSchalten();
   if (ev.key === "Escape") {
     if (istOffen() && !hudGesperrt()) schliessen();
     else if (!istOffen()) menueAnzeigen();
