@@ -1,0 +1,15 @@
+# Grafik
+
+Hier liegen alle Bilddateien des Spiels.
+
+Geplant sind zum Beispiel:
+- **Figuren** (Heldenklassen, Aldric, Wilma, Borin, Lyra, Gegner …)
+- **Kacheln** für die Karten (Gras, Wege, Wände, Wasser …)
+- **Objekte** (Tore, Portale, Brunnen, Schwarzes Brett …)
+- **Bilder für Aufgaben** (z. B. Bildbeschreibung im Reich Vocantia)
+
+Empfohlenes Format: **PNG**. Dateinamen bitte ohne Leerzeichen und Umlaute, z. B. `npc_aldric.png`.
+
+Zurzeit zeichnet das Spiel alle Grafiken als Platzhalter per Code (`src/grafik.js`). Sobald hier echte Grafiken liegen, kann das Spiel sie stattdessen laden.
+
+Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber, Lizenz).
