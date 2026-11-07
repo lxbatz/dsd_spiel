@@ -48,7 +48,7 @@ async function aldric(welt) {
       frageText: `${held.name} – ein schöner Name! Jetzt stell dich dem Rat richtig vor. Zeig uns, was du schon kannst. Bist du bereit?`,
       ja: "Ja, ich stelle mich vor!",
       spaeter,
-      folge: { titel: "Quest: Stell dich vor", untertitel: "Dorf der Ankömmlinge", aufgaben: VORSTELLEN },
+      folge: { id: "dorf_heldenpass", titel: "Quest: Stell dich vor", untertitel: "Dorf der Ankömmlinge", aufgaben: VORSTELLEN },
     });
     if (!geschafft) return;
     erledigen("dorf_heldenpass");
@@ -100,7 +100,7 @@ async function wilma() {
     frageText: "Seit Morgraths Fluch verstehe ich meine Kunden nicht mehr. Alle meine Fragen sind durcheinander! Hilfst du mir?",
     ja: "Ja, ich helfe dir!",
     spaeter: "Schade! Komm einfach wieder, wenn du Zeit hast. Ich bin immer hier am Markt.",
-    folge: { titel: "Quest: Wilmas Fragen", untertitel: "Fragen stellen", aufgaben: FRAGEN_STELLEN },
+    folge: { id: "dorf_wilma", titel: "Quest: Wilmas Fragen", untertitel: "Fragen stellen", aufgaben: FRAGEN_STELLEN },
   });
   if (!geschafft) return;
   erledigen("dorf_wilma");
@@ -122,7 +122,7 @@ async function borin() {
     frageText: "Ich habe einen Steckbrief geschrieben. Liest du ihn und hilfst mir, Finn zu finden?",
     ja: "Ja, ich helfe dir!",
     spaeter: "Na gut. Aber bitte komm bald wieder – ich mache mir Sorgen um Finn!",
-    folge: { titel: "Quest: Wo ist Finn?", untertitel: "Personen beschreiben", aufgaben: PERSONEN_BESCHREIBEN },
+    folge: { id: "dorf_borin", titel: "Quest: Wo ist Finn?", untertitel: "Personen beschreiben", aufgaben: PERSONEN_BESCHREIBEN },
   });
   if (!geschafft) return;
   erledigen("dorf_borin");
@@ -144,7 +144,7 @@ async function brett() {
     frageText: "Am Brett hängt ein neuer Aushang des Rates. Möchtest du ihn jetzt lesen und die Fragen beantworten?",
     ja: "Ja, jetzt lesen",
     spaeter: "Der Aushang hängt hier noch. Du kannst ihn später lesen.",
-    folge: { titel: "Quest: Der Aushang", untertitel: "Einfache Texte verstehen", aufgaben: AUSHANG },
+    folge: { id: "dorf_brett", titel: "Quest: Der Aushang", untertitel: "Einfache Texte verstehen", aufgaben: AUSHANG },
   });
   if (!geschafft) return;
   erledigen("dorf_brett");

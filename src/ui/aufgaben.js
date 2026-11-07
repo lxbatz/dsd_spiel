@@ -19,7 +19,7 @@
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { mischen, woerterZaehlen } from "../hilfen.js";
-import { hatEffekt, textSpeichern, zustand } from "../zustand.js";
+import { hatEffekt, textSpeichern, zustand, questErgebnis } from "../zustand.js";
 import { TEXTE } from "../inhalte/texte.js";
 
 // ---------- Hilfen ----------
@@ -385,11 +385,14 @@ const ABBRUCH = Symbol("abbruch");
  * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst)
  * oder { abgebrochen: true }.
  */
-export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext }) {
+export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lesetext }) {
   const aufgaben = roh.map(aufgabeAufloesen);
   let ersterVersuch = 0;
+  const protokoll = [];
   for (let i = 0; i < aufgaben.length; i++) {
     const a = aufgaben[i];
+    const start = performance.now();
+    let fehlerZahl = 0, loesungGezeigt = false;
     const ok = await new Promise((fertig) => {
       const r = aufgabeErstellen(a);
       const abbruch = knopf("Quest abbrechen", () => fertig(ABBRUCH), "knopf zweitrangig abbrechen");
@@ -412,6 +415,7 @@ export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext
       const loesungKnopf = knopf("Lösung zeigen", () => {
         r.loesungZeigen();
         r.sperren();
+        loesungGezeigt = true;
         melden("info", ["So ist es richtig.", a.erklaerung].filter(Boolean).join("\n"));
         weiterKnopf(false);
       }, "knopf zweitrangig");
@@ -426,6 +430,7 @@ export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext
           return;
         }
         versuche++;
+        fehlerZahl = versuche;
         melden("schlecht", [e.meldung, versuche >= 2 ? "Du kannst es noch einmal versuchen oder dir die Lösung zeigen lassen." : "Versuch es noch einmal!"].join("\n"));
         if (versuche >= 2 && !leiste.contains(loesungKnopf) && a.typ !== "freitext") leiste.prepend(loesungKnopf);
       });
@@ -442,8 +447,17 @@ export async function aufgabenFolge({ titel, untertitel, aufgaben: roh, lesetext
       );
       fokus(r.erstesFeld);
     });
-    if (ok === ABBRUCH) return { abgebrochen: true };
+    if (ok === ABBRUCH) {
+      questErgebnis(id, protokoll, { abgebrochen: true });
+      return { abgebrochen: true };
+    }
     if (ok) ersterVersuch++;
+    protokoll.push({
+      nr: i + 1, frage: a.frage, typ: a.typ, fehler: fehlerZahl, ersterVersuch: Boolean(ok), loesungGezeigt,
+      sekunden: Math.round((performance.now() - start) / 1000),
+      ...(a.typ === "freitext" ? { woerter: woerterZaehlen(zustand.texte[a.id]?.text ?? "") } : {}),
+    });
   }
+  questErgebnis(id, protokoll);
   return { gesamt: aufgaben.length, ersterVersuch };
 }

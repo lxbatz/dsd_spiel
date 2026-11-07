@@ -1,6 +1,6 @@
 // Startbildschirm und Prolog – gemeinsam für alle Grafikversionen.
 
-import { zustand, zuruecksetzen } from "./zustand.js";
+import { zustand, zuruecksetzen, spielzeitZaehlen, speichern } from "./zustand.js";
 import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
 import { hudZeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
@@ -14,6 +14,19 @@ export const PROLOG = [
   "Heute kommst du im Dorf der Ankömmlinge an. Vielleicht bist du die Heldin oder der Held aus der alten Prophezeiung …",
 ];
 
+// Spielzeit für die Statistik der Lehrkraft: alle 15 Sekunden, solange das Spiel sichtbar ist.
+let zeitmessung = null;
+function spielzeitMessen() {
+  if (zeitmessung) return;
+  let takte = 0;
+  zeitmessung = setInterval(() => {
+    if (document.hidden) return;
+    spielzeitZaehlen(15);
+    if (++takte % 4 === 0) speichern();
+  }, 15000);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) speichern(); });
+}
+
 /**
  * Zeigt den Titelbildschirm.
  * beimStart:   Funktion, die die Spielwelt startet
@@ -26,6 +39,7 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
     schliessen();
     hudZeigen();
     beimStart();
+    spielzeitMessen();
   };
 
   const neuesSpiel = async () => {

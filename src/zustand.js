@@ -2,22 +2,25 @@
 // Sichern und Laden als Datei (.sav), damit man das Gerät wechseln kann.
 
 import { GEGENSTAENDE } from "./inhalte/gegenstaende.js";
+import { STUFEN, stufeVon, spielstandLesen, dateiErzeugen } from "./spielstand.js";
+
+export { STUFEN, stufeVon, spielstandLesen };
 
 const SPEICHER_SCHLUESSEL = "eldoria-spielstand-v1";
 const VERSION = 1;
 
-// Stufen: benötigte Gesamt-XP und Titel.
-export const STUFEN = [
-  { xp: 0, titel: "Ankömmling" },
-  { xp: 100, titel: "Wanderer" },
-  { xp: 250, titel: "Lehrling der Worte" },
-  { xp: 450, titel: "Pfadfinder" },
-  { xp: 700, titel: "Sprachwächter" },
-  { xp: 1000, titel: "Hüter der Schrift" },
-  { xp: 1400, titel: "Veteran von Eldoria" },
-  { xp: 1900, titel: "Meister der Worte" },
-  { xp: 2500, titel: "Held von Eldoria" },
-];
+function neueId() {
+  try { return crypto.randomUUID(); } catch { return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`; }
+}
+
+function neueStatistik() {
+  return {
+    quests: {},     // Quest-ID -> { durchgaenge, abgebrochen, erster, letzter } (je mit Ergebnis pro Aufgabe)
+    kaempfe: [],    // { gegner, quest, datum, sieg, richtig, falsch, fragen: [{ frage, ok }] }
+    spielzeit: 0,   // Sekunden
+    tage: {},       // "2026-11-07" -> Sekunden
+  };
+}
 
 function neu() {
   return {
@@ -30,6 +33,8 @@ function neu() {
     codes: [],           // eingelöste Lehrercodes (Hash)
     ort: { karte: "dorf", spawn: "start" },
     protokoll: [],       // XP-Verlauf: { xp, grund, datum }
+    spielerId: neueId(), // zufällige Kennung, damit das Dashboard Dateien derselben Person erkennt
+    statistik: neueStatistik(),
   };
 }
 
@@ -37,10 +42,18 @@ function laden() {
   try {
     const roh = localStorage.getItem(SPEICHER_SCHLUESSEL);
     if (!roh) return neu();
-    return { ...neu(), ...JSON.parse(roh) };
+    return ergaenzen(JSON.parse(roh));
   } catch {
     return neu();
   }
+}
+
+/** Ältere Spielstände um neue Felder ergänzen. */
+function ergaenzen(daten) {
+  const z = { ...neu(), ...daten };
+  z.statistik = { ...neueStatistik(), ...(daten.statistik ?? {}) };
+  if (!daten.spielerId) z.spielerId = neueId();
+  return z;
 }
 
 export const zustand = laden();
@@ -60,13 +73,6 @@ export function speichern() {
   beobachter.forEach((fn) => fn(zustand));
 }
 
-export function stufeVon(xp) {
-  let index = 0;
-  STUFEN.forEach((s, i) => { if (xp >= s.xp) index = i; });
-  const aktuell = STUFEN[index];
-  const naechste = STUFEN[index + 1] ?? null;
-  return { stufe: index + 1, titel: aktuell.titel, ab: aktuell.xp, bis: naechste ? naechste.xp : null };
-}
 
 /** Gibt XP und meldet, ob eine neue Stufe erreicht wurde. */
 export function xpGeben(menge, grund) {
@@ -122,58 +128,15 @@ export function heldSetzen(held) {
 
 // ---------- Spielstand als Datei ----------
 
-function pruefsumme(text) {
-  // cyrb53 – kleine, schnelle Prüfsumme gegen versehentliche oder neugierige Änderungen
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < text.length; i++) {
-    const c = text.charCodeAt(i);
-    h1 = Math.imul(h1 ^ c, 2654435761);
-    h2 = Math.imul(h2 ^ c, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
-}
-
 /** Erzeugt den Inhalt einer Spielstand-Datei (JSON mit Prüfsumme) und einen Dateinamen. */
 export function spielstandDatei(endung = "sav") {
-  const daten = btoa(unescape(encodeURIComponent(JSON.stringify(zustand))));
-  const name = (zustand.held?.name ?? "Spielstand").replace(/[^\p{L}\p{N}_-]+/gu, "_").slice(0, 30) || "Spielstand";
-  const datum = new Date().toISOString().slice(0, 10);
-  const inhalt = JSON.stringify({
-    spiel: "Die Chroniken von Eldoria",
-    art: "Spielstand",
-    format: 2,
-    held: zustand.held?.name ?? null,
-    xp: zustand.xp,
-    gespeichert: new Date().toISOString(),
-    daten,
-    pruefsumme: pruefsumme("eldoria|" + daten),
-  }, null, 2);
-  return { name: `Eldoria_${name}_${datum}.${endung}`, inhalt };
-}
-
-/** Liest eine Spielstand-Datei (oder einen alten Spielstand-Code). Liefert die Daten, ohne sie zu übernehmen. */
-export function spielstandLesen(text) {
-  const roh = String(text ?? "").trim();
-  let daten;
-  if (roh.startsWith("ELDORIA1:")) {
-    daten = JSON.parse(decodeURIComponent(escape(atob(roh.slice(9)))));
-  } else {
-    let datei;
-    try { datei = JSON.parse(roh); } catch { throw new Error("Das ist keine Spielstand-Datei von Eldoria."); }
-    if (datei?.spiel !== "Die Chroniken von Eldoria" || typeof datei.daten !== "string") throw new Error("Das ist keine Spielstand-Datei von Eldoria.");
-    if (pruefsumme("eldoria|" + datei.daten) !== datei.pruefsumme) throw new Error("Die Datei ist beschädigt oder wurde verändert.");
-    daten = JSON.parse(decodeURIComponent(escape(atob(datei.daten))));
-  }
-  if (typeof daten !== "object" || daten === null || typeof daten.xp !== "number") throw new Error("Der Spielstand ist beschädigt.");
-  return daten;
+  return dateiErzeugen(zustand, endung);
 }
 
 /** Übernimmt gelesene Spielstand-Daten. */
 export function spielstandUebernehmen(daten) {
   Object.keys(zustand).forEach((k) => delete zustand[k]);
-  Object.assign(zustand, neu(), daten);
+  Object.assign(zustand, ergaenzen(daten));
   speichern();
 }
 
@@ -181,4 +144,39 @@ export function zuruecksetzen() {
   Object.keys(zustand).forEach((k) => delete zustand[k]);
   Object.assign(zustand, neu());
   speichern();
+}
+
+// ---------- Statistik für die Lehrkraft ----------
+
+const kurz = (t) => String(t ?? "").replace(/\s+/g, " ").trim().slice(0, 160);
+
+/**
+ * Speichert das Ergebnis eines Quest-Durchgangs.
+ * aufgaben: [{ frage, typ, fehler, ersterVersuch, loesungGezeigt, sekunden }]
+ */
+export function questErgebnis(questId, aufgaben, { abgebrochen = false } = {}) {
+  if (!questId) return;
+  const q = zustand.statistik.quests[questId] ??= { durchgaenge: 0, abgebrochen: 0, erster: null, letzter: null };
+  if (abgebrochen) { q.abgebrochen++; speichern(); return; }
+  const lauf = {
+    datum: new Date().toISOString(),
+    aufgaben: aufgaben.map((a) => ({ ...a, frage: kurz(a.frage) })),
+  };
+  q.durchgaenge++;
+  if (!q.erster) q.erster = lauf;
+  q.letzter = lauf;
+  speichern();
+}
+
+export function kampfErgebnis(eintrag) {
+  zustand.statistik.kaempfe.push({ ...eintrag, datum: new Date().toISOString(), fragen: eintrag.fragen.map((f) => ({ ...f, frage: kurz(f.frage) })) });
+  speichern();
+}
+
+/** Zählt die Spielzeit mit (wird regelmäßig aufgerufen, solange gespielt wird). */
+export function spielzeitZaehlen(sekunden) {
+  const st = zustand.statistik;
+  st.spielzeit += sekunden;
+  const tag = new Date().toLocaleDateString("sv-SE");
+  st.tage[tag] = (st.tage[tag] ?? 0) + sekunden;
 }

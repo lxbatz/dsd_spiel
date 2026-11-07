@@ -1,7 +1,8 @@
 import { el, zeigen, knopf, fokus, schliessen } from "./fenster.js";
 import { bild } from "./bilder.js";
 import { KLASSEN } from "../inhalte/klassen.js";
-import { zustand, stufeVon } from "../zustand.js";
+import { zustand, stufeVon, speichern } from "../zustand.js";
+import { TEXT_NAMEN } from "../inhalte/quests.js";
 
 const FELDER = [
   ["name", "Vorname (Heldenname)", "z. B. Mira", true],
@@ -11,7 +12,31 @@ const FELDER = [
   ["sprachen", "Sprachen", "z. B. Polnisch, Englisch, Deutsch"],
   ["hobbys", "Hobbys", "z. B. Fußball, Musik"],
   ["beruf", "Traumberuf", "z. B. Mechatronikerin"],
+  ["kennung", "Klasse und Nummer (für deine Lehrkraft)", "z. B. IFK11-07"],
 ];
+
+/** Fragt nach der Kennung für die Lehrkraft (Klasse und Nummer), falls sie fehlt. Liefert true, wenn vorhanden. */
+export function kennungErfragen() {
+  if (!zustand.held || zustand.held.kennung) return Promise.resolve(true);
+  return new Promise((fertig) => {
+    const eingabe = el("input", { type: "text", class: "code-eingabe", placeholder: "z. B. IFK11-07", maxlength: 30, autocomplete: "off" });
+    const ok = () => {
+      const wert = eingabe.value.trim();
+      if (!wert) { eingabe.focus(); return; }
+      zustand.held.kennung = wert;
+      speichern();
+      fertig(true);
+    };
+    eingabe.addEventListener("keydown", (ev) => { if (ev.key === "Enter") ok(); });
+    zeigen(
+      el("h2", {}, "🪪 Für deine Lehrkraft"),
+      el("p", {}, "Damit deine Lehrkraft deinen Spielstand zuordnen kann: Schreib deine Klasse und deine Nummer in der Klassenliste."),
+      eingabe,
+      el("div", { class: "knopfleiste" }, knopf("Ohne Angabe weiter", () => fertig(false), "knopf zweitrangig"), knopf("Speichern ✔", ok)),
+    );
+    fokus(eingabe);
+  });
+}
 
 /** Formular zum Ausfüllen des Heldenpasses. Liefert das Held-Objekt oder null („Später“). */
 export function heldenpassFormular() {
@@ -51,7 +76,7 @@ export function heldenpassFormular() {
 
     zeigen(
       el("h2", {}, "🪪 Heldenpass"),
-      el("div", { class: "untertitel" }, "Fülle deinen Heldenpass aus. Schreib auf Deutsch! Nur der Vorname ist Pflicht."),
+      el("div", { class: "untertitel" }, "Fülle deinen Heldenpass aus. Schreib auf Deutsch! Nur der Vorname ist Pflicht. Klasse und Nummer sieht nur deine Lehrkraft."),
       el("div", { class: "formular" }, felder),
       el("h3", {}, "Wähle deine Heldenklasse"),
       el("div", { class: "klassen" }, klassenKnoepfe),
@@ -92,7 +117,4 @@ export function heldenpassAnzeigen() {
   );
 }
 
-export const TEXT_NAMEN = {
-  dorf_vorstellung: "Meine Vorstellung",
-  lythara_einleitung: "Meine Einleitung (Schriftrolle des Beobachters)",
-};
+export { TEXT_NAMEN };

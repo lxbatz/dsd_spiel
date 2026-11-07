@@ -3,7 +3,7 @@
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
-import { hatEffekt } from "../zustand.js";
+import { hatEffekt, kampfErgebnis } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
 
@@ -20,6 +20,7 @@ export async function kampf(gegner, roheFragen) {
   const schaden = gegner.schaden ?? 20;
   let stapel = mischen(fragen);
   let runde = 0;
+  const verlauf = [];
   const musikVorher = aktuelleMusik();
   musik("kampf");
 
@@ -62,6 +63,7 @@ export async function kampf(gegner, roheFragen) {
           return;
         }
         r.sperren();
+        verlauf.push({ frage: a.frage, typ: a.typ, ok: Boolean(e.ok) });
         if (e.ok) {
           lp = Math.max(0, lp - schaden);
           balken.style.width = `${(lp / gegner.lp) * 100}%`;
@@ -106,6 +108,11 @@ export async function kampf(gegner, roheFragen) {
   }
 
   const sieg = lp <= 0;
+  kampfErgebnis({
+    gegner: gegner.name, quest: gegner.quest ?? null, sieg,
+    richtig: verlauf.filter((f) => f.ok).length, falsch: verlauf.filter((f) => !f.ok).length,
+    herzen, herzenMax, fragen: verlauf,
+  });
   // Nach dem Kampf wieder die Musik der Karte; bei einem Sieg vorher die Siegesfanfare.
   if (sieg) spieleJingle("sieg");
   musik(musikVorher, { sofort: sieg });

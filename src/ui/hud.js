@@ -2,7 +2,7 @@
 
 import { el, zeigen, knopf, fokus, schliessen, istOffen, toast, textZeigen, bestaetigen } from "./fenster.js";
 import { bild } from "./bilder.js";
-import { heldenpassAnzeigen } from "./heldenpass.js";
+import { heldenpassAnzeigen, kennungErfragen } from "./heldenpass.js";
 import {
   zustand, beobachten, stufeVon, xpGeben, geben, speichern,
   zuruecksetzen, spielstandDatei, spielstandLesen, spielstandUebernehmen,
@@ -116,6 +116,10 @@ let einstellungen = { steuerung: null, zusatz: null };
 export function hudEinstellungen(e) { einstellungen = { ...einstellungen, ...e }; }
 
 async function dateiSpeichern(meldung) {
+  if (zustand.held && !zustand.held.kennung) {
+    await kennungErfragen();
+    menueAnzeigen();
+  }
   // In einer Artefakt-Ansicht ist das Speichern nur über die Plattform erlaubt (dort als .json).
   const plattform = window.claude?.use ? await window.claude.use("downloads").catch(() => null) : null;
   const { name, inhalt } = spielstandDatei(plattform ? "json" : "sav");

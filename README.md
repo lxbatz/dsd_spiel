@@ -52,6 +52,14 @@ Dann im Browser `http://localhost:8000` öffnen.
 
 ## Für Lehrkräfte
 
+- **Lehrerzimmer (Dashboard):** `tools/dashboard.html` wertet die Spielstand-Dateien der Klasse aus. Die Schüler speichern im Spiel über *Menü → Als Datei speichern* und laden die Datei in einen Abgabeordner (z. B. OneDrive-Dateianforderung oder Ordner im Klassenteam). Im Dashboard die Dateien oder den synchronisierten Ordner auswählen. Man sieht:
+  - eine Klassenübersicht mit allen Quests (Anteil richtig beim ersten Versuch)
+  - die Stolpersteine der Klasse und die Fertigkeiten Hören, Lesen, Schreiben, Sprechen
+  - pro Person eine Akte mit XP-Verlauf, Spielzeit pro Tag, Fehlern und eigenen Texten
+  - einen Export als CSV oder Excel-Tabelle
+
+  Alles wird nur im Browser ausgewertet. Mit „Beispielklasse zeigen“ kann man es ohne echte Daten ausprobieren.
+
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).

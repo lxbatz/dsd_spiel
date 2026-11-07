@@ -63,7 +63,7 @@ function torAktion(torId) {
       frageText: `In das Tor sind leuchtende Buchstaben geschnitzt:\n„${tor.inschrift}“\n\nWillst du das Rätsel des Tores jetzt lösen?`,
       ja: "Ja, das Rätsel lösen",
       spaeter: "Die Buchstaben leuchten weiter. Das Tor wartet auf dich.",
-      folge: { titel: tor.name, untertitel: "Die Schriftrolle des Beobachters", aufgaben: tor.aufgaben },
+      folge: { id: `lythara_${torId}`, titel: tor.name, untertitel: "Die Schriftrolle des Beobachters", aufgaben: tor.aufgaben },
     });
     if (!geschafft) return;
     erledigen(`lythara_${torId}`);
@@ -85,7 +85,7 @@ async function pult() {
     frageText: "Auf dem Pult liegt ein leeres Pergament und eine Feder. Hier schreibst du deine eigene Einleitung. Möchtest du jetzt schreiben?",
     ja: "Ja, jetzt schreiben",
     spaeter: "Das Pergament bleibt hier liegen. Du kannst später schreiben.",
-    folge: { titel: "Pult des Beobachters", untertitel: "Schreibe deine Einleitung", aufgaben: [EINLEITUNG] },
+    folge: { id: "lythara_einleitung", titel: "Pult des Beobachters", untertitel: "Schreibe deine Einleitung", aufgaben: [EINLEITUNG] },
   });
   if (!geschafft) return;
   erledigen("lythara_einleitung");
@@ -100,7 +100,7 @@ async function torwaechter(welt) {
   }
   const bereit = await frage(TORWAECHTER.name, "Wer wagt es, vor mich zu treten? Bist du bereit für den Kampf?", ["Ja, ich bin bereit!", "Noch nicht."], B);
   if (bereit !== 0) return;
-  const sieg = await kampf({ ...TORWAECHTER, bild: B }, TORWAECHTER.fragen);
+  const sieg = await kampf({ ...TORWAECHTER, bild: B, quest: "lythara_q1_boss" }, TORWAECHTER.fragen);
   if (!sieg) return;
   erledigen("lythara_q1_boss");
   welt.aktualisieren();
