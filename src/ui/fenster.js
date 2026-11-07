@@ -32,6 +32,7 @@ export function beimSchliessen(fn) {
 
 /** Zeigt Inhalt im Fenster (öffnet es, falls nötig). */
 export function zeigen(...knoten) {
+  overlay.classList.remove("gespraech");
   fenster.replaceChildren(...knoten.flat().filter((k) => k !== null && k !== undefined && k !== false));
   overlay.hidden = false;
   offen = true;
@@ -41,6 +42,7 @@ export function zeigen(...knoten) {
 export function schliessen() {
   if (!offen) return;
   overlay.hidden = true;
+  overlay.classList.remove("gespraech");
   offen = false;
   fenster.replaceChildren();
   document.activeElement?.blur?.();
@@ -80,6 +82,7 @@ export async function dialog(sprecher, zeilen, bildUrl) {
         ),
         el("div", { class: "knopfleiste" }, k),
       );
+      overlay.classList.add("gespraech");
       fokus(k);
     });
   }
@@ -99,6 +102,7 @@ export function frage(sprecher, text, optionen, bildUrl) {
         ),
       ),
     );
+    overlay.classList.add("gespraech");
     fokus(knoepfe[0]);
   });
 }

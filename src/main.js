@@ -18,4 +18,4 @@ const spiel = new Phaser.Game({
 
 window.eldoria = { spiel, zustand };
 
-spiel.events.once("bereit", () => titelZeigen({ beimStart: () => spiel.scene.start("karte") }));
+spiel.events.once("bereit", () => titelZeigen({ beimStart: () => spiel.scene.start("karte"), untertitel: "Klassische Version" }));

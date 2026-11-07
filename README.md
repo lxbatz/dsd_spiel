@@ -23,17 +23,22 @@ Dazu: XP und Stufen, Inventar, Aufgabenliste, Heldenpass mit gespeicherten Texte
 
 Alle Texte und Aufgaben sind **eigene Beispielinhalte** und werden ersetzt bzw. ergänzt, sobald das Unterrichtsmaterial vorliegt.
 
-## Drei Grafikversionen (zum Vergleich)
+## Grafik: 3D
 
-| Seite | Version | Technik |
-|---|---|---|
-| `index.html` | Einfache Platzhalter-Grafik | Phaser 3 |
-| `snes.html` | 16-Bit-Version im SNES-Stil: Figuren in vier Richtungen, große Porträts im Dialog, gemalter Boden, große Häuser und Bäume | Phaser 3, Grafik per Code gemalt (`src/grafik16/`) |
-| `3d.html` | 3D-Version mit Kamera über der Schulter, Polygonfiguren, Sonnenlicht und Schatten (Demo: nur das Dorf) | Three.js r170 (`src/grafik3d/`) |
+Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden über die Schulter, die Welt besteht aus runden Polygonfiguren mit Licht und Schatten. In Gesprächen schwenkt die Kamera auf das Gegenüber, und das Dialogfenster zeigt ein **detailliertes Pixel-Porträt** (aus der 16-Bit-Version übernommen).
 
-Alle drei benutzen dieselben Quests, Aufgaben, Dialoge, Musik und denselben Spielstand. Nur die Darstellung ist verschieden. Die Grafiken der 16-Bit-Version lassen sich mit `tools/grafik16-vorschau.html` einzeln ansehen.
+- **Dorf der Ankömmlinge:** Schmetterlinge, Vögel, fallende Blätter, Pollen, Blumen und Gras im Wind, glitzerndes Wasser, Rauch aus der Schmiede – und Mimi, die Katze von Händlerin Wilma (man kann sie streicheln).
+- **Halle der Tausend Tore:** verlorene Bibliothek mit Bücherregalen, Kerzenlicht, Mondlicht durch hohe Fenster, schwebenden Büchern und fünf magischen Toren, die sich nach dem Rätsel öffnen. Der Torwächter löst sich nach dem Sieg in Funken auf.
+- **Effekte:** goldene Funken bei Belohnungen, eine Lichtsäule beim Stufenaufstieg, Treffer-Funken im Bosskampf, sanftes Leuchten (Bloom) auf starken Geräten.
+- **Grafikstufen:** Hoch, Mittel, Niedrig. Das Spiel wählt automatisch eine passende Stufe und schaltet selbst herunter, wenn es ruckelt. Im Menü kann man die Stufe auch selbst wählen.
 
-Steuerung in der 3D-Version: W/S vor und zurück, A/D seitwärts, Maus ziehen dreht die Kamera, Mausrad zoomt, C setzt die Kamera hinter die Figur.
+**Steuerung am PC:** W A S D oder Pfeiltasten · E oder Leertaste spricht an · Maus ziehen dreht die Kamera, Mausrad zoomt · Klick auf eine Stelle oder Figur läuft dorthin · C setzt die Kamera hinter die Figur · Q Aufgaben · I Inventar · P Heldenpass · M Musik · Esc Menü
+
+**Steuerung an Handy und Tablet:** Joystick links · runder Knopf rechts spricht an · auf eine Stelle oder Figur tippen läuft dorthin · wischen dreht die Kamera · zwei Finger zoomen
+
+**Spielstand:** wird automatisch im Browser gespeichert. Über *Menü → Als Datei speichern* entsteht eine `.sav`-Datei (z. B. `Eldoria_Mira_2026-11-07.sav`), die man auf einem anderen Gerät über *Datei laden* wieder einliest. Die Datei hat eine Prüfsumme, damit niemand nebenbei seine XP verändert.
+
+**Ältere Grafikversionen** (werden nicht weiterentwickelt, laufen aber noch mit demselben Spielstand): `snes.html` (16-Bit-Pixelgrafik) und `klassisch.html` (einfache Platzhaltergrafik). Die Figuren der 3D-Version lassen sich mit `tools/vorschau3d.html` ansehen, die Pixelgrafiken mit `tools/grafik16-vorschau.html`.
 
 ## Starten
 
@@ -45,8 +50,6 @@ python3 -m http.server 8000
 
 Dann im Browser `http://localhost:8000` öffnen.
 
-**Steuerung:** Pfeiltasten oder WASD · E oder Leertaste zum Sprechen/Benutzen · Q Aufgaben · I Inventar · P Heldenpass · Esc Menü
-
 ## Für Lehrkräfte
 
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
@@ -55,24 +58,23 @@ Dann im Browser `http://localhost:8000` öffnen.
 
 ## Technik
 
-- [Phaser 3.90](https://phaser.io) (lokal in `vendor/`, keine Internetverbindung nötig), Vanilla JavaScript als ES-Module, kein Build-Schritt
-- Karte und Figuren im Canvas, alle Texte und Aufgaben als HTML-Fenster darüber (gut lesbar, Umlaut-Tasten, später gut an Tablets anpassbar)
-- Spielstand im `localStorage` des Browsers, ein Spielstand pro Gerät
+- [Three.js r170](https://threejs.org) (lokal in `vendor/`, keine Internetverbindung nötig), Vanilla JavaScript als ES-Module, kein Build-Schritt
+- Alle Texte und Aufgaben als HTML-Fenster über der 3D-Szene (gut lesbar, Umlaut-Tasten, auch am Handy bedienbar)
+- Spielstand im `localStorage` des Browsers, ein Spielstand pro Gerät, Sicherung als Datei
 
 ```
-index.html             Einstiegspunkt
-css/style.css          Aussehen der Fenster und der Kopfleiste
-src/main.js            Startbildschirm, Prolog, Phaser-Konfiguration
-src/zustand.js         Spielstand, XP, Stufen, Speichern/Export
-src/grafik.js          Platzhalter-Grafiken (Kacheln, Figuren, Objekte)
-src/szenen/            Phaser-Szenen (Laden, Karte)
+index.html             Einstiegspunkt (3D)
+css/style.css          Fenster, Kopfleiste, Touch-Steuerung
+css/thema3d.css        Aussehen der 3D-Version
+src/main3d.js          Start der 3D-Version
+src/start.js           Titelbildschirm und Prolog
+src/zustand.js         Spielstand, XP, Stufen, Speichern, Spielstand-Datei
 src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore)
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes
 src/ui/                Fenster: Dialoge, Aufgabentypen, Bosskampf, Heldenpass, Kopfleiste
+src/grafik3d/          3D: Figuren, Dorf, Halle, Effekte, Katze, Kamera, Touch, Grafikstufen
+src/grafik16/          Pixel-Porträts (und die ältere 16-Bit-Version)
 tools/lehrercodes.html Werkzeug zum Erzeugen von Lehrercodes
-src/grafik16/          16-Bit-Version (Pixel-Pinsel, Figuren, Porträts, Welt, Szene)
-src/grafik3d/          3D-Version (Texturen, Figuren, Welt, Kamera und Steuerung)
-vendor/                Phaser und Three.js (beide MIT-Lizenz)
+tools/vorschau3d.html  Alle 3D-Figuren ansehen
+vendor/                Three.js (MIT), Phaser (MIT, nur ältere Versionen)
 ```
-
-Die Grafiken sind Platzhalter und liegen gebündelt in `src/grafik.js`. Ob das Spiel bei Pixel-Art bleibt oder auf 3D-Figuren wechselt, ist noch offen; Inhalte, Aufgaben und Spielstand sind davon unabhängig.

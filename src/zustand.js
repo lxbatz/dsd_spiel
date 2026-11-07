@@ -1,5 +1,5 @@
 // Spielstand: wird automatisch im Browser (localStorage) gespeichert.
-// Export/Import als Text-Code, damit man das Gerät wechseln kann.
+// Sichern und Laden als Datei (.sav), damit man das Gerät wechseln kann.
 
 import { GEGENSTAENDE } from "./inhalte/gegenstaende.js";
 
@@ -120,19 +120,58 @@ export function heldSetzen(held) {
   speichern();
 }
 
-export function exportieren() {
-  const json = JSON.stringify(zustand);
-  return "ELDORIA1:" + btoa(unescape(encodeURIComponent(json)));
+// ---------- Spielstand als Datei ----------
+
+function pruefsumme(text) {
+  // cyrb53 – kleine, schnelle Prüfsumme gegen versehentliche oder neugierige Änderungen
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 2654435761);
+    h2 = Math.imul(h2 ^ c, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
 }
 
-export function importieren(code) {
-  const sauber = code.trim();
-  if (!sauber.startsWith("ELDORIA1:")) throw new Error("Das ist kein gültiger Spielstand-Code.");
-  const json = decodeURIComponent(escape(atob(sauber.slice(9))));
-  const daten = JSON.parse(json);
-  if (typeof daten !== "object" || daten === null || typeof daten.xp !== "number") {
-    throw new Error("Der Spielstand-Code ist beschädigt.");
+/** Erzeugt den Inhalt einer Spielstand-Datei (JSON mit Prüfsumme) und einen Dateinamen. */
+export function spielstandDatei(endung = "sav") {
+  const daten = btoa(unescape(encodeURIComponent(JSON.stringify(zustand))));
+  const name = (zustand.held?.name ?? "Spielstand").replace(/[^\p{L}\p{N}_-]+/gu, "_").slice(0, 30) || "Spielstand";
+  const datum = new Date().toISOString().slice(0, 10);
+  const inhalt = JSON.stringify({
+    spiel: "Die Chroniken von Eldoria",
+    art: "Spielstand",
+    format: 2,
+    held: zustand.held?.name ?? null,
+    xp: zustand.xp,
+    gespeichert: new Date().toISOString(),
+    daten,
+    pruefsumme: pruefsumme("eldoria|" + daten),
+  }, null, 2);
+  return { name: `Eldoria_${name}_${datum}.${endung}`, inhalt };
+}
+
+/** Liest eine Spielstand-Datei (oder einen alten Spielstand-Code). Liefert die Daten, ohne sie zu übernehmen. */
+export function spielstandLesen(text) {
+  const roh = String(text ?? "").trim();
+  let daten;
+  if (roh.startsWith("ELDORIA1:")) {
+    daten = JSON.parse(decodeURIComponent(escape(atob(roh.slice(9)))));
+  } else {
+    let datei;
+    try { datei = JSON.parse(roh); } catch { throw new Error("Das ist keine Spielstand-Datei von Eldoria."); }
+    if (datei?.spiel !== "Die Chroniken von Eldoria" || typeof datei.daten !== "string") throw new Error("Das ist keine Spielstand-Datei von Eldoria.");
+    if (pruefsumme("eldoria|" + datei.daten) !== datei.pruefsumme) throw new Error("Die Datei ist beschädigt oder wurde verändert.");
+    daten = JSON.parse(decodeURIComponent(escape(atob(datei.daten))));
   }
+  if (typeof daten !== "object" || daten === null || typeof daten.xp !== "number") throw new Error("Der Spielstand ist beschädigt.");
+  return daten;
+}
+
+/** Übernimmt gelesene Spielstand-Daten. */
+export function spielstandUebernehmen(daten) {
   Object.keys(zustand).forEach((k) => delete zustand[k]);
   Object.assign(zustand, neu(), daten);
   speichern();

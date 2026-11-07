@@ -69,11 +69,13 @@ export async function kampf(gegner, roheFragen) {
           portrait.classList.remove("treffer");
           void portrait.offsetWidth;
           portrait.classList.add("treffer");
+          window.dispatchEvent(new CustomEvent("eldoria:treffer"));
           feedback.className = "feedback gut";
           feedback.textContent = ["Treffer! 💥", a.erklaerung].filter(Boolean).join(" ");
         } else {
           herzen--;
           zeichneHerzen();
+          window.dispatchEvent(new CustomEvent("eldoria:schaden"));
           r.loesungZeigen();
           feedback.className = "feedback schlecht";
           feedback.textContent = ["Der Gegner wehrt ab! Du verlierst ein Herz.", a.erklaerung].filter(Boolean).join(" ");

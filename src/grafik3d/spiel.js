@@ -1,20 +1,29 @@
-// 3D-Version: Darstellung, Kamera über der Schulter, Steuerung, Kollision, Interaktion.
+// 3D-Version: Darstellung, Kamera über der Schulter, Steuerung (Tastatur, Maus, Touch),
+// Kartenwechsel, Kollision, Interaktion und Effekte.
 
 import * as THREE from "../../vendor/three.module.min.js";
+import { EffectComposer } from "../../vendor/three-addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "../../vendor/three-addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "../../vendor/three-addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "../../vendor/three-addons/postprocessing/OutputPass.js";
 import { KARTEN } from "../welt/karten.js";
 import { KLASSEN } from "../inhalte/klassen.js";
 import { zustand, ortSetzen } from "../zustand.js";
-import { istOffen, schliessen, hinweis, toast, beimSchliessen, dialog } from "../ui/fenster.js";
-import { hudSperreSetzen } from "../ui/hud.js";
+import { istOffen, schliessen, hinweis, toast, beimSchliessen, el, knopf } from "../ui/fenster.js";
+import { hudSperreSetzen, hudEinstellungen } from "../ui/hud.js";
 import { bildSetzen } from "../ui/bilder.js";
 import { musik } from "../musik.js";
 import { AUSSEHEN } from "../grafik16/figuren.js";
-import { PORTRAITS } from "../grafik16/portraits.js";
-import { figurBauen, torwaechterBauen, mat } from "./figuren.js";
-import { E, welt, bodenBauen, umgebungBauen, baeumeBauen, wieseBauen, zaunBauen, haeuserBauen, objektBauen } from "./welt.js";
-import { verlaufTextur, textur } from "./texturen.js";
+import { PORTRAITS, portraitBild } from "../grafik16/portraits.js";
+import { figurBauen } from "./figuren.js";
+import { E, welt, dorfBauen, objektBauen } from "./welt.js";
+import { halleBauen } from "./halle3d.js";
+import { Effekte, punktSkalaSetzen } from "./effekte.js";
+import { textur, lichtTextur } from "./texturen.js";
+import { Touchsteuerung } from "./steuerung.js";
+import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BLOCKIEREND = new Set(["T", "~", "H", "R", "d", "f"]);
+const BAUER = { dorf: dorfBauen, halle: halleBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -26,136 +35,196 @@ function winkelDiff(a, b) {
 export class Spiel3D {
   constructor(behaelter) {
     this.behaelter = behaelter;
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
+    this.stufe = startStufe();
+    this.q = { ...STUFEN[this.stufe] };
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.q.pixelRatio));
+    this.renderer.shadowMap.enabled = this.q.schatten;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     behaelter.append(this.renderer.domElement);
     this.renderer.domElement.style.display = "block";
+    this.renderer.domElement.style.touchAction = "none";
 
-    this.szene = new THREE.Scene();
-    this.szene.fog = new THREE.Fog("#d4e8fb", 45, 190);
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.1, 900);
     this.uhr = new THREE.Clock();
-    this.animationen = [];
     this.tasten = new Set();
     this.yaw = 0;
-    this.hoehe = 2.8;
+    this.hoehe = 2.9;
     this.abstand = 6.2;
+    this.kameraAbstand = 6.2;
     this.beschaeftigt = false;
     this.sperreBis = 0;
     this.gestartet = false;
     this.tempo = 0;
+    this.karten = {};
+    this.karte = null;
+    this.laufZiel = null;
+    this.messung = new Messung();
+    this.raycaster = new THREE.Raycaster();
+
+    // Überblende für Kartenwechsel
+    this.blende = document.createElement("div");
+    this.blende.id = "blende";
+    document.getElementById("buehne").append(this.blende);
+
+    this.touch = new Touchsteuerung({
+      aktiv: () => this.gestartet && !this.beschaeftigt && !istOffen(),
+      drehen: (dx, dy) => this.drehen(dx, dy),
+      zoomen: (f) => { this.abstand = THREE.MathUtils.clamp(this.abstand * f, 3.2, 11); },
+      tippen: (x, y) => this.tippen(x, y),
+      aktion: () => { const o = this.naechstesObjekt(); if (o && !this.beschaeftigt && !istOffen()) this.interagieren(o); },
+    });
 
     new ResizeObserver(() => this.groesseAnpassen()).observe(behaelter);
     this.groesseAnpassen();
     this.eingabe();
+    this.ereignisse();
+    this.einstellungen();
   }
 
   groesseAnpassen() {
     const w = this.behaelter.clientWidth || 800, h = this.behaelter.clientHeight || 600;
     this.renderer.setSize(w, h);
     this.kamera.aspect = w / h;
+    // Im Hochformat etwas weiter sehen
+    this.kamera.fov = w < h ? 68 : 55;
     this.kamera.updateProjectionMatrix();
+    this.composer?.setSize(w, h);
+    const px = h * this.renderer.getPixelRatio();
+    punktSkalaSetzen(px / (2 * Math.tan(THREE.MathUtils.degToRad(this.kamera.fov / 2))));
   }
 
-  // ---------- Porträts aus den 3D-Modellen ----------
+  // ---------- Grafikqualität ----------
+
+  qualitaetSetzen(stufe, { speichern = false } = {}) {
+    this.stufe = stufe;
+    this.q = { ...STUFEN[stufe] };
+    if (speichern) stufeSpeichern(stufe);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.q.pixelRatio));
+    this.renderer.shadowMap.enabled = this.q.schatten;
+    for (const k of Object.values(this.karten)) {
+      k.szene.traverse((o) => {
+        if (o.isDirectionalLight) {
+          o.castShadow = this.q.schatten;
+          if (o.shadow.mapSize.x !== this.q.schattenGroesse) {
+            o.shadow.mapSize.set(this.q.schattenGroesse, this.q.schattenGroesse);
+            o.shadow.map?.dispose();
+            o.shadow.map = null;
+          }
+        }
+        if (o.material) for (const m of [].concat(o.material)) m.needsUpdate = true;
+      });
+    }
+    if (!this.q.bloom) { this.composer?.dispose(); this.composer = null; }
+    this.groesseAnpassen();
+  }
+
+  composerBauen() {
+    if (!this.karte) return;
+    const w = this.behaelter.clientWidth || 800, h = this.behaelter.clientHeight || 600;
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.karte.szene, this.kamera);
+    this.composer.addPass(this.renderPass);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(w, h), 0.32, 0.45, 0.82);
+    this.composer.addPass(this.bloom);
+    this.composer.addPass(new OutputPass());
+    this.composer.setSize(w, h);
+  }
+
+  einstellungen() {
+    hudEinstellungen({
+      steuerung: () => istTouch()
+        ? "Laufen: Joystick links oder auf eine Stelle tippen · Sprechen: runder Knopf rechts oder Figur antippen · Kamera: wischen, mit zwei Fingern zoomen"
+        : "Laufen: W A S D oder Pfeiltasten (oder Klick auf eine Stelle) · Sprechen/Benutzen: E, Leertaste oder Klick · Kamera: Maus ziehen, Mausrad zoomt, C setzt sie zurück · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik: M · Menü: Esc",
+      zusatz: () => {
+        const gewaehlt = gewaehlteStufe();
+        const knoepfe = [["auto", "Automatisch"], ...Object.entries(STUFEN).map(([k, v]) => [k, v.name])].map(([k, name]) => {
+          const aktiv = (gewaehlt ?? "auto") === k;
+          return knopf(name, () => {
+            if (k === "auto") { stufeSpeichern(null); this.qualitaetSetzen(startStufe()); }
+            else this.qualitaetSetzen(k, { speichern: true });
+            toast(`Grafik: ${name}`);
+            schliessen();
+          }, aktiv ? "knopf" : "knopf zweitrangig");
+        });
+        return [
+          el("h3", {}, "Grafik"),
+          el("p", {}, `Jetzt: ${STUFEN[this.stufe].name}. Wenn das Spiel ruckelt, wähle eine niedrigere Stufe.`),
+          el("div", { class: "knopfleiste", style: "justify-content:flex-start;margin-top:6px" }, knoepfe),
+        ];
+      },
+    });
+  }
+
+  // ---------- Porträts (Pixel-Art aus der 16-Bit-Version) ----------
 
   portraitsErzeugen() {
-    const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    r.setSize(192, 192);
-    r.toneMapping = THREE.ACESFilmicToneMapping;
-    r.outputColorSpace = THREE.SRGBColorSpace;
-    const s = new THREE.Scene();
-    s.add(new THREE.HemisphereLight("#fff4e0", "#4a5a7a", 1.4));
-    const key = new THREE.DirectionalLight("#fff0d8", 2.6); key.position.set(-2, 4, 4); s.add(key);
-    const rand = new THREE.DirectionalLight("#9ac8ff", 2.0); rand.position.set(3, 2, -3); s.add(rand);
-    const cam = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
-    const schluessel = [...Object.keys(AUSSEHEN), "boss_torwaechter"];
-    for (const k of schluessel) {
-      const farbe = new THREE.Color(PORTRAITS[k]?.hintergrund ?? "#3a4a7a");
-      s.background = textur(verlaufTextur(`#${farbe.clone().offsetHSL(0, 0, 0.15).getHexString()}`, `#${farbe.clone().offsetHSL(0, 0, -0.12).getHexString()}`));
-      const modell = k === "boss_torwaechter" ? torwaechterBauen() : figurBauen(AUSSEHEN[k]).gruppe;
-      modell.rotation.y = -0.35;
-      s.add(modell);
-      if (k === "boss_torwaechter") { cam.position.set(0.9, 2.4, 3.6); cam.lookAt(0, 2.05, 0); }
-      else {
-        const hut = AUSSEHEN[k].frisur === "spitzhut";
-        cam.position.set(0.7, hut ? 2.25 : 2.05, hut ? 3.2 : 2.7);
-        cam.lookAt(0, hut ? 2.1 : 1.92, 0);
-      }
-      r.render(s, cam);
-      bildSetzen(k, r.domElement.toDataURL());
-      s.remove(modell);
-    }
-    r.dispose();
-    r.forceContextLoss();
+    for (const k of Object.keys(PORTRAITS)) bildSetzen(k, portraitBild(k).alsCanvas(1).toDataURL());
   }
 
-  // ---------- Welt ----------
+  // ---------- Karten ----------
 
-  weltBauen() {
-    const def = KARTEN.dorf;
-    this.def = def;
-    const raster = def.raster;
-    this.raster = raster;
+  karteBauen(id) {
+    const def = KARTEN[id];
+    const szene = new THREE.Scene();
+    const animationen = [];
+    const bau = BAUER[id](szene, def.raster, { animationen, qualitaet: this.q });
+    const effekte = new Effekte(szene, this.q.partikel);
+    const karte = { id, def, szene, animationen, bau, effekte, raster: def.raster, objekte: [] };
 
-    const sonne = new THREE.DirectionalLight("#fff0d6", 2.6);
-    const mitte = new THREE.Vector3(raster[0].length, 0, raster.length);
-    sonne.position.copy(mitte).add(new THREE.Vector3(-28, 42, 22));
-    sonne.target.position.copy(mitte);
-    sonne.castShadow = true;
-    sonne.shadow.mapSize.set(2048, 2048);
-    Object.assign(sonne.shadow.camera, { left: -42, right: 42, top: 36, bottom: -36, near: 1, far: 140 });
-    sonne.shadow.bias = -0.0004;
-    sonne.shadow.normalBias = 0.03;
-    this.szene.add(sonne, sonne.target);
-    this.szene.add(new THREE.HemisphereLight("#cfe6ff", "#5a7a3a", 1.1));
-
-    const boden = bodenBauen(this.szene, raster);
-    this.animationen.push(boden.wellen);
-    const { wolken } = umgebungBauen(this.szene, boden.breite, boden.tiefe);
-    this.animationen.push((t) => { wolken.rotation.y = t * 0.004; });
-    baeumeBauen(this.szene, raster);
-    wieseBauen(this.szene, raster);
-    zaunBauen(this.szene, raster);
-    haeuserBauen(this.szene, raster, this.animationen);
-
-    // Objekte
-    this.objekte = def.objekte.map((o) => {
+    for (const o of def.objekte) {
       const b = o.breite ?? 1, h = o.hoehe ?? 1;
       const cx = o.x * E + (b * E) / 2, cz = o.y * E + (h * E) / 2;
-      let modell, figur = null;
-      if (o.art === "npc" && AUSSEHEN[o.bild]) {
-        figur = figurBauen(AUSSEHEN[o.bild]);
-        modell = figur.gruppe;
-      } else {
-        modell = objektBauen(o, this.animationen);
+      let res = bau.objektModell(o);
+      if (!res && o.art === "npc" && AUSSEHEN[o.bild]) {
+        const figur = figurBauen(AUSSEHEN[o.bild], o.bild);
+        res = { modell: figur.gruppe, figur };
       }
-      modell.position.set(cx, 0, cz);
-      this.szene.add(modell);
+      if (!res) res = { modell: objektBauen(o, animationen) };
+      const versatz = res.versatz ?? [0, 0];
+      res.modell.position.set(cx + versatz[0], 0, cz + versatz[1]);
+      szene.add(res.modell);
       const marker = this.markerBauen();
-      marker.position.set(cx, o.art === "npc" ? 3.0 : 2.8, cz);
-      this.szene.add(marker);
+      const markerY = res.boss ? 5.2 : o.art === "tor" ? 7.9 : o.art === "npc" ? 2.95 : 2.8;
+      marker.position.set(cx, markerY, cz + (o.art === "tor" ? 1.3 : 0));
+      marker.userData.y = markerY;
+      szene.add(marker);
       const rand = o.art === "npc" ? 0.45 : 0.1;
-      return {
-        def: o, modell, figur, marker,
+      karte.objekte.push({
+        def: o, modell: res.modell, figur: res.figur ?? null, marker, setzeOffen: res.setzeOffen, boss: res.boss,
         rechteck: { x0: o.x * E + rand, z0: o.y * E + rand, x1: (o.x + b) * E - rand, z1: (o.y + h) * E - rand },
         fest: o.art !== "portal",
-      };
-    });
+        grundDrehung: 0,
+        blick: null,
+      });
+    }
+    for (const z of bau.zusatz ?? []) {
+      karte.objekte.push({ ...z, marker: { visible: false, position: new THREE.Vector3(), userData: {} }, fest: false, interaktiv: true, rechteck: { x0: 0, z0: 0, x1: 0, z1: 0 } });
+    }
+
+    // Leuchtring unter dem nächsten Ziel
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.78, 40).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ color: "#ffd870", transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    ring.position.y = 0.04;
+    ring.visible = false;
+    szene.add(ring);
+    karte.ring = ring;
+    return karte;
   }
 
   markerBauen() {
     const g = new THREE.Group();
-    const gold = mat("#ffd040", { emissive: "#ffb000", emissiveIntensity: 0.9, roughness: 0.3, metalness: 0.3 });
-    const strich = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.42, 0.14), gold);
-    strich.position.y = 0.32;
-    const punkt = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), gold);
-    g.add(strich, punkt);
+    const gold = new THREE.MeshStandardMaterial({ color: "#ffd040", emissive: "#ffb000", emissiveIntensity: 0.9, roughness: 0.3, metalness: 0.3 });
+    const strich = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.3, 4, 10), gold);
+    strich.position.y = 0.36;
+    const punkt = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), gold);
+    const schein = new THREE.Sprite(new THREE.SpriteMaterial({ map: textur(lichtTextur("rgba(255,210,90,0.8)")), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    schein.scale.setScalar(1.3);
+    schein.position.y = 0.25;
+    g.add(strich, punkt, schein);
     g.visible = false;
     return g;
   }
@@ -167,67 +236,116 @@ export class Spiel3D {
   heldBauen() {
     const pos = this.held?.gruppe.position.clone();
     const rot = this.held?.gruppe.rotation.y ?? Math.PI;
-    if (this.held) this.szene.remove(this.held.gruppe);
+    this.held?.gruppe.removeFromParent();
     this.heldKey = this.heldSchluessel();
-    this.held = figurBauen(AUSSEHEN[this.heldKey]);
+    this.held = figurBauen(AUSSEHEN[this.heldKey], this.heldKey);
     if (pos) this.held.gruppe.position.copy(pos);
     this.held.gruppe.rotation.y = rot;
-    this.szene.add(this.held.gruppe);
+    this.karte?.szene.add(this.held.gruppe);
   }
 
   // ---------- Ablauf ----------
 
   vorbereiten() {
     this.portraitsErzeugen();
-    this.weltBauen();
-    // Titelkamera kreist langsam über dem Dorf
+    this.karte = this.karten.dorf = this.karteBauen("dorf");
+    if (this.q.bloom) this.composerBauen();
     this.renderer.setAnimationLoop(() => this.bild());
   }
 
   starten() {
-    const def = this.def;
-    let spawn = zustand.ort.karte === "dorf" ? zustand.ort.spawn : "start";
-    if (!def.spawns[spawn]) spawn = "start";
-    ortSetzen("dorf", spawn);
-    musik(def.musik ?? null);
-    const [sx, sy] = def.spawns[spawn];
-    this.heldBauen();
-    this.held.gruppe.position.set(welt(sx), 0, welt(sy));
-    this.held.gruppe.rotation.y = Math.PI;
-    this.yaw = 0;
-    this.kamera.position.set(welt(sx), 3, welt(sy) + 6);
-    this.gestartet = true;
+    let id = KARTEN[zustand.ort.karte] ? zustand.ort.karte : "dorf";
+    let spawn = zustand.ort.spawn;
+    if (!KARTEN[id].spawns[spawn]) spawn = "start";
     if (!this.hoererAngemeldet) {
       this.hoererAngemeldet = true;
-      beimSchliessen(() => { this.tasten.clear(); this.sperreBis = performance.now() + 200; });
+      beimSchliessen(() => { this.tasten.clear(); this.touch.zuruecksetzen(); this.sperreBis = performance.now() + 200; });
       hudSperreSetzen(() => this.beschaeftigt);
     }
-    this.aktualisieren();
-    toast(`📍 ${def.name}`);
+    this.heldBauen();
+    this.wechseln(id, spawn, { sofort: true });
+    this.gestartet = true;
+    document.body.classList.add("im-spiel");
     window.eldoria = { ...(window.eldoria ?? {}), spiel3d: this, zustand };
   }
 
+  async wechseln(id, spawn, { sofort = false } = {}) {
+    if (!sofort) {
+      this.blende.classList.add("an");
+      await new Promise((r) => setTimeout(r, 450));
+    }
+    const karte = this.karten[id] ??= this.karteBauen(id);
+    this.karte = karte;
+    if (this.renderPass) this.renderPass.scene = karte.szene;
+    karte.szene.add(this.held.gruppe);
+    const [sx, sy] = karte.def.spawns[spawn] ?? karte.def.spawns.start;
+    this.held.gruppe.position.set(welt(sx), 0, welt(sy));
+    this.held.gruppe.rotation.y = Math.PI;
+    this.yaw = 0;
+    this.hoehe = karte.bau.kamera?.hoehe ?? 2.9;
+    this.abstand = karte.bau.kamera?.abstand ?? 6.2;
+    this.kameraAbstand = this.abstand;
+    this.laufZiel = null;
+    this.kamera.position.set(welt(sx), this.hoehe, welt(sy) + this.abstand);
+    ortSetzen(id, spawn);
+    musik(karte.def.musik ?? null);
+    this.ersteAktualisierung = true;
+    this.aktualisieren();
+    this.ersteAktualisierung = false;
+    try { this.renderer.compile(karte.szene, this.kamera); } catch { /* egal */ }
+    toast(`📍 ${karte.def.name}`);
+    if (!sofort) {
+      await new Promise((r) => setTimeout(r, 120));
+      this.blende.classList.remove("an");
+    }
+  }
+
   aktualisieren() {
-    for (const obj of this.objekte) {
+    const karte = this.karte;
+    if (!karte) return;
+    for (const obj of karte.objekte) {
       const { def, modell, marker } = obj;
+      if (obj.dynamisch) continue;
       const sichtbar = def.sichtbar ? def.sichtbar(zustand) : true;
-      modell.visible = sichtbar;
+      // Besiegter Boss löst sich auf
+      if (obj.boss && obj.warSichtbar && !sichtbar && !this.ersteAktualisierung) {
+        obj.verschwinden = 2.2;
+        karte.effekte.aufloesen(modell.position, 4);
+        this.wackelnBis = performance.now() + 600;
+      } else if (!obj.verschwinden || sichtbar) {
+        modell.visible = sichtbar;
+      }
+      obj.warSichtbar = sichtbar;
+      let offen = false;
+      if (def.art === "tor") {
+        offen = Boolean(def.offen?.(zustand));
+        if (offen && obj.warOffen === false && !this.ersteAktualisierung) {
+          const p = modell.position;
+          karte.effekte.staub(new THREE.Vector3(p.x, 0.1, p.z + 1.4), 2.2, 40);
+          karte.effekte.explosion(new THREE.Vector3(p.x, 3, p.z + 1.2), "#ffe8a0", 50, 4);
+        }
+        obj.setzeOffen?.(offen, this.ersteAktualisierung || obj.warOffen === undefined);
+        obj.warOffen = offen;
+      }
       if (def.art === "portal") modell.userData.setzeAktiv?.(def.aktiv(zustand));
-      obj.interaktiv = Boolean(def.aktion) && sichtbar;
-      obj.aktivFest = obj.fest && sichtbar;
+      obj.interaktiv = Boolean(def.aktion) && sichtbar && !offen;
+      obj.aktivFest = obj.fest && sichtbar && !offen;
       marker.visible = obj.interaktiv && Boolean(def.marker?.(zustand));
     }
-    if (this.gestartet && this.heldKey !== this.heldSchluessel()) this.heldBauen();
+    if (this.held && this.heldKey !== this.heldSchluessel()) this.heldBauen();
   }
+
+  // ---------- Eingabe ----------
 
   eingabe() {
     const ignorieren = (ev) => ["INPUT", "TEXTAREA", "SELECT"].includes(ev.target?.tagName);
     window.addEventListener("keydown", (ev) => {
       if (ignorieren(ev)) return;
       const k = ev.key.toLowerCase();
-      if (istOffen() || this.beschaeftigt) return;
+      if (istOffen() || this.beschaeftigt || !this.gestartet) return;
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(k)) ev.preventDefault();
       this.tasten.add(k);
+      this.laufZiel = null;
       if ((k === "e" || k === " ") && !ev.repeat && performance.now() > this.sperreBis) {
         const obj = this.naechstesObjekt();
         if (obj) this.interagieren(obj);
@@ -236,29 +354,94 @@ export class Spiel3D {
     });
     window.addEventListener("keyup", (ev) => this.tasten.delete(ev.key.toLowerCase()));
     window.addEventListener("blur", () => this.tasten.clear());
+
+    // Maus: ziehen dreht die Kamera, Klick läuft zur Stelle oder spricht an
     const leinwand = this.renderer.domElement;
     let ziehen = null;
-    leinwand.addEventListener("pointerdown", (ev) => { ziehen = { x: ev.clientX, y: ev.clientY }; leinwand.setPointerCapture(ev.pointerId); });
-    leinwand.addEventListener("pointermove", (ev) => {
-      if (!ziehen) return;
-      this.yaw -= (ev.clientX - ziehen.x) * 0.006;
-      this.hoehe = THREE.MathUtils.clamp(this.hoehe + (ev.clientY - ziehen.y) * 0.02, 1.4, 7);
-      ziehen = { x: ev.clientX, y: ev.clientY };
-      this.manuellBis = performance.now() + 1500;
+    leinwand.addEventListener("pointerdown", (ev) => {
+      if (ev.pointerType !== "mouse" || ev.button !== 0) return;
+      ziehen = { x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY };
+      leinwand.setPointerCapture(ev.pointerId);
     });
-    leinwand.addEventListener("pointerup", () => { ziehen = null; });
-    leinwand.addEventListener("wheel", (ev) => { ev.preventDefault(); this.abstand = THREE.MathUtils.clamp(this.abstand + ev.deltaY * 0.005, 3.5, 11); }, { passive: false });
+    leinwand.addEventListener("pointermove", (ev) => {
+      if (!ziehen || ev.pointerType !== "mouse") return;
+      this.drehen(ev.clientX - ziehen.x, ev.clientY - ziehen.y);
+      ziehen.x = ev.clientX; ziehen.y = ev.clientY;
+    });
+    leinwand.addEventListener("pointerup", (ev) => {
+      if (!ziehen || ev.pointerType !== "mouse") return;
+      const klick = Math.hypot(ev.clientX - ziehen.x0, ev.clientY - ziehen.y0) < 5;
+      ziehen = null;
+      if (klick) this.tippen(ev.clientX, ev.clientY);
+    });
+    leinwand.addEventListener("wheel", (ev) => {
+      ev.preventDefault();
+      this.abstand = THREE.MathUtils.clamp(this.abstand + ev.deltaY * 0.005, 3.2, 11);
+    }, { passive: false });
   }
 
+  drehen(dx, dy) {
+    if (!this.gestartet) return;
+    this.yaw -= dx * 0.006;
+    this.hoehe = THREE.MathUtils.clamp(this.hoehe + dy * 0.02, 1.3, this.karte?.bau.kamera?.maxHoehe ?? 7);
+    this.manuellBis = performance.now() + 1500;
+  }
+
+  /** Tippen/Klicken: Objekt ansprechen oder zur Stelle laufen. */
+  tippen(x, y) {
+    if (!this.gestartet || this.beschaeftigt || istOffen() || !this.karte) return;
+    const r = this.renderer.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+    this.raycaster.setFromCamera(ndc, this.kamera);
+    const ziele = this.karte.objekte.filter((o) => o.interaktiv && o.modell.visible);
+    const treffer = this.raycaster.intersectObjects(ziele.map((o) => o.modell), true)[0];
+    if (treffer) {
+      const obj = ziele.find((o) => { let p = treffer.object; while (p) { if (p === o.modell) return true; p = p.parent; } return false; });
+      if (obj) {
+        if (this.abstandZu(obj) < REICHWEITE) this.interagieren(obj);
+        else this.laufZiel = { obj, festSeit: 0 };
+        return;
+      }
+    }
+    const boden = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const punkt = new THREE.Vector3();
+    if (this.raycaster.ray.intersectPlane(boden, punkt)) {
+      this.laufZiel = { punkt, festSeit: 0 };
+      this.karte.effekte.ziel(punkt);
+    }
+  }
+
+  ereignisse() {
+    window.addEventListener("eldoria:belohnung", (ev) => {
+      if (!this.held || !this.karte) return;
+      const p = this.held.gruppe.position;
+      this.karte.effekte.belohnung(new THREE.Vector3(p.x, 0.2, p.z), Boolean(ev.detail?.aufgestiegen));
+    });
+    window.addEventListener("eldoria:treffer", () => {
+      const o = this.gespraech;
+      if (!o || !this.karte) return;
+      const p = o.modell.position;
+      this.karte.effekte.explosion(new THREE.Vector3(p.x, o.boss ? 3 : 1.6, p.z + 0.5), "#9af4ff", 70, 5);
+      this.trefferBis = performance.now() + 250;
+    });
+    window.addEventListener("eldoria:schaden", () => {
+      this.wackelnBis = performance.now() + 400;
+      document.getElementById("buehne")?.classList.add("schaden");
+      setTimeout(() => document.getElementById("buehne")?.classList.remove("schaden"), 450);
+    });
+  }
+
+  // ---------- Kollision und Reichweite ----------
+
   blockiert(x, z) {
-    const r = RADIUS;
+    const r = RADIUS, raster = this.karte.raster, blockZ = this.karte.bau.blockZeichen;
     for (const [dx, dz] of [[-r, -r], [r, -r], [-r, r], [r, r], [0, 0]]) {
       const tx = Math.floor((x + dx) / E), tz = Math.floor((z + dz) / E);
-      const zeile = this.raster[tz];
+      const zeile = raster[tz];
       if (!zeile || tx < 0 || tx >= zeile.length) return true;
-      if (BLOCKIEREND.has(zeile[tx])) return true;
+      if (blockZ.has(zeile[tx])) return true;
     }
-    for (const o of this.objekte) {
+    for (const o of this.karte.objekte) {
       if (!o.aktivFest) continue;
       const q = o.rechteck;
       if (x > q.x0 - r && x < q.x1 + r && z > q.z0 - r && z < q.z1 + r) return true;
@@ -266,111 +449,298 @@ export class Spiel3D {
     return false;
   }
 
-  naechstesObjekt() {
-    if (!this.held) return null;
+  abstandZu(o) {
     const p = this.held.gruppe.position;
+    if (o.dynamisch) return Math.max(0, Math.hypot(o.modell.position.x - p.x, o.modell.position.z - p.z) - 0.4);
+    const q = o.rechteck;
+    return Math.hypot(Math.max(q.x0 - p.x, 0, p.x - q.x1), Math.max(q.z0 - p.z, 0, p.z - q.z1));
+  }
+
+  naechstesObjekt() {
+    if (!this.held || !this.karte) return null;
     let bestes = null, abstand = Infinity;
-    for (const o of this.objekte) {
-      if (!o.interaktiv) continue;
-      const q = o.rechteck;
-      const d = Math.hypot(Math.max(q.x0 - p.x, 0, p.x - q.x1), Math.max(q.z0 - p.z, 0, p.z - q.z1));
+    for (const o of this.karte.objekte) {
+      if (!o.interaktiv || o.verschwinden) continue;
+      const d = this.abstandZu(o);
       if (d < REICHWEITE && d < abstand) { bestes = o; abstand = d; }
     }
     return bestes;
   }
 
   async interagieren(obj) {
+    if (this.beschaeftigt) return;
     this.beschaeftigt = true;
     this.tasten.clear();
+    this.touch.zuruecksetzen();
+    this.laufZiel = null;
+    this.touch.aktionZeigen(null);
     hinweis(null);
     const p = this.held.gruppe.position, m = obj.modell.position;
-    this.held.gruppe.rotation.y = Math.atan2(m.x - p.x, m.z - p.z);
-    if (obj.figur) obj.modell.rotation.y = Math.atan2(p.x - m.x, p.z - m.z);
+    this.heldBlick = Math.atan2(m.x - p.x, m.z - p.z);
+    if (obj.figur && !obj.boss) obj.blick = Math.atan2(p.x - m.x, p.z - m.z);
+    this.gespraech = obj;
+    this.gespraechSeite = this.freieSeite(obj);
+    obj.figur?.sprechen?.(true, this.uhr.elapsedTime);
     let reiseZiel = null;
+    const karte = this.karte;
     const weltApi = {
       aktualisieren: () => this.aktualisieren(),
-      reisen: (karte) => { reiseZiel = karte; },
-      erschuettern: () => { this.wackelnBis = performance.now() + 300; },
+      reisen: (k, spawn) => { reiseZiel = [k, spawn]; },
+      erschuettern: () => { this.wackelnBis = performance.now() + 450; },
+      effekte: karte.effekte,
     };
     try {
-      await obj.def.aktion(weltApi);
-      if (reiseZiel) {
-        await dialog("Portal", "Das Portal leuchtet hell … aber in dieser 3D-Demo gibt es bisher nur das Dorf der Ankömmlinge. Lythara folgt, wenn ihr euch für die 3D-Version entscheidet.");
-      }
+      await (obj.aktion ? obj.aktion(weltApi) : obj.def.aktion(weltApi));
     } catch (fehler) {
       console.error(fehler);
       toast("Hoppla, da ist etwas schiefgelaufen.");
     }
-    this.beschaeftigt = false;
+    obj.figur?.sprechen?.(false);
+    if (obj.figur && !obj.boss) obj.blick = obj.grundDrehung;
+    this.gespraech = null;
+    this.heldBlick = null;
     schliessen();
     this.aktualisieren();
+    if (reiseZiel && KARTEN[reiseZiel[0]]) await this.wechseln(reiseZiel[0], reiseZiel[1]);
+    this.beschaeftigt = false;
   }
+
+  // ---------- Bewegung ----------
 
   bewegen(dt) {
     const k = this.tasten;
     let vor = 0, seit = 0;
-    if (!this.beschaeftigt && !istOffen()) {
+    const frei = !this.beschaeftigt && !istOffen();
+    if (frei) {
       if (k.has("w") || k.has("arrowup")) vor += 1;
       if (k.has("s") || k.has("arrowdown")) vor -= 1;
       if (k.has("a") || k.has("arrowleft")) seit -= 1;
       if (k.has("d") || k.has("arrowright")) seit += 1;
+      vor -= this.touch.joy.y;
+      seit += this.touch.joy.x;
+      if (vor || seit) this.laufZiel = null;
     }
     const g = this.held.gruppe;
     const vorwaerts = new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     const rechts = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
     const richtung = vorwaerts.multiplyScalar(vor).add(rechts.multiplyScalar(seit));
-    const laenge = richtung.length();
-    const zielTempo = laenge > 0 ? TEMPO : 0;
+    let staerke = Math.min(1, richtung.length());
+
+    // Automatisch laufen (Tippen/Klicken)
+    let automatisch = false;
+    if (frei && this.laufZiel && !staerke) {
+      const z = this.laufZiel;
+      if (z.obj && this.abstandZu(z.obj) < REICHWEITE * 0.8) {
+        this.laufZiel = null;
+        this.interagieren(z.obj);
+      } else {
+        const ziel = z.obj ? z.obj.modell.position : z.punkt;
+        richtung.set(ziel.x - g.position.x, 0, ziel.z - g.position.z);
+        if (richtung.length() < 0.25) this.laufZiel = null;
+        else { staerke = 1; automatisch = true; }
+      }
+    }
+
+    const zielTempo = staerke > 0.1 ? TEMPO * staerke : 0;
     this.tempo += (zielTempo - this.tempo) * Math.min(1, dt * 10);
-    if (laenge > 0) {
-      richtung.divideScalar(laenge);
+    if (staerke > 0.1) {
+      richtung.normalize();
       const ziel = Math.atan2(richtung.x, richtung.z);
       g.rotation.y += winkelDiff(g.rotation.y, ziel) * Math.min(1, dt * 12);
       const schritt = this.tempo * dt;
+      const vorher = g.position.clone();
       const nx = g.position.x + richtung.x * schritt, nz = g.position.z + richtung.z * schritt;
       if (!this.blockiert(nx, nz)) g.position.set(nx, 0, nz);
       else if (!this.blockiert(nx, g.position.z)) g.position.x = nx;
       else if (!this.blockiert(g.position.x, nz)) g.position.z = nz;
+      if (automatisch) {
+        // Hängt die Figur fest, wird das automatische Laufen beendet
+        this.laufZiel.festSeit = g.position.distanceTo(vorher) < schritt * 0.2 ? this.laufZiel.festSeit + dt : 0;
+        if (this.laufZiel.festSeit > 0.4) this.laufZiel = null;
+      }
       // Kamera schwenkt langsam hinter die Figur (nicht beim Rückwärtsgehen)
-      if (vor >= 0 && !(this.manuellBis > performance.now())) {
-        this.yaw += winkelDiff(this.yaw, g.rotation.y + Math.PI) * Math.min(1, dt * 1.6);
+      if ((vor >= 0 || automatisch) && !(this.manuellBis > performance.now())) {
+        this.yaw += winkelDiff(this.yaw, g.rotation.y + Math.PI) * Math.min(1, dt * (automatisch ? 1.0 : 1.6));
+      }
+      // Staubwölkchen
+      this.schrittZeit = (this.schrittZeit ?? 0) - dt;
+      if (this.schrittZeit < 0 && this.tempo > TEMPO * 0.6) {
+        this.schrittZeit = 0.16;
+        this.karte.effekte.schritt(g.position);
       }
     }
+    if (this.heldBlick != null) g.rotation.y += winkelDiff(g.rotation.y, this.heldBlick) * Math.min(1, dt * 8);
+  }
+
+  /** Auf welcher Seite hat die Gesprächskamera freie Sicht? (1 = rechts, -1 = links) */
+  freieSeite(o) {
+    const p = this.held.gruppe.position, m = o.modell.position;
+    const richtung = new THREE.Vector3(p.x - m.x, 0, p.z - m.z);
+    if (richtung.lengthSq() < 0.01) richtung.set(0, 0, 1);
+    richtung.normalize();
+    const kopf = new THREE.Vector3(p.x, 1.7, p.z);
+    const wert = (s) => {
+      const ziel = kopf.clone().addScaledVector(richtung, 2.3).addScaledVector(new THREE.Vector3(richtung.z, 0, -richtung.x), 1.75 * s);
+      ziel.y = 2.05;
+      return this.freieStrecke(kopf, ziel) / kopf.distanceTo(ziel);
+    };
+    return wert(-1) > wert(1) + 0.05 ? -1 : 1;
+  }
+
+  /** Wie weit kann die Kamera vom Kopf weg, ohne in einer Mauer zu stecken? */
+  freieStrecke(von, nach) {
+    const raster = this.karte.raster, hindernis = this.karte.bau.hindernis;
+    const d = von.distanceTo(nach);
+    const schritt = 0.2;
+    const v = new THREE.Vector3();
+    for (let s = schritt; s <= d; s += schritt) {
+      v.lerpVectors(von, nach, s / d);
+      const tx = Math.floor(v.x / E), ty = Math.floor(v.z / E);
+      if (ty < 0 || ty >= raster.length || tx < 0 || tx >= raster[0].length) continue;
+      if (hindernis(tx, ty) > v.y - 0.25) return Math.max(1.0, s - 0.45);
+      // Feste Objekte (geschlossene Tore, Marktstand, Brunnen …) verdecken die Sicht
+      for (const o of this.karte.objekte) {
+        if (!o.aktivFest || o === this.gespraech) continue;
+        const q = o.rechteck;
+        const hoch = o.def.art === "tor" ? 7 : o.boss ? 4.5 : 3.3;
+        if (v.x > q.x0 - 0.3 && v.x < q.x1 + 0.3 && v.z > q.z0 - 0.4 && v.z < q.z1 + 0.4 && v.y < hoch) return Math.max(1.0, s - 0.45);
+      }
+    }
+    return d;
   }
 
   kameraFolgen(dt) {
     const p = this.held.gruppe.position;
-    const ziel = new THREE.Vector3(p.x + Math.sin(this.yaw) * this.abstand, this.hoehe, p.z + Math.cos(this.yaw) * this.abstand);
-    // Leicht nach rechts versetzt: Blick „über die Schulter“
-    const rechts = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw)).multiplyScalar(0.7);
-    ziel.add(rechts);
-    this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 6));
-    const blick = new THREE.Vector3(p.x, 1.6, p.z).add(rechts.multiplyScalar(0.6));
-    if (this.wackelnBis > performance.now()) blick.add(new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, 0));
-    this.kamera.lookAt(blick);
+    let ziel, blick;
+    const o = this.gespraech;
+    if (o && o.modell.visible) {
+      // Gesprächskamera: über die Schulter auf das Gegenüber
+      const m = o.modell.position;
+      const richtung = new THREE.Vector3(p.x - m.x, 0, p.z - m.z);
+      if (richtung.lengthSq() < 0.01) richtung.set(0, 0, 1);
+      richtung.normalize();
+      const quer = new THREE.Vector3(richtung.z, 0, -richtung.x).multiplyScalar(this.gespraechSeite ?? 1);
+      const gross = o.boss || o.def.art === "tor" || o.def.bild === "siegeltuer";
+      const weit = gross ? 5.0 : o.dynamisch ? 2.0 : 2.3;
+      ziel = new THREE.Vector3(p.x, gross ? 3.0 : 2.05, p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
+      const kopfY = o.boss ? 3.3 : o.def.art === "tor" ? 3.6 : o.dynamisch ? 0.5 : o.figur ? 1.85 : 1.2;
+      blick = new THREE.Vector3(m.x, kopfY, m.z).lerp(new THREE.Vector3(p.x, 1.6, p.z), 0.18);
+      blick.y -= 0.35;
+      const frei = this.freieStrecke(new THREE.Vector3(p.x, 1.7, p.z), ziel);
+      const voll = new THREE.Vector3(p.x, 1.7, p.z).distanceTo(ziel);
+      if (frei < voll) ziel.lerpVectors(new THREE.Vector3(p.x, 1.7, p.z), ziel, frei / voll);
+      this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 3.5));
+    } else {
+      const rechts = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
+      const kopf = new THREE.Vector3(p.x, 1.7, p.z).addScaledVector(rechts, 0.35);
+      const voll = new THREE.Vector3(p.x + Math.sin(this.yaw) * this.abstand, this.hoehe, p.z + Math.cos(this.yaw) * this.abstand).addScaledVector(rechts, 0.7);
+      const frei = this.freieStrecke(kopf, voll);
+      const gesamt = kopf.distanceTo(voll);
+      const sollAbstand = Math.min(1, frei / gesamt);
+      // Näher heran sofort, wieder weg langsam
+      this.kameraAnteil = this.kameraAnteil ?? 1;
+      this.kameraAnteil += (sollAbstand - this.kameraAnteil) * Math.min(1, dt * (sollAbstand < this.kameraAnteil ? 14 : 2.5));
+      ziel = new THREE.Vector3().lerpVectors(kopf, voll, this.kameraAnteil);
+      this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 7));
+      blick = new THREE.Vector3(p.x, 1.55, p.z).addScaledVector(rechts, 0.42);
+    }
+    if (this.wackelnBis > performance.now()) blick.add(new THREE.Vector3((Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2, 0));
+    this.blickPunkt = this.blickPunkt ? this.blickPunkt.lerp(blick, 1 - Math.exp(-dt * 8)) : blick.clone();
+    this.kamera.lookAt(this.blickPunkt);
   }
+
+  // ---------- Bildschleife ----------
 
   bild() {
     const dt = Math.min(0.05, this.uhr.getDelta());
     const t = this.uhr.elapsedTime;
-    for (const a of this.animationen) a(t);
-    for (const o of this.objekte) {
-      o.figur?.animieren(t + o.def.x, 0, dt);
-      if (o.marker.visible) { o.marker.position.y = 3.0 + Math.sin(t * 3) * 0.12; o.marker.rotation.y = t * 1.5; }
+    const karte = this.karte;
+    if (!karte) return;
+    for (const a of karte.animationen) a(t, dt);
+    const spieler = this.held?.gruppe.position ?? new THREE.Vector3(30, 0, 30);
+    for (const o of karte.objekte) {
+      if (o.dynamisch) {
+        o.update(t, dt, spieler, this.tempo / TEMPO, (x, z) => !this.blockiertFuerTier(x, z));
+        continue;
+      }
+      if (o.figur && o.modell.visible) {
+        o.figur.animieren(t + o.def.x, 0, dt);
+        if (o.blick != null) o.modell.rotation.y += winkelDiff(o.modell.rotation.y, o.blick) * Math.min(1, dt * 5);
+      }
+      if (o.verschwinden) {
+        o.verschwinden -= dt;
+        const k = Math.max(0, o.verschwinden / 2.2);
+        o.modell.scale.setScalar(1.25 * (0.3 + 0.7 * k));
+        o.modell.position.y = (1 - k) * 1.5;
+        if (o.verschwinden <= 0) { o.verschwinden = 0; o.modell.visible = false; }
+      }
+      if (o.boss && this.trefferBis > performance.now()) o.modell.position.x += (Math.random() - 0.5) * 0.08;
+      if (o.marker.visible) {
+        o.marker.position.y = o.marker.userData.y + Math.sin(t * 3) * 0.12;
+        o.marker.rotation.y = t * 1.5;
+      }
     }
+    karte.effekte.update(dt);
     if (this.gestartet) {
       this.bewegen(dt);
       this.held.animieren(t, this.tempo / TEMPO, dt);
+      karte.bau.licht?.(this.held.gruppe.position, t);
       this.kameraFolgen(dt);
       const obj = !this.beschaeftigt && !istOffen() ? this.naechstesObjekt() : null;
-      if (obj) hinweis("E", obj.def.hinweis ?? `Mit ${obj.def.name} sprechen`);
+      const text = obj ? (obj.def.hinweis ?? `Mit ${obj.def.name} sprechen`) : null;
+      if (obj) hinweis("E", text);
       else if (!this.beschaeftigt) hinweis(null);
+      this.touch.aktionZeigen(text);
+      // Leuchtring unter dem Ziel
+      karte.ring.visible = Boolean(obj);
+      if (obj) {
+        const m = obj.modell.position;
+        const q = obj.rechteck;
+        const groesse = obj.dynamisch ? 0.6 : Math.max(0.8, Math.max(q.x1 - q.x0, q.z1 - q.z0) * 0.6);
+        karte.ring.position.set(obj.dynamisch ? m.x : (q.x0 + q.x1) / 2, 0.04, obj.dynamisch ? m.z : (q.z0 + q.z1) / 2);
+        karte.ring.scale.setScalar(groesse * (1 + Math.sin(t * 4) * 0.05));
+        karte.ring.material.opacity = 0.5 + Math.sin(t * 4) * 0.2;
+      }
     } else {
-      // Titelbild: Kamera kreist über dem Dorf
-      const m = new THREE.Vector3(this.raster[0].length, 0, this.raster.length);
+      // Titelbild: Kamera kreist langsam über dem Dorf
+      const m = new THREE.Vector3(karte.raster[0].length, 0, karte.raster.length);
+      karte.bau.licht?.(m, t);
       this.kamera.position.set(m.x + Math.sin(t * 0.08) * 26, 14, m.z + Math.cos(t * 0.08) * 22);
       this.kamera.lookAt(m.x, 1, m.z - 2);
     }
-    this.renderer.render(this.szene, this.kamera);
+    if (this.q.bloom) {
+      if (!this.composer) this.composerBauen();
+      if (this.renderPass.scene !== karte.szene) this.renderPass.scene = karte.szene;
+      this.composer.render(dt);
+    } else {
+      this.renderer.render(karte.szene, this.kamera);
+    }
+    // Läuft es zu langsam? Dann automatisch eine Stufe tiefer.
+    const jetzt = performance.now();
+    const roh = jetzt - (this.letztesBild ?? jetzt);
+    this.letztesBild = jetzt;
+    if (this.gestartet && !gewaehlteStufe() && !document.hidden && this.messung.bild(roh)) {
+      const naechste = this.stufe === "hoch" ? "mittel" : this.stufe === "mittel" ? "niedrig" : null;
+      if (naechste) {
+        this.qualitaetSetzen(naechste);
+        toast(`Grafik auf „${STUFEN[naechste].name}“ gestellt, damit es flüssiger läuft.`);
+      }
+    }
+  }
+
+  /** Für Tiere: nur Kacheln und feste Objekte, mit kleinerem Radius. */
+  blockiertFuerTier(x, z) {
+    const raster = this.karte.raster, blockZ = this.karte.bau.blockZeichen;
+    for (const [dx, dz] of [[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]]) {
+      const tx = Math.floor((x + dx) / E), tz = Math.floor((z + dz) / E);
+      const zeile = raster[tz];
+      if (!zeile || tx < 0 || tx >= zeile.length || blockZ.has(zeile[tx])) return true;
+    }
+    for (const o of this.karte.objekte) {
+      if (!o.aktivFest) continue;
+      const q = o.rechteck;
+      if (x > q.x0 - 0.2 && x < q.x1 + 0.2 && z > q.z0 - 0.2 && z < q.z1 + 0.2) return true;
+    }
+    return false;
   }
 }

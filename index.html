@@ -2,9 +2,13 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10121a">
   <title>Die Chroniken von Eldoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/thema3d.css">
 </head>
 <body>
   <header id="hud" hidden>
@@ -20,10 +24,10 @@
       <div id="hud-xp-text">0 XP</div>
     </div>
     <nav class="hud-knoepfe">
-      <button data-aktion="ziele" title="Aufgaben (Q)">📋 Aufgaben</button>
-      <button data-aktion="inventar" title="Inventar (I)">🎒 Inventar</button>
-      <button data-aktion="heldenpass" title="Heldenpass (P)">🪪 Heldenpass</button>
-      <button data-aktion="code" title="Lehrercode einlösen">🔑 Code</button>
+      <button data-aktion="ziele" title="Aufgaben (Q)">📋 <span>Aufgaben</span></button>
+      <button data-aktion="inventar" title="Inventar (I)">🎒 <span>Inventar</span></button>
+      <button data-aktion="heldenpass" title="Heldenpass (P)">🪪 <span>Heldenpass</span></button>
+      <button data-aktion="code" title="Lehrercode einlösen">🔑 <span>Code</span></button>
       <button data-aktion="ton" id="ton-knopf" title="Musik an/aus (M)">🔊</button>
       <button data-aktion="menue" title="Menü (Esc)">☰</button>
     </nav>
@@ -39,7 +43,6 @@
   </div>
   <div id="toasts" aria-live="polite"></div>
 
-  <script src="vendor/phaser.min.js"></script>
-  <script type="module" src="src/main.js"></script>
+  <script type="module" src="src/main3d.js"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@ body { background: #10121a; }
 
 #hud { background: linear-gradient(rgba(20, 18, 30, .92), rgba(20, 18, 30, .78)); border-bottom: 1px solid var(--goldrand); }
 #hud-name { font-family: var(--titelschrift); color: var(--gold-text); }
-#hud-bild { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--goldrand); image-rendering: auto; }
+#hud-bild { width: 38px; height: 38px; border-radius: 8px; border: 2px solid var(--goldrand); image-rendering: pixelated; }
 .hud-knoepfe button { background: rgba(255, 255, 255, .06); border: 1px solid rgba(201, 162, 78, .6); border-radius: 999px; padding: 5px 12px; }
 .hud-knoepfe button:hover { background: rgba(255, 255, 255, .14); }
 #hud-xp-fuellung { background: linear-gradient(90deg, #b8862a, #f2cf74); }
@@ -40,9 +40,9 @@ body { background: #10121a; }
 .ziel-liste li.erledigt { color: #8a8478; }
 
 .portrait {
-  width: 128px; height: 128px; image-rendering: auto;
-  border: 2px solid var(--goldrand); border-radius: 50%; background: #000;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
+  width: 128px; height: 128px; image-rendering: pixelated;
+  border: 3px solid var(--goldrand); border-radius: 10px; background: #000;
+  box-shadow: 0 0 0 2px #00000080, 0 4px 18px rgba(0, 0, 0, .5);
 }
 .kampf-kopf .portrait { width: 128px; height: 128px; }
 .dialog { align-items: center; }
@@ -58,5 +58,11 @@ body { background: #10121a; }
 .analyse li.fehlt { color: #ff9a9a; }
 .lp-balken { border-color: var(--goldrand); }
 .klasse { background: #f6f0dc; }
-.klasse img { width: 72px; height: 72px; border-radius: 50%; image-rendering: auto; }
-.titelbild img { border-radius: 50%; border: 2px solid var(--goldrand); }
+.klasse img { width: 72px; height: 72px; border-radius: 8px; image-rendering: pixelated; }
+.titelbild img { border-radius: 12px; border: 3px solid var(--goldrand); }
+#overlay.gespraech { background: linear-gradient(transparent 50%, rgba(8, 8, 14, .55)); }
+#overlay.gespraech #fenster { width: min(820px, 100%); }
+@media (max-width: 760px) {
+  .portrait { width: 88px; height: 88px; }
+  .kampf-kopf .portrait { width: 88px; height: 88px; }
+}

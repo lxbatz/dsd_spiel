@@ -6,6 +6,9 @@ import { mat } from "./figuren.js";
 import { bodenTexturen, wandTextur, dachTextur, holzTextur, steinTextur, markiseTextur, aushangTextur, textur, lichtTextur } from "./texturen.js";
 import { haeuserFinden } from "../grafik16/welt.js";
 import { hash } from "../grafik16/pinsel.js";
+import { windMaterial, schmetterlingeBauen, voegelBauen, blaetterBauen, lichtpunkteBauen } from "./effekte.js";
+import { katzeBauen, katzeVerhalten } from "./katze.js";
+import { dialog } from "../ui/fenster.js";
 
 export const E = 2; // Welteinheiten pro Kachel
 export const welt = (t) => t * E + E / 2;
@@ -121,14 +124,16 @@ export function umgebungBauen(szene, B, T) {
 
 // ---------- Natur ----------
 
-export function baeumeBauen(szene, raster) {
+export function baeumeBauen(szene, raster, wind = []) {
   const positionen = [];
   raster.forEach((zeile, ty) => [...zeile].forEach((z, tx) => { if (z === "T") positionen.push([tx, ty]); }));
   const stammGeo = new THREE.CylinderGeometry(0.22, 0.34, 1.8, 7);
   stammGeo.translate(0, 0.9, 0);
   const kroneGeo = new THREE.IcosahedronGeometry(1, 1);
   const staemme = new THREE.InstancedMesh(stammGeo, mat("#6b4a2e"), positionen.length);
-  const kronen = new THREE.InstancedMesh(kroneGeo, new THREE.MeshStandardMaterial({ roughness: 0.9, flatShading: true }), positionen.length * 3);
+  const kronenMat = new THREE.MeshStandardMaterial({ roughness: 0.9, flatShading: true });
+  wind.push(windMaterial(kronenMat, 0.05, 1.0));
+  const kronen = new THREE.InstancedMesh(kroneGeo, kronenMat, positionen.length * 3);
   staemme.castShadow = kronen.castShadow = true;
   staemme.receiveShadow = kronen.receiveShadow = true;
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
@@ -151,25 +156,43 @@ export function baeumeBauen(szene, raster) {
   szene.add(staemme, kronen);
 }
 
-export function wieseBauen(szene, raster) {
+export function wieseBauen(szene, raster, wind = [], dichte = 1) {
   const blumen = [];
   const buesche = [];
   raster.forEach((zeile, ty) => [...zeile].forEach((z, tx) => {
     if (z === "F") for (let i = 0; i < 9; i++) blumen.push([welt(tx) + (hash(tx, ty, i) - 0.5) * 1.8, welt(ty) + (hash(tx, ty, i + 20) - 0.5) * 1.8, i]);
-    if (z === "." || z === "F") for (let i = 0; i < 4; i++) if (hash(tx, ty, i + 40) > 0.4) buesche.push([welt(tx) + (hash(tx, ty, i + 50) - 0.5) * 1.9, welt(ty) + (hash(tx, ty, i + 60) - 0.5) * 1.9]);
+    if (z === "." || z === "F") for (let i = 0; i < Math.round(4 * dichte); i++) if (hash(tx, ty, i + 40) > 0.4) buesche.push([welt(tx) + (hash(tx, ty, i + 50) - 0.5) * 1.9, welt(ty) + (hash(tx, ty, i + 60) - 0.5) * 1.9]);
   }));
-  const bluete = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.09, 0), new THREE.MeshStandardMaterial({ roughness: 0.6, flatShading: true }), blumen.length);
-  const stiel = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3, 4).translate(0, 0.15, 0), mat("#3a7a2a"), blumen.length);
+  // Blüten aus fünf Blättern um einen gelben Kern
+  const bluetenGeo = new THREE.IcosahedronGeometry(0.05, 0);
+  const blatt = new THREE.SphereGeometry(0.055, 6, 4).scale(1, 0.35, 0.6);
+  const teile = [];
+  for (let k = 0; k < 5; k++) {
+    const a = (k / 5) * Math.PI * 2;
+    teile.push(blatt.clone().translate(0.055, 0, 0).rotateY(a));
+  }
+  const bluetenblaetter = vereinen(teile).translate(0, 0.32, 0);
+  const bluetenMat = new THREE.MeshStandardMaterial({ roughness: 0.6 });
+  const stielMat = new THREE.MeshStandardMaterial({ color: "#3a7a2a", roughness: 0.9 });
+  wind.push(windMaterial(bluetenMat, 0.06, 0.35), windMaterial(stielMat, 0.06, 0.35));
+  const bluete = new THREE.InstancedMesh(bluetenblaetter, bluetenMat, blumen.length);
+  const kern = new THREE.InstancedMesh(bluetenGeo.clone().scale(0.6, 0.6, 0.6).translate(0, 0.335, 0), new THREE.MeshStandardMaterial({ color: "#f8d020", roughness: 0.5, emissive: "#604000" }), blumen.length);
+  wind.push(windMaterial(kern.material, 0.06, 0.35));
+  const stiel = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.012, 0.016, 0.32, 4).translate(0, 0.16, 0), stielMat, blumen.length);
   const farben = ["#f04858", "#f8d848", "#ffffff", "#78a8f8", "#f890c0"].map((c) => new THREE.Color(c));
   const m = new THREE.Matrix4();
   blumen.forEach(([x, z, i], n) => {
-    m.makeTranslation(x, 0, z); stiel.setMatrixAt(n, m);
-    m.makeTranslation(x, 0.3, z); bluete.setMatrixAt(n, m);
+    m.compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, x * 7, 0)), new THREE.Vector3(1, 0.8 + (i % 3) * 0.15, 1));
+    stiel.setMatrixAt(n, m);
+    bluete.setMatrixAt(n, m);
+    kern.setMatrixAt(n, m);
     bluete.setColorAt(n, farben[(i + Math.floor(x)) % farben.length]);
   });
   // Grasbüschel aus drei schmalen Halmen
   const halm = new THREE.ConeGeometry(0.035, 0.26, 3).translate(0, 0.13, 0);
-  const gras = new THREE.InstancedMesh(halm, new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true }), buesche.length * 3);
+  const grasMat = new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true });
+  wind.push(windMaterial(grasMat, 0.07, 0.3));
+  const gras = new THREE.InstancedMesh(halm, grasMat, buesche.length * 3);
   const gfarbe = new THREE.Color();
   buesche.forEach(([x, z], n) => {
     for (let j = 0; j < 3; j++) {
@@ -182,7 +205,21 @@ export function wieseBauen(szene, raster) {
       gras.setColorAt(n * 3 + j, gfarbe);
     }
   });
-  szene.add(bluete, stiel, gras);
+  szene.add(bluete, kern, stiel, gras);
+  return blumen.map(([x, z]) => [x, z]);
+}
+
+function vereinen(liste) {
+  const pos = [], nor = [];
+  for (const g of liste) {
+    const n = g.toNonIndexed();
+    pos.push(...n.attributes.position.array);
+    nor.push(...n.attributes.normal.array);
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  out.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+  return out;
 }
 
 export function zaunBauen(szene, raster) {
@@ -390,3 +427,88 @@ export function objektBauen(o, animationen) {
 }
 
 export { mat };
+
+// ---------- Das ganze Dorf ----------
+
+const BLOCK_DORF = new Set(["T", "~", "H", "R", "d", "f"]);
+
+/**
+ * Baut das Dorf in die Szene.
+ * Liefert dieselbe Schnittstelle wie halleBauen (siehe spiel.js).
+ */
+export function dorfBauen(szene, raster, kontext) {
+  const { animationen, qualitaet } = kontext;
+  szene.background = null;
+  szene.fog = new THREE.Fog("#d4e8fb", 45, 190);
+  const mitte = new THREE.Vector3(raster[0].length, 0, raster.length);
+
+  const sonne = new THREE.DirectionalLight("#fff0d6", 2.6);
+  sonne.position.copy(mitte).add(new THREE.Vector3(-28, 42, 22));
+  sonne.target.position.copy(mitte);
+  sonne.castShadow = qualitaet.schatten;
+  sonne.shadow.mapSize.set(qualitaet.schattenGroesse, qualitaet.schattenGroesse);
+  Object.assign(sonne.shadow.camera, { left: -42, right: 42, top: 36, bottom: -36, near: 1, far: 140 });
+  sonne.shadow.bias = -0.0004;
+  sonne.shadow.normalBias = 0.03;
+  szene.add(sonne, sonne.target);
+  szene.add(new THREE.HemisphereLight("#cfe6ff", "#5a7a3a", 1.1));
+
+  const wind = [];
+  const boden = bodenBauen(szene, raster);
+  animationen.push(boden.wellen);
+  const { wolken } = umgebungBauen(szene, boden.breite, boden.tiefe);
+  animationen.push((t) => { wolken.rotation.y = t * 0.004; });
+  baeumeBauen(szene, raster, wind);
+  const blumen = wieseBauen(szene, raster, wind, qualitaet.partikel >= 1 ? 1.4 : 0.8);
+  zaunBauen(szene, raster);
+  haeuserBauen(szene, raster, animationen);
+  animationen.push((t) => { for (const w of wind) w.value = t; });
+
+  // Lebendige Natur
+  const m = qualitaet.partikel;
+  schmetterlingeBauen(szene, raster, Math.round(10 * m), animationen);
+  voegelBauen(szene, mitte, Math.round(5 * m), animationen);
+  blaetterBauen(szene, raster, Math.round(26 * m), animationen);
+  lichtpunkteBauen(szene, blumen, { farbe: "#fff2a0", groesse: 0.09, anzahl: Math.round(140 * m) }, animationen);
+  const wasser = [];
+  raster.forEach((z, ty) => [...z].forEach((c, tx) => { if (c === "~") wasser.push([welt(tx), welt(ty)]); }));
+  lichtpunkteBauen(szene, wasser, { farbe: "#ffffff", groesse: 0.22, hoehe: [0.17, 0.2], streuung: 0.9, funkeln: true, anzahl: Math.round(90 * m) }, animationen);
+
+  // Mimi, Wilmas Katze
+  const katze = katzeBauen();
+  katze.gruppe.position.set(18.5, 0, 21.5);
+  szene.add(katze.gruppe);
+  let verhalten = null;
+  const zusatz = [{
+    def: { id: "katze", art: "tier", name: "Mimi", hinweis: "Mimi streicheln", x: 0, y: 0 },
+    modell: katze.gruppe,
+    dynamisch: true,
+    async aktion(api) {
+      verhalten?.gestreichelt();
+      api.effekte.herzchen(new THREE.Vector3(katze.gruppe.position.x, 0.6, katze.gruppe.position.z));
+      const saetze = [
+        "Mimi schnurrt: „Rrrrr …“ Sie ist die Katze von Händlerin Wilma.",
+        "Mimi reibt ihren Kopf an deinem Bein. Sie mag dich!",
+        "Mimi gähnt. Dann schaut sie dich mit großen grünen Augen an.",
+        "„Miau!“ – Mimi will spielen. Sie ist eine sehr neugierige Katze.",
+      ];
+      await dialog("Mimi", saetze[Math.floor(Math.random() * saetze.length)]);
+    },
+    update(zeit, dt, spieler, tempo, frei) {
+      verhalten ??= katzeVerhalten(katze, { x0: 6, z0: 19, x1: 34, z1: 33 }, frei);
+      verhalten.update(zeit, dt, spieler, tempo);
+    },
+  }];
+
+  return {
+    blockZeichen: BLOCK_DORF,
+    hindernis: (tx, ty) => {
+      const c = raster[ty]?.[tx];
+      return c === "H" || c === "R" || c === "d" ? 6.5 : c === "T" ? 4.5 : c === undefined ? 4.5 : 0;
+    },
+    objektModell: () => null,
+    zusatz,
+    licht: () => {},
+    kamera: { hoehe: 2.9, abstand: 6.2, maxHoehe: 7 },
+  };
+}

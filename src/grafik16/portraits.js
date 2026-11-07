@@ -9,16 +9,16 @@ const R5 = (hex) => rampe(hex, -3, 1);
 
 // Zusätzliche Angaben nur für Porträts
 export const PORTRAITS = {
-  held_neu: { hintergrund: "#5a6a8a", augen: "#4a7a3a", ausdruck: "neugierig" },
-  held_kriegerin: { hintergrund: "#8a3a3a", augen: "#3a6a9a", ausdruck: "mutig" },
-  held_magier: { hintergrund: "#2a3a7a", augen: "#6a3a9a", ausdruck: "ruhig" },
-  held_waldlaeufer: { hintergrund: "#3a6a4a", augen: "#3a7a5a", ausdruck: "ruhig" },
-  held_barde: { hintergrund: "#8a5a2a", augen: "#5a3a1a", ausdruck: "froh" },
-  npc_aldric: { hintergrund: "#3a4a7a", augen: "#4a6a9a", ausdruck: "weise", alt: true },
-  npc_wilma: { hintergrund: "#6a8a4a", augen: "#6a4a2a", ausdruck: "froh", ohrringe: true },
-  npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true },
-  npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true },
-  boss_torwaechter: { hintergrund: "#1e1a30" },
+  held_neu: { hintergrund: "#5a6a8a", augen: "#4a7a3a", ausdruck: "neugierig", szene: "land", schal: "#b85a3a" },
+  held_kriegerin: { hintergrund: "#8a3a3a", augen: "#3a6a9a", ausdruck: "mutig", szene: "land", narbe: true },
+  held_magier: { hintergrund: "#2a3a7a", augen: "#6a3a9a", ausdruck: "ruhig", szene: "nacht" },
+  held_waldlaeufer: { hintergrund: "#3a6a4a", augen: "#3a7a5a", ausdruck: "ruhig", szene: "wald", spange: true },
+  held_barde: { hintergrund: "#8a5a2a", augen: "#5a3a1a", ausdruck: "froh", szene: "land", feder: true },
+  npc_aldric: { hintergrund: "#3a4a7a", augen: "#4a6a9a", ausdruck: "weise", alt: true, szene: "dorf", amulett: true },
+  npc_wilma: { hintergrund: "#6a8a4a", augen: "#6a4a2a", ausdruck: "froh", ohrringe: true, szene: "markt", blume: true },
+  npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schmiede", licht: { farbe: "#ffb060", seite: 1 } },
+  npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
+  boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen" },
 };
 
 // ---------- Hilfen ----------
@@ -48,10 +48,153 @@ function straehne(r, x, y, cx, cy, rx, ry, { welle = 0.8, hell = 0 } = {}) {
 function hintergrund(b, p) {
   const r = R5(p.hintergrund);
   b.verlauf(0, 0, G, G, r, { dither: 0.9 });
-  b.fuelle(0, 0, G - 1, G - 1, (x, y) => ((x - 30) / 30) ** 2 + ((y - 26) / 26) ** 2 <= 1,
-    (x, y) => tonAus(r, 0.75 - Math.hypot(x - 30, y - 26) / 70, x, y, 0.9));
-  // Fensterkreuz-Licht als dezentes Muster
-  for (let i = 0; i < 6; i++) b.set(8 + i * 9 + (i % 2), 6 + (i % 3) * 3, r[r.length - 1]);
+  const szene = SZENEN[p.szene];
+  if (szene) szene(b, p);
+  else {
+    b.fuelle(0, 0, G - 1, G - 1, (x, y) => ((x - 30) / 30) ** 2 + ((y - 26) / 26) ** 2 <= 1,
+      (x, y) => tonAus(r, 0.75 - Math.hypot(x - 30, y - 26) / 70, x, y, 0.9));
+  }
+  // Leichte Vignette, damit die Figur gut lesbar bleibt
+  for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+    const d = Math.hypot((x - 32) / 32, (y - 30) / 34);
+    if (d > 0.82 && hash(x, y, 99) < (d - 0.82) * 2.2) b.set(x, y, toene(b.get(x, y), -1));
+  }
+}
+
+function wolke(b, cx, cy, breite) {
+  const w = ["#c8d8f0", "#e6eefa", "#ffffff"];
+  for (let i = 0; i < breite; i += 3) b.kugel(cx + i, cy - Math.sin((i / breite) * Math.PI) * 2, 3.2, 2.4, w, { dither: 0.3 });
+}
+
+function huegel(b, y0, amp, freq, phase, farbe) {
+  const r = R(farbe);
+  for (let x = 0; x < G; x++) {
+    const oben = Math.round(y0 - Math.sin(x * freq + phase) * amp - Math.sin(x * freq * 2.7 + phase) * amp * 0.3);
+    for (let y = oben; y < G; y++) b.set(x, y, tonAus(r, 0.7 - (y - oben) / 30, x, y, 0.8));
+  }
+}
+
+const SZENEN = {
+  land(b, p) {
+    const himmel = R5(mische("#6aa8e8", p.hintergrund, 0.25));
+    b.verlauf(0, 0, G, 40, [...himmel].reverse(), { dither: 0.9, umkehren: true });
+    wolke(b, 4, 10, 14); wolke(b, 42, 6, 12);
+    huegel(b, 36, 3, 0.09, 1, "#6a8ab0");
+    huegel(b, 42, 4, 0.13, 3, "#4f8a4a");
+    huegel(b, 50, 3, 0.2, 0.5, "#3f7a3a");
+  },
+  wald(b) {
+    b.verlauf(0, 0, G, G, R5("#9ac8a0").reverse(), { dither: 0.9, umkehren: true });
+    for (let i = 0; i < 9; i++) {
+      const x = 2 + i * 7.5 + hash(i, 1, 4) * 3, h = 30 + hash(i, 2, 4) * 18;
+      const r = R(i % 2 ? "#2f6a3a" : "#3a7a44");
+      for (let y = G - h; y < G; y++) {
+        const w = Math.max(1, (y - (G - h)) * 0.32);
+        for (let dx = -w; dx <= w; dx++) b.set(Math.round(x + dx), y, tonAus(r, 0.6 - dx / (w * 3), x + dx, y, 0.7));
+      }
+    }
+    for (let i = 0; i < 14; i++) b.set(Math.floor(hash(i, 3, 4) * G), Math.floor(hash(i, 4, 4) * 40), "#f8f4c0");
+  },
+  nacht(b, p) {
+    b.verlauf(0, 0, G, G, R5("#2a3a7a"), { dither: 0.9 });
+    for (let i = 0; i < 30; i++) {
+      const x = Math.floor(hash(i, 1, 6) * G), y = Math.floor(hash(i, 2, 6) * 44);
+      b.set(x, y, hash(i, 3, 6) > 0.7 ? "#ffffff" : "#b8c8f8");
+      if (hash(i, 4, 6) > 0.85) { b.set(x - 1, y, "#8898d8"); b.set(x + 1, y, "#8898d8"); b.set(x, y - 1, "#8898d8"); b.set(x, y + 1, "#8898d8"); }
+    }
+    b.kugel(52, 12, 6, 6, ["#c8c8a0", "#e8e8c8", "#fffff0"], { dither: 0.3 });
+    b.kugel(55, 10, 5, 5, R5("#2a3a7a").slice(2, 4), { dither: 0 });
+    huegel(b, 48, 3, 0.11, 2, "#1e2a5a");
+  },
+  dorf(b) {
+    b.verlauf(0, 0, G, 44, R5("#7ab0e8").reverse(), { dither: 0.9, umkehren: true });
+    wolke(b, 36, 7, 14);
+    huegel(b, 34, 2, 0.1, 1, "#5a8ab0");
+    const haeuser = [[0, 30, 16, "#c84a36"], [18, 34, 14, "#4e6ab8"], [40, 31, 18, "#c84a36"], [56, 33, 12, "#5a4e4a"]];
+    for (const [x0, y0, w, dach] of haeuser) {
+      b.rect(x0, y0, w, G - y0, "#d8c8a8");
+      b.rect(x0, y0, 1, G - y0, "#b8a888");
+      const dr = R(dach);
+      for (let j = 0; j < 8; j++) b.rect(x0 - 1 + j, y0 - 8 + j, w + 2 - j * 2, 1, dr[j % 2 ? 1 : 2]);
+      for (let k = 0; k < Math.floor(w / 6); k++) { b.rect(x0 + 2 + k * 6, y0 + 4, 3, 3, "#f8e8a0"); b.rect(x0 + 2 + k * 6, y0 + 4, 3, 1, "#6a4426"); }
+      b.rect(x0, y0 + 10, w, 1, "#6a4426");
+    }
+    huegel(b, 56, 1, 0.3, 0, "#4f8a4a");
+  },
+  markt(b) {
+    b.verlauf(0, 0, G, G, R5("#a8c890").reverse(), { dither: 0.9, umkehren: true });
+    // Regal mit Äpfeln und Brot
+    b.rect(0, 38, G, 3, "#7a5230"); b.rect(0, 41, G, 1, "#4a2e1a");
+    for (let i = 0; i < 12; i++) b.kugel(3 + i * 5.2, 35.5, 2.3, 2.2, R(i % 3 === 2 ? "#6ab040" : "#d83a3a"), { dither: 0.3 });
+    for (let i = 0; i < 5; i++) b.kugel(6 + i * 12, 50, 4.5, 2.6, R("#d8a050"), { dither: 0.4 });
+    // Markise oben
+    for (let x = 0; x < G; x++) {
+      const streifen = Math.floor(x / 6) % 2;
+      const unten = 12 + Math.round(Math.abs(Math.sin((x % 6) / 6 * Math.PI)) * 2);
+      for (let y = 0; y < unten; y++) b.set(x, y, streifen ? (y < 2 ? "#e8e4dc" : "#f4f0e8") : (y < 2 ? "#a82a2a" : "#d03a3a"));
+      b.set(x, unten, streifen ? "#c8c4bc" : "#8a2020");
+    }
+  },
+  schmiede(b) {
+    // Ziegelwand mit Glut
+    for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+      const reihe = Math.floor(y / 4), fuge = y % 4 === 3 || (x + (reihe % 2) * 4) % 8 === 7;
+      const glut = Math.max(0, 1 - Math.hypot(x - 54, y - 44) / 30);
+      const basis = fuge ? "#2a1a14" : mische(hash(Math.floor((x + (reihe % 2) * 4) / 8), reihe, 7) > 0.5 ? "#5a3426" : "#4a2a20", "#ff8a30", glut * 0.6);
+      b.set(x, y, basis);
+    }
+    // Esse: gemauerte Öffnung mit Glut
+    for (let y = 36; y < G; y++) for (let x = 47; x < G; x++) {
+      const innen = y > 42 || ((x - 56) / 8.5) ** 2 + ((y - 43) / 7) ** 2 <= 1;
+      const rand = y > 41 ? (x === 47 || x === 48) : ((x - 56) / 9.5) ** 2 + ((y - 43) / 8) ** 2 <= 1;
+      if (innen) b.set(x, y, tonAus(["#2a0e06", "#6a1a08", "#c83a10", "#f07020", "#ffc050"], (y - 40) / 26 + hash(x, y, 4) * 0.25, x, y, 0.7));
+      else if (rand) b.set(x, y, "#6a5a50");
+    }
+    for (let i = 0; i < 14; i++) b.set(40 + Math.floor(hash(i, 1, 8) * 22), 10 + Math.floor(hash(i, 2, 8) * 28), hash(i, 3, 8) > 0.5 ? "#ffd060" : "#ff8a30");
+  },
+  bibliothek(b) {
+    b.rect(0, 0, G, G, "#2a1e18");
+    const farben = ["#8a2a2a", "#2a4a8a", "#2a6a3a", "#6a3a8a", "#a8742a", "#3a3a4a", "#9a8a6a"];
+    for (let reihe = 0; reihe < 4; reihe++) {
+      const y0 = 2 + reihe * 16;
+      let x = 0, i = 0;
+      while (x < G) {
+        const w = 2 + Math.floor(hash(i, reihe, 3) * 3), h = 10 + Math.floor(hash(i, reihe, 4) * 4);
+        const r = R(farben[Math.floor(hash(i, reihe, 5) * farben.length)]);
+        for (let dx = 0; dx < w; dx++) for (let dy = 0; dy < h; dy++) b.set(x + dx, y0 + 13 - h + dy, r[dx === 0 ? 2 : dx === w - 1 ? 0 : 1]);
+        if (h > 11) b.rect(x, y0 + 13 - h + 2, w, 1, "#e0b850");
+        x += w; i++;
+      }
+      b.rect(0, y0 + 13, G, 2, "#6a4428"); b.rect(0, y0 + 15, G, 1, "#3a2414");
+    }
+    // Kerzenschein links
+    for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+      const k = Math.max(0, 1 - Math.hypot(x - 8, y - 18) / 26);
+      if (k > 0 && hash(x, y, 31) < k * 1.4) b.set(x, y, mische(b.get(x, y), "#ffcf70", k * 0.5));
+    }
+    b.rect(7, 16, 2, 6, "#f2ead6"); b.set(7, 14, "#fff4b0"); b.set(8, 14, "#ffd050"); b.set(7, 15, "#ff9a30"); b.set(8, 15, "#ffd050");
+  },
+  runen(b) {
+    b.verlauf(0, 0, G, G, R5("#1e1a30"), { dither: 0.9 });
+    for (let i = 0; i < 360; i += 2) {
+      const a = (i * Math.PI) / 180;
+      const x = Math.round(32 + Math.cos(a) * 29), y = Math.round(30 + Math.sin(a) * 29);
+      b.set(x, y, i % 30 < 10 ? "#58d8f0" : "#2a6a8a");
+    }
+  },
+};
+
+/** Kantenlicht: helle Ränder auf der Lichtseite, dunklere auf der Schattenseite. */
+function kantenlicht(f, licht = { farbe: "#fff2d0", seite: -1 }) {
+  const neu = [];
+  for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+    const c = f.get(x, y);
+    if (!c) continue;
+    const lx = x + licht.seite, sx = x - licht.seite;
+    if (!f.get(lx, y) || (!f.get(x, y - 1) && licht.seite < 0)) neu.push([x, y, mische(c, licht.farbe, 0.42)]);
+    else if (!f.get(sx, y) && hash(x, y, 12) > 0.3) neu.push([x, y, toene(c, -1)]);
+  }
+  for (const [x, y, c] of neu) f.set(x, y, c);
 }
 
 function koerper(b, d, p, f) {
@@ -319,7 +462,64 @@ export function portraitBild(schluessel) {
   haare(f, d, p, "vorne");
   bart(f, d);
   ausruestung(f, d, p, "vorne");
+  glanzlichter(f, d);
+  schmuck(f, d, p);
+  kantenlicht(f, p.licht);
   f.umriss(null, { staerke: 0.3 });
   b.ueber(f);
   return b;
+}
+
+/** Glanzlicht auf den Haaren (heller Bogen oben links). */
+function glanzlichter(f, d) {
+  if (["glatze", "kapuze"].includes(d.frisur)) return;
+  const r = R5(d.haare);
+  const ziel = d.frisur === "spitzhut" ? 23 : 19;
+  for (let a = 0; a < 1; a += 0.02) {
+    const x = Math.round(20 + a * 16), y = Math.round(ziel - Math.sin(a * Math.PI) * 4 + (d.frisur === "lockig" ? 1 : 0));
+    for (const dy of [0, 1]) {
+      const c = f.get(x, y + dy);
+      const i = r.indexOf(c);
+      if (i >= 0 && i < r.length - 1 && hash(x, y + dy, 3) > 0.25) f.set(x, y + dy, r[Math.min(r.length - 1, i + 1 + (dy === 0 ? 1 : 0))]);
+    }
+  }
+}
+
+/** Kleine Erkennungszeichen: Amulett, Blume, Narbe, Federn, Spange, Schal. */
+function schmuck(f, d, p) {
+  const gold = R("#e0b040");
+  if (p.amulett) {
+    f.linie(27, 50, 32, 55, gold[1]); f.linie(37, 50, 32, 55, gold[1]);
+    f.kugel(32, 57, 2.6, 2.6, gold, { dither: 0.2 });
+    f.set(32, 57, "#5ad0ff"); f.set(31, 56, "#c8f4ff");
+  }
+  if (p.blume) {
+    for (const [dx, dy] of [[0, -2], [2, 0], [0, 2], [-2, 0]]) f.kugel(20 + dx, 19 + dy, 1.6, 1.6, R("#f070a0"), { dither: 0 });
+    f.set(20, 19, "#ffe040"); f.set(19, 19, "#f8c020");
+  }
+  if (p.narbe) { f.linie(40, 35, 43, 38, mische(R5(d.haut)[1], "#a04040", 0.3)); }
+  if (p.feder) {
+    // Feder hinter dem Ohr (Lyra: Schreibfeder, Barde: rote Feder)
+    const rot = d.extra === "laute";
+    const fr = R(rot ? "#d84040" : "#f4f0e8");
+    for (let i = 0; i < 12; i++) {
+      const x = 46 + Math.round(i * 0.5), y = 34 - i;
+      f.set(x, y, fr[2]); f.set(x + 1, y, fr[1]); if (i > 2 && i < 10) f.set(x - 1, y, fr[3]);
+    }
+    f.linie(46, 34, 45, 38, rot ? "#8a2020" : "#8a8070");
+  }
+  if (p.spange) {
+    const blatt = R("#5ab04a");
+    f.kugel(32, 53, 3.2, 2.2, blatt, { dither: 0.2 });
+    f.linie(29, 53, 35, 53, blatt[0]);
+    f.set(32, 51, gold[2]); f.set(32, 55, gold[2]);
+  }
+  if (p.schal) {
+    const sr = R(p.schal);
+    for (let y = 49; y < 57; y++) for (let x = 21; x < 44; x++) {
+      const innen = ((x - 32) / 11.5) ** 2 + ((y - 52.5) / 3.6) ** 2 <= 1;
+      if (innen) f.set(x, y, sr[((x + y * 2) >> 2) % 2 ? 1 : 2]);
+    }
+    for (let y = 55; y < 64; y++) f.rect(36, y, 4, 1, sr[y % 3 === 0 ? 0 : 1]);
+  }
 }

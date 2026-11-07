@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eldoria 3D – Figurenvorschau</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #20242e; color: #eee; font: 14px system-ui, sans-serif; overflow: hidden; }
+    #info { position: absolute; left: 12px; top: 10px; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="info">Figurenvorschau · Maus ziehen dreht · Mausrad zoomt · <a style="color:#9cf" href="?nah">Nahansicht</a></div>
+  <script type="module">
+    import * as THREE from "../vendor/three.module.min.js";
+    import { figurBauen, torwaechterBauen } from "../src/grafik3d/figuren.js";
+    import { AUSSEHEN } from "../src/grafik16/figuren.js";
+
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setPixelRatio(Math.min(devicePixelRatio, 2));
+    r.shadowMap.enabled = true;
+    r.toneMapping = THREE.ACESFilmicToneMapping;
+    document.body.append(r.domElement);
+    const s = new THREE.Scene();
+    s.background = new THREE.Color("#7aa8d8");
+    s.add(new THREE.HemisphereLight("#d8ecff", "#5a6a3a", 1.2));
+    const sonne = new THREE.DirectionalLight("#fff0d6", 2.6);
+    sonne.position.set(-4, 8, 6); sonne.castShadow = true; sonne.shadow.bias = -0.0004; sonne.shadow.normalBias = 0.03; sonne.shadow.mapSize.set(2048, 2048);
+    Object.assign(sonne.shadow.camera, { left: -10, right: 10, top: 6, bottom: -2 });
+    s.add(sonne);
+    const boden = new THREE.Mesh(new THREE.PlaneGeometry(40, 20).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: "#6a9a48" }));
+    boden.receiveShadow = true; s.add(boden);
+    const figuren = [];
+    const keys = Object.keys(AUSSEHEN);
+    keys.forEach((k, i) => {
+      const f = figurBauen(AUSSEHEN[k], k);
+      f.gruppe.position.set((i - (keys.length - 1) / 2) * 1.3, 0, 0);
+      s.add(f.gruppe); figuren.push(f);
+    });
+    const boss = torwaechterBauen();
+    boss.gruppe.position.set(0, 0, -3);
+    s.add(boss.gruppe);
+    const nah = location.search.includes("nah");
+    const cam = new THREE.PerspectiveCamera(nah ? 24 : 40, 1, 0.1, 100);
+    let yaw = 0, dist = nah ? 4.5 : 10;
+    const params = new URLSearchParams(location.search);
+    let fokus = Number(params.get("f") ?? -1);
+    let ziehen = null;
+    addEventListener("pointerdown", (e) => ziehen = e.clientX);
+    addEventListener("pointermove", (e) => { if (ziehen !== null) { yaw -= (e.clientX - ziehen) * 0.01; ziehen = e.clientX; } });
+    addEventListener("pointerup", () => ziehen = null);
+    addEventListener("wheel", (e) => { dist = Math.max(1.5, Math.min(20, dist + e.deltaY * 0.01)); });
+    const groesse = () => { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); };
+    addEventListener("resize", groesse); groesse();
+    const uhr = new THREE.Clock();
+    const laufen = params.has("laufen");
+    window.vorschau = { r, s, cam, figuren, boss, setze: (y, d) => { yaw = y; dist = d; }, fokus: (i) => { fokus = i; } };
+    r.setAnimationLoop(() => {
+      const dt = uhr.getDelta(), t = uhr.elapsedTime;
+      figuren.forEach((f, i) => f.animieren(t + i, laufen && i % 2 ? 1 : 0, dt));
+      boss.animieren(t);
+      const ziel = fokus >= 0 ? figuren[fokus].gruppe.position : new THREE.Vector3(0, 0, 0);
+      cam.position.set(ziel.x + Math.sin(yaw) * dist, nah ? 1.9 : 2.2, ziel.z + Math.cos(yaw) * dist);
+      cam.lookAt(ziel.x, nah ? 1.75 : 1.1, ziel.z);
+      r.render(s, cam);
+    });
+  </script>
+</body>
+</html>

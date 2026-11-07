@@ -5,7 +5,7 @@ import { bild } from "./bilder.js";
 import { heldenpassAnzeigen } from "./heldenpass.js";
 import {
   zustand, beobachten, stufeVon, xpGeben, geben, speichern,
-  exportieren, importieren, zuruecksetzen,
+  zuruecksetzen, spielstandDatei, spielstandLesen, spielstandUebernehmen,
 } from "../zustand.js";
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
 import { KLASSEN } from "../inhalte/klassen.js";
@@ -111,40 +111,87 @@ function codeAnzeigen() {
   fokus(eingabe);
 }
 
+// Die Grafikversion kann eigene Steuerungstexte und Einstellungen beisteuern.
+let einstellungen = { steuerung: null, zusatz: null };
+export function hudEinstellungen(e) { einstellungen = { ...einstellungen, ...e }; }
+
+async function dateiSpeichern(meldung) {
+  // In einer Artefakt-Ansicht ist das Speichern nur über die Plattform erlaubt (dort als .json).
+  const plattform = window.claude?.use ? await window.claude.use("downloads").catch(() => null) : null;
+  const { name, inhalt } = spielstandDatei(plattform ? "json" : "sav");
+  if (plattform) {
+    try {
+      await plattform.save({ filename: name, data: inhalt });
+      toast("💾 Spielstand gespeichert");
+    } catch (e) {
+      if (e?.code !== "declined") { meldung.hidden = false; meldung.className = "feedback schlecht"; meldung.textContent = "Speichern ist hier leider nicht möglich."; }
+    }
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([inhalt], { type: "application/octet-stream" }));
+  const a = el("a", { href: url, download: name });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`💾 ${name} wird heruntergeladen`);
+}
+
+function dateiLaden(meldung) {
+  const eingabe = el("input", { type: "file", accept: ".sav,.json,.txt", style: "display:none" });
+  document.body.append(eingabe);
+  eingabe.addEventListener("change", async () => {
+    const datei = eingabe.files?.[0];
+    eingabe.remove();
+    if (!datei) return;
+    try {
+      const daten = spielstandLesen(await datei.text());
+      const wer = daten.held?.name ? `${daten.held.name} (${daten.xp} XP)` : `${daten.xp} XP`;
+      const ja = await bestaetigen("Spielstand laden?", `Gefunden: ${wer}. Dein jetziger Fortschritt auf diesem Gerät wird dadurch ersetzt.`, "Ja, laden");
+      if (!ja) return menueAnzeigen();
+      spielstandUebernehmen(daten);
+      location.reload();
+    } catch (e) {
+      meldung.hidden = false;
+      meldung.className = "feedback schlecht";
+      meldung.textContent = e.message;
+    }
+  });
+  eingabe.click();
+}
+
 function menueAnzeigen() {
-  const exportFeld = el("textarea", { class: "code-feld", readonly: true });
-  const importFeld = el("textarea", { class: "code-feld", placeholder: "Spielstand-Code hier einfügen …" });
   const meldung = el("div", { class: "feedback", hidden: true });
+  const codeFeld = el("textarea", { class: "code-feld", placeholder: "Alten Spielstand-Code hier einfügen …" });
+  const steuerung = einstellungen.steuerung?.() ?? "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc";
 
   zeigen(
     el("h2", {}, "☰ Menü"),
     el("h3", {}, "Steuerung"),
-    el("p", {}, "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · ",
-      "Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc"),
-    el("h3", {}, "Spielstand sichern"),
-    el("p", {}, "Dein Spiel wird automatisch in diesem Browser gespeichert. Willst du auf einem anderen Gerät weiterspielen? Dann kopiere diesen Code und füge ihn dort ein."),
-    knopf("Code erzeugen", async () => {
-      exportFeld.value = exportieren();
-      exportFeld.select();
-      try { await navigator.clipboard.writeText(exportFeld.value); toast("Spielstand-Code kopiert"); } catch { /* manuell kopieren */ }
-    }, "knopf zweitrangig"),
-    exportFeld,
-    el("h3", {}, "Spielstand laden"),
-    importFeld,
-    knopf("Spielstand laden", () => {
-      try {
-        importieren(importFeld.value);
-        location.reload();
-      } catch (e) {
-        meldung.hidden = false;
-        meldung.className = "feedback schlecht";
-        meldung.textContent = e.message;
-      }
-    }, "knopf zweitrangig"),
+    el("p", {}, steuerung),
+    el("h3", {}, "Spielstand"),
+    el("p", {}, "Dein Spiel wird automatisch in diesem Browser gespeichert. Für ein anderes Gerät speicherst du deinen Spielstand als Datei und lädst ihn dort wieder."),
+    el("div", { class: "knopfleiste", style: "justify-content:flex-start;margin-top:6px" },
+      knopf("💾 Als Datei speichern", () => dateiSpeichern(meldung)),
+      knopf("📂 Datei laden", () => dateiLaden(meldung), "knopf zweitrangig")),
     meldung,
+    el("details", { class: "alter-code" },
+      el("summary", {}, "Alten Spielstand-Code einfügen"),
+      codeFeld,
+      knopf("Code laden", () => {
+        try {
+          spielstandUebernehmen(spielstandLesen(codeFeld.value));
+          location.reload();
+        } catch (e) {
+          meldung.hidden = false;
+          meldung.className = "feedback schlecht";
+          meldung.textContent = e.message;
+        }
+      }, "knopf zweitrangig")),
+    einstellungen.zusatz?.() ?? null,
     el("h3", {}, "Neues Spiel"),
     knopf("Alles löschen und neu beginnen", async () => {
-      const ja = await bestaetigen("Wirklich alles löschen?", "Dein ganzer Fortschritt auf diesem Gerät geht verloren.", "Ja, alles löschen");
+      const ja = await bestaetigen("Wirklich alles löschen?", "Dein ganzer Fortschritt auf diesem Gerät geht verloren. Tipp: Speichere vorher eine Datei.", "Ja, alles löschen");
       if (!ja) return menueAnzeigen();
       zuruecksetzen();
       location.reload();

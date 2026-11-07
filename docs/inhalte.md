@@ -117,3 +117,14 @@ Vorsicht bei Angaben, die die Grammatik ändern (z. B. „aus Polen“, aber „
 | Lehrercodes | je nach Code (Teamarbeit 20, mündlicher Beitrag 10 …) |
 
 Die Stufen stehen in `src/zustand.js` (`STUFEN`).
+
+## Neue Orte in der 3D-Version
+
+Ein neuer Ort braucht zwei Teile:
+
+1. **Die Karte mit der Story-Logik** in `src/welt/` (wie `dorf.js` oder `halle.js`): Raster, Startpunkte (`spawns`), Musik und Objekte mit ihren Aktionen. Die Karte wird in `src/welt/karten.js` eingetragen.
+2. **Das 3D-Aussehen** in `src/grafik3d/`: eine Funktion wie `halleBauen(szene, raster, kontext)`, die Boden, Wände, Licht und Dekoration baut. Sie wird in `src/grafik3d/spiel.js` bei `BAUER` eingetragen.
+
+Figuren (`art: "npc"`) bekommen automatisch ein 3D-Modell und ein Pixel-Porträt, wenn es für ihr `bild` einen Eintrag in `AUSSEHEN` (`src/grafik16/figuren.js`) und `PORTRAITS` (`src/grafik16/portraits.js`) gibt. Die Figuren kann man mit `tools/vorschau3d.html` ansehen.
+
+Ein Tor (`art: "tor"`) öffnet sich in 3D von selbst mit Staub und Funken, sobald `offen(zustand)` wahr wird. Ein Gegner, dessen `sichtbar(zustand)` nach dem Sieg falsch wird, löst sich in Funken auf.
