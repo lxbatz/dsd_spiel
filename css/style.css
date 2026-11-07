@@ -301,8 +301,16 @@ body.touch:not(.im-spiel) #joystick { display: none; }
   #hud-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30vw; }
 }
 @media (max-height: 500px) {
-  #overlay.gespraech #fenster { max-height: 62vh; }
+  #overlay.gespraech #fenster { max-height: 50vh; padding: 8px 12px; }
+  #overlay.gespraech .portrait { width: 64px; height: 64px; }
+  #overlay.gespraech .rede { font-size: 15px; }
+  #overlay.gespraech .knopfleiste { margin-top: 8px; }
   body.touch #joystick { width: 104px; height: 104px; }
   body.touch #joystick i { left: 28px; top: 28px; }
   body.touch #aktion-knopf:not([hidden]) { width: 80px; height: 80px; }
+}
+@media (max-width: 480px) {
+  .hud-held > div { display: none; }
+  .hud-knoepfe button { font-size: 16px; padding: 3px 6px; }
+  .hud-knoepfe { gap: 3px; flex-wrap: nowrap; }
 }

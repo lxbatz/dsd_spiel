@@ -625,7 +625,8 @@ export class Spiel3D {
       ziel = new THREE.Vector3(p.x, gross ? 3.0 : 2.05, p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
       const kopfY = o.boss ? 3.3 : o.def.art === "tor" ? 3.6 : o.dynamisch ? 0.5 : o.figur ? 1.85 : 1.2;
       blick = new THREE.Vector3(m.x, kopfY, m.z).lerp(new THREE.Vector3(p.x, 1.6, p.z), 0.18);
-      blick.y -= 0.35;
+      // Auf niedrigen Bildschirmen (Handy quer) die Figuren höher ins Bild rücken
+      blick.y -= this.behaelter.clientHeight < 520 ? 1.0 : 0.35;
       const frei = this.freieStrecke(new THREE.Vector3(p.x, 1.7, p.z), ziel);
       const voll = new THREE.Vector3(p.x, 1.7, p.z).distanceTo(ziel);
       if (frei < voll) ziel.lerpVectors(new THREE.Vector3(p.x, 1.7, p.z), ziel, frei / voll);
