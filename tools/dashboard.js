@@ -32,7 +32,7 @@ const svg = (tag, attrs = {}, ...kinder) => {
   return e;
 };
 const prozent = (x) => (x == null ? "–" : `${Math.round(x * 100)} %`);
-const minuten = (s) => (s < 3600 ? `${Math.round(s / 60)} min` : `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min`);
+const minuten = (s) => { const m = Math.round(s / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; };
 const datumKurz = (d) => (d ? new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) : "–");
 const datumLang = (d) => (d ? new Date(d).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }) : "–");
 const tagSchluessel = (d) => new Date(d).toLocaleDateString("sv-SE");

@@ -23,7 +23,7 @@ import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: (szene, raster, k) => halleBauen(szene, raster, { ...k, thema: "turm" }) };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -58,6 +58,7 @@ export class Spiel3D {
     this.beschaeftigt = false;
     this.sperreBis = 0;
     this.gestartet = false;
+    globalThis.eldoriaDreiD = true;
     this.tempo = 0;
     this.karten = {};
     this.karte = null;
@@ -328,6 +329,7 @@ export class Spiel3D {
         obj.warOffen = offen;
       }
       if (def.art === "portal") modell.userData.setzeAktiv?.(def.aktiv(zustand));
+      if (def.leuchtet) modell.userData.setzeLeuchten?.(def.leuchtet(zustand), this.ersteAktualisierung);
       obj.interaktiv = Boolean(def.aktion) && sichtbar && !offen;
       obj.aktivFest = obj.fest && sichtbar && !offen;
       marker.visible = obj.interaktiv && Boolean(def.marker?.(zustand));
@@ -487,6 +489,7 @@ export class Spiel3D {
       aktualisieren: () => this.aktualisieren(),
       reisen: (k, spawn) => { reiseZiel = [k, spawn]; },
       erschuettern: () => { this.wackelnBis = performance.now() + 450; },
+      dreiD: true,
       effekte: karte.effekte,
     };
     try {

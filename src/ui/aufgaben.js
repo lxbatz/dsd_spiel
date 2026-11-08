@@ -8,7 +8,8 @@
 //   ordnen        { frage, teile: [..in richtiger Reihenfolge..], loesungen?: ["alternativer Satz"], erklaerung? }
 //   zuordnen      { frage, paare: [[links, rechts], ..], erklaerung? }
 //   richtigfalsch { frage, aussagen: [[satz, true|false], ..], erklaerung? }
-//   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte? }
+//   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte?, vorlage? }
+//                   vorlage: Text (oder Funktion des Spielstands), der beim ersten Schreiben schon im Feld steht
 //
 // Alle Typen können zusätzlich einen Lesetext haben:
 //   lesetext: "<id aus texte.js>"  oder  { titel, text, quelle }
@@ -300,7 +301,8 @@ function richtigfalsch(a) {
 
 function freitext(a) {
   const leiste = umlautLeiste();
-  const vorher = zustand.texte[a.id]?.text ?? "";
+  const vorlage = typeof a.vorlage === "function" ? a.vorlage(zustand) : a.vorlage;
+  const vorher = zustand.texte[a.id]?.text ?? vorlage ?? "";
   const feld = el("textarea", { class: "freitext", spellcheck: "false", placeholder: "Schreibe hier deinen Text …" });
   feld.value = vorher;
   leiste.merken(feld);

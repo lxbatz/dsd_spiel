@@ -18,10 +18,19 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Halle der Tausend Tore: fünf Tore = Thema, Quelle, Interesse, Leser, Überschrift
    - Pult des Beobachters: eigene Einleitung schreiben (mit Selbstcheck und Textprüfung)
    - Bosskampf gegen den Torwächter der Quellen → *Rolle des Beobachters*
+3. **Lythara, Quests 2–5: Die Kammern der Stimmen** (hinter der Siegeltür, nur 3D)
+   - Kammer der Echos: einen Text wiedergeben → Wächter: der Kopist → *Rolle des Chronisten*
+   - Kammer der Erinnerungen: von eigenen Erfahrungen berichten → Wächter des Vergessens → *Rolle des Erzählers*
+   - Kammer der Waage: die eigene Meinung sagen und begründen → der Zauderer → *Rolle des Fürsprechers*
+   - Kammer des Siegels: einen Schluss schreiben → das Endlose Echo → *Rolle der Vollendung*
+   - In jeder Kammer: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
+   - Finale: **Das Buch der Stimmen** – der ganze Forumsbeitrag aus allen fünf Teilen → *Silber-Abzeichen*
+
+Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 
 Dazu: XP und Stufen, Inventar, Aufgabenliste, Heldenpass mit gespeicherten Texten, Lehrercodes, automatisches Speichern, Spielstand-Export.
 
-Alle Texte und Aufgaben sind **eigene Beispielinhalte** und werden ersetzt bzw. ergänzt, sobald das Unterrichtsmaterial vorliegt.
+Alle Texte und Aufgaben sind **eigene Beispielinhalte**. Die Lythara-Quests sind nach dem Aufbau des Readers gestaltet, schreiben ihn aber nicht ab.
 
 ## Grafik: 3D
 
@@ -77,7 +86,7 @@ css/thema3d.css        Aussehen der 3D-Version
 src/main3d.js          Start der 3D-Version
 src/start.js           Titelbildschirm und Prolog
 src/zustand.js         Spielstand, XP, Stufen, Speichern, Spielstand-Datei
-src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore)
+src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore, Kammern der Stimmen)
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes
 src/ui/                Fenster: Dialoge, Aufgabentypen, Bosskampf, Heldenpass, Kopfleiste
 src/grafik3d/          3D: Figuren, Dorf, Halle, Effekte, Katze, Kamera, Touch, Grafikstufen

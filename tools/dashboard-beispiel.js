@@ -3,16 +3,20 @@
 
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../src/inhalte/dorf.js";
 import { TORE, EINLEITUNG, TORWAECHTER } from "../src/inhalte/lythara_q1.js";
+import { KAMMERN, BUCH } from "../src/inhalte/lythara_kammern.js";
 
 const PERSONEN = [
-  ["Mira", "kriegerin", 0.82, 11], ["Ahmad", "magier", 0.9, 11], ["Oksana", "waldlaeufer", 0.7, 9],
-  ["Luca", "barde", 0.55, 6], ["Yaren", "magier", 0.76, 10], ["Tomasz", "kriegerin", 0.6, 4],
-  ["Amina", "barde", 0.88, 11], ["Diego", "waldlaeufer", 0.48, 3], ["Sara", "magier", 0.68, 8],
-  ["Nikola", "kriegerin", 0.72, 7], ["Fatima", "waldlaeufer", 0.84, 11], ["Jonas", "barde", 0.5, 1],
+  ["Mira", "kriegerin", 0.82, 22], ["Ahmad", "magier", 0.9, 32], ["Oksana", "waldlaeufer", 0.7, 15],
+  ["Luca", "barde", 0.55, 9], ["Yaren", "magier", 0.76, 18], ["Tomasz", "kriegerin", 0.6, 6],
+  ["Amina", "barde", 0.88, 27], ["Diego", "waldlaeufer", 0.48, 4], ["Sara", "magier", 0.68, 13],
+  ["Nikola", "kriegerin", 0.72, 11], ["Fatima", "waldlaeufer", 0.84, 24], ["Jonas", "barde", 0.5, 1],
 ];
 
 // Wie schwer ist eine Aufgabe? (für die Beispieldaten: manche Aufgaben sind schwerer)
-const SCHWER = { "dorf_wilma#3": 0.25, "lythara_tor2#2": 0.3, "lythara_tor4#1": 0.22, "dorf_brett#2": 0.18, "lythara_tor5#2": 0.15 };
+const SCHWER = {
+  "dorf_wilma#3": 0.25, "lythara_tor2#2": 0.3, "lythara_tor4#1": 0.22, "dorf_brett#2": 0.18, "lythara_tor5#2": 0.15,
+  "lythara_q2_s1#4": 0.3, "lythara_q3_s3#2": 0.28, "lythara_q4_s2#4": 0.25, "lythara_q4_s1#2": 0.2,
+};
 
 function zufallsquelle(saat) {
   let a = saat;
@@ -30,24 +34,31 @@ export function beispielKlasse() {
     const held = { name, klasse, alter: "17", land: "Syrien", wohnort: "Dortmund", sprachen: "Arabisch, Englisch", hobbys: "Fußball", beruf: "Elektronikerin", kennung: `IFK11-${String(p + 1).padStart(2, "0")}` };
     const z = { version: 1, held, xp: 0, gegenstaende: ["heldenpass"], erledigt: {}, texte: {}, codes: [], ort: { karte: "dorf", spawn: "start" }, protokoll: [], spielerId: `beispiel-${p}`, statistik: { quests: {}, kaempfe: [], spielzeit: 0, tage: {} } };
     const start = jetzt - (24 + Math.floor(r() * 4)) * tag;
+    const schritt = (22 * tag) / Math.max(questZahl, 9);
     let t = start;
     const folge = [
       ["dorf_heldenpass", VORSTELLEN.map((a) => (typeof a === "function" ? a(z) : a)), 50],
       ["dorf_wilma", FRAGEN_STELLEN, 50], ["dorf_borin", PERSONEN_BESCHREIBEN, 50], ["dorf_brett", AUSHANG, 50],
       ...Object.entries(TORE).map(([id, tor]) => [`lythara_${id}`, tor.aufgaben, 20]),
       ["lythara_einleitung", [EINLEITUNG], 25],
-      ["lythara_q1_boss", null, 150],
+      ["lythara_q1_boss", null, 150, TORWAECHTER],
+      ...KAMMERN.flatMap((q) => [
+        ...q.stationen.map((st) => [st.id, st.aufgaben.map((a) => (typeof a === "function" ? a(z) : a)), 20]),
+        [q.text.id, [q.text], 25],
+        [`lythara_${q.id}_boss`, null, 150, q.waechter],
+      ]),
+      ["lythara_buch", [BUCH], 200],
     ];
-    folge.slice(0, questZahl + (r() < 0.4 ? 1 : 0)).forEach(([id, aufgaben, xp], i) => {
-      t += (0.6 + r() * 2.2) * tag * (questZahl > 8 ? 0.7 : 1.4);
-      if (t > jetzt - 3600e3) t = jetzt - (12 - i) * 3600e3;
+    folge.slice(0, questZahl + (r() < 0.4 ? 1 : 0)).forEach(([id, aufgaben, xp, gegner], i) => {
+      t += schritt * (0.5 + r());
+      if (t > jetzt - 3600e3) t = jetzt - 3600e3 * (1 + r());
       const fertig = i < questZahl;
       if (aufgaben === null) {
         // Bosskampf: erst ein verlorener Kampf bei schwächeren Spielern
         const kaempfe = koennen < 0.75 ? [false, true] : [true];
         for (const sieg of kaempfe) {
-          const fragen = TORWAECHTER.fragen.slice(0, sieg ? 5 : 4).map((f, k) => ({ frage: f.frage, typ: f.typ, ok: sieg ? k !== 2 || r() < koennen : k % 2 === 0 }));
-          z.statistik.kaempfe.push({ gegner: TORWAECHTER.name, quest: id, datum: new Date(t).toISOString(), sieg, richtig: fragen.filter((f) => f.ok).length, falsch: fragen.filter((f) => !f.ok).length, fragen });
+          const fragen = gegner.fragen.slice(0, sieg ? 5 : 4).map((f, k) => ({ frage: f.frage, typ: f.typ, ok: sieg ? k !== 2 || r() < koennen : k % 2 === 0 }));
+          z.statistik.kaempfe.push({ gegner: gegner.name, quest: id, datum: new Date(t).toISOString(), sieg, richtig: fragen.filter((f) => f.ok).length, falsch: fragen.filter((f) => !f.ok).length, fragen });
           t += 600e3;
         }
         if (fertig) { z.erledigt[id] = true; z.xp += xp; z.protokoll.push({ xp, grund: "Bosskampf gewonnen", datum: new Date(t).toISOString() }); }
@@ -73,7 +84,7 @@ export function beispielKlasse() {
     });
     // Spielzeit pro Tag
     for (let d = start; d < jetzt; d += tag) {
-      const aktiv = r() < (questZahl / 14) * (d > jetzt - 7 * tag ? 1.1 : 0.8);
+      const aktiv = r() < Math.min(0.85, questZahl / 22 + 0.15) * (d > jetzt - 7 * tag ? 1.1 : 0.8);
       if (!aktiv || (questZahl < 4 && d > jetzt - 9 * tag)) continue;
       const sek = Math.round((8 + r() * 35) * 60);
       z.statistik.tage[new Date(d).toLocaleDateString("sv-SE")] = sek;

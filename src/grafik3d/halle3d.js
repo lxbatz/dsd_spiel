@@ -14,6 +14,21 @@ const REGAL_H = 4.4;
 // Farben der fünf Tore (Thema, Quellen, Interesse, Leser, Überschrift)
 export const TORFARBEN = { tor1: "#ffb347", tor2: "#58d8f0", tor3: "#ff7aa2", tor4: "#7aff9a", tor5: "#b48aff" };
 
+// Die Kammern der Stimmen benutzen denselben Bau, aber eigene Farben.
+const THEMEN = {
+  halle: { himmel: "#0c0a14", nebel: "#141020", hemi: "#9a94d0", banner: null },
+  turm: { himmel: "#0a0e16", nebel: "#101624", hemi: "#94a8d8", banner: ["#c9a24e", "#58d8f0", "#ffb347", "#7aff9a", "#b48aff"] },
+};
+
+// Farben der Wächter (Stein, dunkler Stein, Glut, Emblem auf dem Stab)
+export const WAECHTER = {
+  boss_torwaechter: { stein: "#5c5878", steinH: "#7a7698", dunkel: "#3a364e", glut: "#9af4ff", rune: "#58d8f0", emblem: "kristall" },
+  boss_kopist: { stein: "#4a5a6a", steinH: "#6a7e90", dunkel: "#283440", glut: "#bff8ff", rune: "#58d8f0", emblem: "feder" },
+  boss_vergessen: { stein: "#6a6460", steinH: "#8a847e", dunkel: "#3e3a38", glut: "#ffd28a", rune: "#ffb347", emblem: "sanduhr" },
+  boss_zauderer: { stein: "#4e6450", steinH: "#6e8670", dunkel: "#2c3a2e", glut: "#c8ffcf", rune: "#7aff9a", emblem: "waage" },
+  boss_echo: { stein: "#5e4e78", steinH: "#7e6c9a", dunkel: "#342a48", glut: "#e2ccff", rune: "#b48aff", emblem: "ringe" },
+};
+
 function leinwand(w, h) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
@@ -217,13 +232,14 @@ function kammern(raster) {
  */
 export function halleBauen(szene, raster, kontext) {
   const { animationen, qualitaet } = kontext;
+  const thema = THEMEN[kontext.thema] ?? THEMEN.halle;
   const B = raster[0].length * E, T = raster.length * E;
 
-  szene.background = new THREE.Color("#0c0a14");
-  szene.fog = new THREE.Fog("#141020", 14, 58);
+  szene.background = new THREE.Color(thema.himmel);
+  szene.fog = new THREE.Fog(thema.nebel, 14, 58);
 
   // Licht: schwaches Grundlicht, Mondlicht durch die Fenster (mit Schatten)
-  szene.add(new THREE.HemisphereLight("#9a94d0", "#3a2a40", 1.6));
+  szene.add(new THREE.HemisphereLight(thema.hemi, "#3a2a40", 1.6));
   const mond = new THREE.DirectionalLight("#a8c0ff", 1.7);
   mond.position.set(-14, 22, 6);
   mond.castShadow = qualitaet.schatten;
@@ -302,7 +318,7 @@ export function halleBauen(szene, raster, kontext) {
   // Kerzenständer und Kerzenlicht
   const kerzen = kerzenBauen(szene, raster, animationen);
   // Fenster, Lichtstrahlen und Banner an den Seitenwänden
-  fensterBauen(szene, raum, animationen);
+  fensterBauen(szene, raum, animationen, thema.banner);
   // Schwebende Bücher und Staub
   schwebendeBuecher(szene, raum, animationen);
 
@@ -458,14 +474,14 @@ function kerzenBauen(szene, raster, animationen) {
 
 // ---------- Fenster, Lichtstrahlen, Banner ----------
 
-function fensterBauen(szene, raum, animationen) {
+function fensterBauen(szene, raum, animationen, farben) {
   const glas = new THREE.MeshBasicMaterial({ map: textur(fensterTextur()), toneMapped: false, color: new THREE.Color(1.15, 1.15, 1.25) });
   const strahlMat = new THREE.MeshBasicMaterial({
     map: textur(strahlTextur()), color: "#8aa8ff", transparent: true, opacity: 0.16,
     blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false,
   });
   const fensterGeo = new THREE.PlaneGeometry(1.5, 3.8);
-  const bannerFarben = Object.values(TORFARBEN);
+  const bannerFarben = farben ?? Object.values(TORFARBEN);
   raum.forEach((k, i) => {
     const zm = ((k.z0 + k.z1 + 1) / 2) * E;
     for (const seite of [-1, 1]) {
@@ -597,8 +613,10 @@ function objektModell(o, animationen) {
   if (o.art === "tor") return torBauen(o, animationen);
   if (o.bild === "pult") return { modell: pultBauen(animationen) };
   if (o.bild === "siegeltuer") return { modell: siegelBauen(animationen), versatz: [0, 0.95] };
-  if (o.bild === "boss_torwaechter") {
-    const f = torwaechterBauen();
+  if (o.bild === "kristall") return kristallBauen(o, animationen);
+  if (o.bild === "buch_stimmen") return buchBauen(animationen);
+  if (WAECHTER[o.bild]) {
+    const f = torwaechterBauen(WAECHTER[o.bild]);
     f.gruppe.scale.setScalar(1.25);
     return { modell: f.gruppe, figur: f, boss: true };
   }
@@ -606,7 +624,7 @@ function objektModell(o, animationen) {
 }
 
 function torBauen(o, animationen) {
-  const farbe = TORFARBEN[o.id] ?? "#c9a24e";
+  const farbe = o.farbe ?? TORFARBEN[o.id] ?? "#c9a24e";
   const g = new THREE.Group();
   const t = new Teile();
   // Torbogen auf beiden Seiten
@@ -761,4 +779,110 @@ function siegelBauen(animationen) {
   });
   g.traverse((m) => { if (m.isMesh && m !== siegel) { m.receiveShadow = true; } });
   return g;
+}
+
+// ---------- Kammern der Stimmen: Echo-Kristall und Buch der Stimmen ----------
+
+/** Echo-Kristall auf einem Steinsockel. Glimmt schwach, bis die Aufgabe gelöst ist – dann leuchtet er hell. */
+function kristallBauen(o, animationen) {
+  const farbe = new THREE.Color(o.farbe ?? "#9af4ff");
+  const dunkel = farbe.clone().multiplyScalar(0.28);
+  const g = new THREE.Group();
+  const t = new Teile();
+  t.add(DREH([V(0, 0), V(0.55, 0), V(0.52, 0.12), V(0.3, 0.2), V(0.2, 0.7), V(0.32, 0.86), V(0.36, 0.98), V(0, 0.98)], 20, "kristallsockel"), "#5c5674", [0, 0, 0]);
+  t.add(RING(0.08), "#c9a24e", [0, 0.92, 0], [Math.PI / 2, 0, 0], [0.34, 0.34, 0.3], { art: "glanz" });
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + 0.4;
+    t.add(KASTEN(), "#4a4460", [Math.cos(a) * 0.42, 0.06, Math.sin(a) * 0.42], [0, -a, 0], [0.16, 0.12, 0.1]);
+  }
+  t.in(g);
+  g.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+
+  const mat = new THREE.MeshBasicMaterial({ color: dunkel.clone(), toneMapped: false });
+  const kristall = new THREE.Mesh(new THREE.OctahedronGeometry(1, 0), mat);
+  kristall.scale.set(0.24, 0.44, 0.24);
+  kristall.position.y = 1.62;
+  g.add(kristall);
+  const splitter = new THREE.Group();
+  splitter.position.y = 1.62;
+  for (let i = 0; i < 5; i++) {
+    const s = new THREE.Mesh(kristall.geometry, mat);
+    const a = (i / 5) * Math.PI * 2;
+    s.position.set(Math.cos(a) * 0.52, Math.sin(i * 1.7) * 0.16, Math.sin(a) * 0.52);
+    s.scale.set(0.045, 0.1, 0.045);
+    splitter.add(s);
+  }
+  g.add(splitter);
+  const glanz = new THREE.Sprite(new THREE.SpriteMaterial({ map: textur(lichtTextur("rgba(255,255,255,0.9)")), color: farbe, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  glanz.position.y = 1.62;
+  g.add(glanz);
+  const schein = new THREE.Mesh(new THREE.CircleGeometry(1.4, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({
+    map: textur(lichtTextur("rgba(255,255,255,0.9)")), color: farbe, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false,
+  }));
+  schein.position.y = 0.03;
+  g.add(schein);
+
+  let an = 0, ziel = 0;
+  g.userData.setzeLeuchten = (wert, sofort) => {
+    ziel = wert ? 1 : 0;
+    if (sofort) an = ziel;
+  };
+  const versatz = (o.x ?? 0) * 0.7 + (o.y ?? 0) * 0.3;
+  animationen.push((zeit, dt = 0.016) => {
+    an += Math.sign(ziel - an) * Math.min(Math.abs(ziel - an), dt * 0.7);
+    const puls = 0.5 + Math.sin(zeit * 2.1 + versatz) * 0.5;
+    kristall.rotation.y = zeit * (0.4 + an * 0.9);
+    kristall.position.y = 1.62 + Math.sin(zeit * 1.3 + versatz) * 0.06;
+    splitter.rotation.y = -zeit * (0.25 + an * 0.9);
+    splitter.position.y = kristall.position.y;
+    mat.color.copy(dunkel).lerp(farbe, 0.3 + puls * 0.25 + an * 0.45);
+    glanz.material.opacity = 0.2 + puls * 0.12 + an * 0.5;
+    glanz.scale.setScalar(1.1 + an * 0.9 + puls * 0.1);
+    schein.material.opacity = 0.1 + puls * 0.05 + an * 0.25;
+  });
+  return { modell: g };
+}
+
+/** Das Buch der Stimmen: ein großes Pult mit aufgeschlagenem Buch und einer Lichtsäule. */
+function buchBauen(animationen) {
+  const g = new THREE.Group();
+  const pult = pultBauen(animationen);
+  pult.scale.setScalar(1.55);
+  g.add(pult);
+  const t = new Teile();
+  // Stufen
+  t.add(ZYL(1, 1, 28), "#4a4460", [0, 0.08, 0], [0, 0, 0], [1.6, 0.16, 1.6]);
+  t.add(ZYL(1, 1, 28), "#5c5674", [0, 0.2, 0], [0, 0, 0], [1.25, 0.1, 1.25]);
+  t.add(RING(0.05), "#c9a24e", [0, 0.26, 0], [Math.PI / 2, 0, 0], [1.25, 1.25, 0.3], { art: "glanz" });
+  t.in(g);
+  pult.position.y = 0.25;
+  const saeule = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.9, 7, 20, 1, true), new THREE.MeshBasicMaterial({
+    map: textur(strahlTextur()), color: "#ffe2a0", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+  }));
+  saeule.position.y = 3.8;
+  g.add(saeule);
+  const seiten = new THREE.Group();
+  seiten.position.y = 2.6;
+  const seitenMat = new THREE.MeshBasicMaterial({ map: textur(buchseitenTextur()), side: THREE.DoubleSide, transparent: true, opacity: 0.85, toneMapped: false });
+  for (let i = 0; i < 6; i++) {
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.25), seitenMat);
+    const a = (i / 6) * Math.PI * 2;
+    s.position.set(Math.cos(a) * 1.1, Math.sin(i * 2.1) * 0.25, Math.sin(a) * 1.1);
+    s.rotation.set(0.3, -a, 0.2);
+    seiten.add(s);
+  }
+  g.add(seiten);
+  let an = 0, ziel = 0;
+  g.userData.setzeLeuchten = (wert, sofort) => {
+    ziel = wert ? 1 : 0;
+    if (sofort) an = ziel;
+  };
+  animationen.push((zeit, dt = 0.016) => {
+    an += Math.sign(ziel - an) * Math.min(Math.abs(ziel - an), dt * 0.5);
+    seiten.rotation.y = zeit * 0.35;
+    seiten.position.y = 2.6 + Math.sin(zeit) * 0.12;
+    seitenMat.opacity = 0.35 + an * 0.6;
+    saeule.material.opacity = 0.05 + an * 0.3 + Math.sin(zeit * 1.5) * 0.03;
+  });
+  return { modell: g, versatz: [0, 0.2] };
 }

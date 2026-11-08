@@ -18,7 +18,12 @@ export const PORTRAITS = {
   npc_wilma: { hintergrund: "#6a8a4a", augen: "#6a4a2a", ausdruck: "froh", ohrringe: true, szene: "markt", blume: true },
   npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schmiede", licht: { farbe: "#ffb060", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
-  boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen" },
+  boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
+  // Wächter der Kammern der Stimmen (gleiche Gestalt, andere Farben)
+  boss_kopist: { hintergrund: "#14222c", szene: "runen", waechter: { stein: "#5a6c7e", dunkel: "#34424e", glut: "#d0fbff", rune: "#58d8f0" } },
+  boss_vergessen: { hintergrund: "#2a2420", szene: "runen", waechter: { stein: "#7c7670", dunkel: "#4a4642", glut: "#ffd890", rune: "#ffb347" } },
+  boss_zauderer: { hintergrund: "#16261a", szene: "runen", waechter: { stein: "#5e7660", dunkel: "#34443a", glut: "#d0ffd6", rune: "#7aff9a" } },
+  boss_echo: { hintergrund: "#22183a", szene: "runen", waechter: { stein: "#70608e", dunkel: "#40345a", glut: "#ecdcff", rune: "#b48aff" } },
 };
 
 // ---------- Hilfen ----------
@@ -430,17 +435,20 @@ function ausruestung(b, d, p, teil) {
 function torwaechter(b, p) {
   hintergrund(b, p);
   const f = new Bild(G, G);
-  const stein = R5("#6e6a88");
-  const dunkel = R5("#4a4660");
+  const w = p.waechter ?? {};
+  const stein = R5(w.stein ?? "#6e6a88");
+  const dunkel = R5(w.dunkel ?? "#4a4660");
   form(f, (x, y) => ((x - 32) / 30) ** 2 + ((y - 70) / 24) ** 2 <= 1, (x, y) => kugelTon(stein, 28, 56, 32, 20, x, y));
   form(f, (x, y) => ((x - 32) / 21) ** 2 + ((y - 30) / 25) ** 2 <= 1 && y < 56, (x, y) => kugelTon(dunkel, 28, 22, 22, 26, x, y, { dither: 0.6 }));
   form(f, (x, y) => ((x - 32) / 12) ** 2 + ((y - 34) / 13) ** 2 <= 1, (x, y) => (y < 26 ? "#08060e" : "#120f1c"));
-  const glut = "#80ecff";
+  const glut = w.glut ?? "#80ecff";
+  const rune = w.rune ?? "#58d8f0";
+  const glutDunkel = toene(rune, -2);
   for (const cx of [26, 38]) {
     f.rect(cx - 2, 31, 5, 3, glut); f.rect(cx - 1, 31, 3, 1, "#ffffff");
-    f.set(cx - 3, 32, "#2a7a8a"); f.set(cx + 3, 32, "#2a7a8a");
+    f.set(cx - 3, 32, glutDunkel); f.set(cx + 3, 32, glutDunkel);
   }
-  for (const [x, y] of [[31, 52], [32, 52], [32, 53], [31, 56], [32, 58], [31, 59], [24, 55], [40, 55]]) f.set(x, y, "#58d8f0");
+  for (const [x, y] of [[31, 52], [32, 52], [32, 53], [31, 56], [32, 58], [31, 59], [24, 55], [40, 55]]) f.set(x, y, rune);
   for (let i = 0; i < 18; i++) { const x = 6 + Math.floor(hash(i, 3) * 52), y = 46 + Math.floor(hash(i, 7) * 18); if (f.get(x, y)) f.set(x, y, stein[0]); }
   f.umriss(null, { staerke: 0.3 });
   b.ueber(f);
@@ -450,7 +458,7 @@ function torwaechter(b, p) {
 export function portraitBild(schluessel) {
   const p = PORTRAITS[schluessel];
   const b = new Bild(G, G);
-  if (schluessel === "boss_torwaechter") { torwaechter(b, p); return b; }
+  if (p?.waechter) { torwaechter(b, p); return b; }
   const d = AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);

@@ -40,7 +40,8 @@ async function lyra() {
     erledigen("lythara_q1_abschluss");
     await dialog(LYRA, [
       "Du hast die Rolle des Beobachters! Die erste Seite des Buches der Stimmen leuchtet wieder.",
-      "Hinter dem Siegel wartet die Kammer der Echos – dort geht es um die Rolle des Chronisten. Aber das Siegel ist noch verschlossen. Komm bald wieder!",
+      "Jetzt ist das Siegel offen. Dahinter liegen die Kammern der Stimmen mit den vier anderen Schriftrollen.",
+      "Ich gehe schon voraus. Komm durch die Siegeltür am Ende der Halle – ich warte am Eingang auf dich!",
     ], B);
     return;
   }
@@ -108,10 +109,17 @@ async function torwaechter(welt) {
   await dialog(LYRA, "Lyras Stimme hallt durch die Halle: „Du hast es geschafft! Komm zu mir zum Eingang.“", bild("npc_lyra"));
 }
 
-async function siegel() {
-  await dialog("Siegeltür", istErledigt("lythara_q1_boss")
-    ? "Hinter dieser Tür liegt die Kammer der Echos. Das Siegel ist noch zu. (Quest 2 kommt bald!)"
-    : "Eine schwere Tür mit einem leuchtenden Siegel. Der Torwächter bewacht sie.");
+async function siegel(welt) {
+  if (!istErledigt("lythara_q1_boss")) {
+    await dialog("Siegeltür", "Eine schwere Tür mit einem leuchtenden Siegel. Der Torwächter bewacht sie.");
+    return;
+  }
+  if (!welt.dreiD) {
+    await dialog("Siegeltür", "Hinter dieser Tür liegen die Kammern der Stimmen (Quests 2–5). Sie gibt es nur in der 3D-Version des Spiels (index.html).");
+    return;
+  }
+  const antwort = await frage("Siegeltür", "Das Siegel leuchtet hell und die Ketten fallen ab. Möchtest du die Kammern der Stimmen betreten?", ["Ja, eintreten", "Nein, noch nicht"]);
+  if (antwort === 0) welt.reisen("turm", "eingang");
 }
 
 async function rueckportal(welt) {
@@ -177,9 +185,12 @@ export default {
   spawns: {
     start: [15, 38],
     eingang: [15, 38],
+    vonTurm: [15, 4],
   },
   objekte: [
     { id: "lyra", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: 18, y: 36, aktion: lyra,
+      // Nach Quest 1 geht Lyra in die Kammern der Stimmen voraus (nur in der 3D-Version gibt es sie dort)
+      sichtbar: (z) => !z.erledigt.lythara_q1_abschluss || !globalThis.eldoriaDreiD,
       marker: (z) => !z.erledigt.lythara_intro || (z.erledigt.lythara_q1_boss && !z.erledigt.lythara_q1_abschluss) },
     { id: "rueckportal", art: "portal", name: "Portal ins Dorf", x: 10, y: 38, breite: 2, aktion: rueckportal, hinweis: "Portal ins Dorf benutzen",
       aktiv: () => true },
@@ -190,6 +201,7 @@ export default {
       aktion: torwaechter, hinweis: "Den Torwächter herausfordern",
       sichtbar: (z) => !z.erledigt.lythara_q1_boss,
       marker: (z) => z.erledigt.lythara_einleitung && !z.erledigt.lythara_q1_boss },
-    { id: "siegel", art: "objekt", name: "Siegeltür", bild: "siegeltuer", x: 14, y: 0, breite: 2, aktion: siegel, hinweis: "Die Siegeltür untersuchen" },
+    { id: "siegel", art: "objekt", name: "Siegeltür", bild: "siegeltuer", x: 14, y: 0, breite: 2, aktion: siegel, hinweis: "Die Siegeltür untersuchen",
+      marker: (z) => z.erledigt.lythara_q1_abschluss && !z.erledigt.lythara_turm_intro },
   ],
 };

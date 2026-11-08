@@ -582,11 +582,16 @@ function ausruestung(t, rumpf, arme, ellbogen, d) {
 // ---------- Der Torwächter der Quellen ----------
 
 /** Großer Steinwächter mit Kapuze, leuchtenden Augen und schwebenden Runenringen. */
-export function torwaechterBauen() {
+/**
+ * Der Torwächter – und mit anderen Farben und Emblemen auch die Wächter der Kammern der Stimmen.
+ * f: { stein, steinH, dunkel, glut, rune, emblem: "kristall" | "feder" | "sanduhr" | "waage" | "ringe" }
+ */
+export function torwaechterBauen(f = {}) {
   const wurzel = new THREE.Group();
   const schwebe = gruppe(wurzel);
   const t = new Teile();
-  const stein = "#5c5878", steinH = "#7a7698", dunkel = "#3a364e";
+  const stein = f.stein ?? "#5c5878", steinH = f.steinH ?? "#7a7698", dunkel = f.dunkel ?? "#3a364e";
+  const glutF = f.glut ?? "#9af4ff", runeF = f.rune ?? "#58d8f0";
   // Robe aus Stein
   t.add(DREH([V(0, 2.3), V(0.42, 2.25), V(0.55, 1.9), V(0.62, 1.3), V(0.8, 0.6), V(0.98, 0.15), V(0.9, 0.05), V(0, 0.05)], 28, "wrobe"),
     stein, [0, 0, 0], [0, 0, 0], [1, 1, 0.82], { art: "stoff", verlauf: 0.35 });
@@ -606,9 +611,9 @@ export function torwaechterBauen() {
   t.in(schwebe);
   // Leuchtende Augen und Brustrune
   const glut = gruppe(schwebe);
-  for (const s of [-1, 1]) t.add(KAPSEL(), "#9af4ff", [s * 0.13, 2.47, 0.4], [0, 0, Math.PI / 2 + s * 0.2], [0.04, 0.08, 0.03], { art: "leucht" });
-  t.add(RING(0.12), "#58d8f0", [0, 1.55, 0.53], [0.12, 0, 0], [0.13, 0.13, 0.1], { art: "leucht" });
-  t.add(geo("kristall", () => new THREE.OctahedronGeometry(1, 0)), "#9af4ff", [0, 1.55, 0.55], [0, 0, 0], [0.05, 0.08, 0.03], { art: "leucht" });
+  for (const s of [-1, 1]) t.add(KAPSEL(), glutF, [s * 0.13, 2.47, 0.4], [0, 0, Math.PI / 2 + s * 0.2], [0.04, 0.08, 0.03], { art: "leucht" });
+  t.add(RING(0.12), runeF, [0, 1.55, 0.53], [0.12, 0, 0], [0.13, 0.13, 0.1], { art: "leucht" });
+  t.add(geo("kristall", () => new THREE.OctahedronGeometry(1, 0)), glutF, [0, 1.55, 0.55], [0, 0, 0], [0.05, 0.08, 0.03], { art: "leucht" });
   t.in(glut);
   // Stab mit Kristall
   const stab = gruppe(schwebe, 0.95, 0, 0.3);
@@ -617,17 +622,17 @@ export function torwaechterBauen() {
   t.add(RING(0.15), "#8a8aa8", [0, 2.85, 0], [0, 0, 0], [0.16, 0.2, 0.2], { art: "glanz" });
   t.in(stab);
   const kristall = gruppe(stab, 0, 2.85, 0);
-  t.add(geo("kristall", () => new THREE.OctahedronGeometry(1, 0)), "#7ae8ff", [0, 0, 0], [0, 0, 0], [0.13, 0.24, 0.13], { art: "leucht" });
+  emblemBauen(t, f.emblem ?? "kristall", glutF, runeF);
   t.in(kristall);
   // Schwebende Runenringe
   const ringe = gruppe(wurzel, 0, 1.3, 0);
   const runen = [];
   for (let i = 0; i < 2; i++) {
     const r = gruppe(ringe);
-    t.add(RING(0.02), "#58d8f0", [0, 0, 0], [Math.PI / 2, 0, 0], 1.25 + i * 0.25, { art: "leucht" });
+    t.add(RING(0.02), runeF, [0, 0, 0], [Math.PI / 2, 0, 0], 1.25 + i * 0.25, { art: "leucht" });
     for (let k = 0; k < 8; k++) {
       const a = (k / 8) * Math.PI * 2;
-      t.add(KASTEN(), "#9af4ff", [Math.cos(a) * (1.25 + i * 0.25), 0, Math.sin(a) * (1.25 + i * 0.25)], [0, -a, 0], [0.05, 0.14, 0.012], { art: "leucht" });
+      t.add(KASTEN(), glutF, [Math.cos(a) * (1.25 + i * 0.25), 0, Math.sin(a) * (1.25 + i * 0.25)], [0, -a, 0], [0.05, 0.14, 0.012], { art: "leucht" });
     }
     t.in(r);
     r.rotation.x = i ? 0.25 : -0.18;
@@ -643,6 +648,37 @@ export function torwaechterBauen() {
   };
   wurzel.traverse((o) => { if (o.isMesh) o.userData.figur = true; });
   return { gruppe: wurzel, animieren, kopf: schwebe, sprechen: () => {} };
+}
+
+/** Das Zeichen oben auf dem Stab des Wächters (dreht sich langsam). */
+function emblemBauen(t, art, glut, rune) {
+  const L = { art: "leucht" };
+  if (art === "feder") {
+    // Große Schreibfeder des Kopisten
+    t.add(KEGEL(10), "#f4f0e8", [0, 0.12, 0], [0, 0, 0.35], [0.1, 0.62, 0.03], { art: "glanz" });
+    t.add(ZYL(1, 1, 8), "#c9a24e", [-0.05, -0.22, 0], [0, 0, 0.35], [0.02, 0.22, 0.02], { art: "glanz" });
+    t.add(KUGEL(), glut, [-0.1, -0.36, 0], [0, 0, 0], [0.05, 0.05, 0.05], L);
+  } else if (art === "sanduhr") {
+    // Sanduhr des Vergessens
+    t.add(KEGEL(12), glut, [0, 0.13, 0], [Math.PI, 0, 0], [0.14, 0.24, 0.14], L);
+    t.add(KEGEL(12), glut, [0, -0.13, 0], [0, 0, 0], [0.14, 0.24, 0.14], L);
+    for (const y of [-0.26, 0.26]) t.add(ZYL(1, 1, 14), "#8a6a3a", [0, y, 0], [0, 0, 0], [0.18, 0.04, 0.18], { art: "glanz" });
+  } else if (art === "waage") {
+    // Waage des Zauderers (schief!)
+    t.add(KASTEN(), "#c9a24e", [0, 0.05, 0], [0, 0, 0.18], [0.62, 0.04, 0.04], { art: "glanz" });
+    for (const s of [-1, 1]) {
+      const y = 0.05 + s * -0.055 - 0.2;
+      t.add(ZYL(1, 1, 6), "#c9a24e", [s * 0.29, y + 0.11, 0], [0, 0, 0], [0.008, 0.2, 0.008]);
+      t.add(ZYL(1, 0.6, 14), glut, [s * 0.29, y, 0], [0, 0, 0], [0.13, 0.03, 0.13], L);
+    }
+    t.add(KUGEL(), rune, [0, 0.12, 0], [0, 0, 0], [0.05, 0.05, 0.05], L);
+  } else if (art === "ringe") {
+    // Schallringe des Endlosen Echos
+    for (let i = 0; i < 3; i++) t.add(RING(0.04), i % 2 ? rune : glut, [0, 0, 0], [i * 0.9, i * 0.6, 0], 0.12 + i * 0.07, L);
+    t.add(KUGEL(), glut, [0, 0, 0], [0, 0, 0], [0.07, 0.07, 0.07], L);
+  } else {
+    t.add(geo("kristall", () => new THREE.OctahedronGeometry(1, 0)), glut, [0, 0, 0], [0, 0, 0], [0.13, 0.24, 0.13], L);
+  }
 }
 
 // Bausteine auch für Welt-Objekte (zusammengefügte Meshes mit Vertexfarben)
