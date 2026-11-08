@@ -106,7 +106,7 @@ function schildTextur(text, farbe) {
   g.strokeStyle = "#c9a24e"; g.lineWidth = 4; g.stroke();
   g.font = "600 40px Cinzel, Georgia, serif"; g.textAlign = "center"; g.textBaseline = "middle";
   g.shadowColor = farbe; g.shadowBlur = 14;
-  g.fillStyle = "#ffe9b0"; g.fillText(text, 256, 50, 470);
+  g.fillStyle = "#ffe9b0"; g.fillText(text, 256, 50, 400);
   return c;
 }
 
