@@ -41,6 +41,9 @@ export const QUESTS = [
   { id: "lythara_q5_text", titel: "Eigener Schluss", ort: "Insel des Siegels", fertigkeit: "schreiben", thema: "Freier Text: Schluss" },
   { id: "lythara_q5_boss", titel: "Das Endlose Echo", ort: "Insel des Siegels", fertigkeit: "schreiben", thema: "Bosskampf: Schluss", kampf: true },
   { id: "lythara_buch", titel: "Buch der Stimmen", ort: "Insel des Siegels", fertigkeit: "schreiben", thema: "Freier Text: ganzer Forumsbeitrag" },
+  { id: "dorf_finn", titel: "Finns Geheimnis", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Einen persönlichen Brief verstehen, Rat geben" },
+  { id: "dorf_markt", titel: "Am Marktstand", ort: "Dorf: Nebenquests", fertigkeit: "sprechen", thema: "Verkaufsgespräche, Preise, Höflichkeit" },
+  { id: "dorf_werkstatt", titel: "Borins Werkstatt", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Bestellung und Arbeitsanleitung verstehen" },
 ];
 
 export const TEXT_NAMEN = {

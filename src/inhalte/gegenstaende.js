@@ -63,4 +63,19 @@ export const GEGENSTAENDE = {
     icon: "🥈",
     text: "Du hast das Reich Lythara gerettet und kannst einen ganzen Forumsbeitrag schreiben – so wie in der DSD-Prüfung.",
   },
+  trinkgeld: {
+    name: "Wilmas Trinkgeld",
+    icon: "🪙",
+    text: "Die Kunden am Marktstand waren so zufrieden, dass sie dir Trinkgeld gegeben haben. Stimmt so!",
+  },
+  lesezeichen_finn: {
+    name: "Finns Lesezeichen",
+    icon: "🔖",
+    text: "Finns Lieblingslesezeichen mit einer kleinen Katze darauf. Es soll Glück bringen.",
+  },
+  schmiedehammer: {
+    name: "Borins kleiner Hammer",
+    icon: "🔨",
+    text: "Ein Geschenk von Borin für deine Hilfe beim Gartentor. „Damit schlägt man auf das Eisen.“",
+  },
 };

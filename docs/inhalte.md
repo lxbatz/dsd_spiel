@@ -8,6 +8,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `dorf.js` | Aufgaben im Dorf der Ankömmlinge |
 | `lythara_q1.js` | Lythara Quest 1: die fünf Tore, die Einleitung am Pult, der Torwächter |
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
+| `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
 | `codes.js` | Lehrercodes (nur Prüfsummen, siehe `tools/lehrercodes.html`) |

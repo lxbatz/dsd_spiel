@@ -7,6 +7,7 @@ import { heldenpassFormular } from "../ui/heldenpass.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen, heldSetzen, geben } from "../zustand.js";
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../inhalte/dorf.js";
+import { FINN_AUFGABEN, MARKT_AUFGABEN, WERKSTATT_AUFGABEN } from "../inhalte/dorf_neben.js";
 
 const DORF_QUESTS = [
   ["dorf_wilma", "Händlerin Wilma am Markt"],
@@ -15,6 +16,14 @@ const DORF_QUESTS = [
 ];
 
 const ohnePass = () => !istErledigt("dorf_heldenpass");
+
+// Nebenquests (freiwillig): offen, sobald der Torwächter in Lythara besiegt ist
+export const nebenquestsOffen = (z = zustand) => Boolean(z.erledigt.lythara_q1_boss);
+export const NEBENQUESTS = [
+  ["dorf_finn", "Finns Geheimnis (Finn an der Schmiede)"],
+  ["dorf_markt", "Ein Tag am Marktstand (Händlerin Wilma)"],
+  ["dorf_werkstatt", "Borins Werkstatt (Schmied Borin)"],
+];
 
 async function zuerstZuAldric(sprecher, bildKey) {
   await dialog(sprecher, "Hallo, Fremde, Fremder! Du bist neu hier, oder? Geh zuerst zum Ratsältesten Aldric vor dem Rathaus.", bild(bildKey));
@@ -83,7 +92,11 @@ async function aldric(welt) {
     return;
   }
 
-  await dialog(S, "Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!", B);
+  const offeneNeben = nebenquestsOffen() ? NEBENQUESTS.filter(([id]) => !istErledigt(id)) : [];
+  await dialog(S, offeneNeben.length
+    ? ["Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!",
+      `Übrigens: Ein paar Leute im Dorf könnten deine Hilfe brauchen. Achte auf die blauen Zeichen!\n${offeneNeben.map(([, t]) => "• " + t).join("\n")}`]
+    : "Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!", B);
 }
 
 async function wilma() {
@@ -91,7 +104,26 @@ async function wilma() {
   const B = bild("npc_wilma");
   if (ohnePass()) return zuerstZuAldric(S, "npc_wilma");
   if (istErledigt("dorf_wilma")) {
-    await dialog(S, "Frisches Brot, rote Äpfel! Und denk daran: Ein gutes Gespräch beginnt mit einer guten Frage.", B);
+    if (nebenquestsOffen() && !istErledigt("dorf_markt")) {
+      const geschafft = await questStarten({
+        sprecher: S, bild: B,
+        frageText: "*hust* … Oh, hallo! Ich bin erkältet und habe fast keine Stimme mehr. Aber heute ist Markttag! Kannst du für mich die Kunden bedienen? Hier ist meine Preisliste.",
+        ja: "Ja, ich helfe am Stand!",
+        spaeter: "*hust* Schade … Vielleicht später?",
+        folge: { id: "dorf_markt", titel: "Nebenquest: Ein Tag am Marktstand", untertitel: "Verkaufsgespräche führen", aufgaben: MARKT_AUFGABEN },
+      });
+      if (!geschafft) return;
+      erledigen("dorf_markt");
+      await dialog(S, [
+        "*flüstert* Du warst wunderbar! Alle Kunden waren zufrieden – und so höflich warst du!",
+        "Die Kunden haben dir Trinkgeld gegeben. Das gehört dir. Und Mimi hat dir die ganze Zeit zugeschaut.",
+      ], B);
+      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Ein Tag am Marktstand", gegenstaende: ["trinkgeld"], fanfare: true });
+      return;
+    }
+    await dialog(S, istErledigt("dorf_markt")
+      ? "Meine Stimme ist wieder da! Wenn du mal einen Job suchst – am Marktstand bist du ein Profi."
+      : "Frisches Brot, rote Äpfel! Und denk daran: Ein gutes Gespräch beginnt mit einer guten Frage.", B);
     return;
   }
   await dialog(S, "Hallo! Ich bin Wilma. Ich verkaufe hier Brot, Obst und Gemüse.", B);
@@ -108,12 +140,16 @@ async function wilma() {
   await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wilmas Fragen", gegenstaende: ["amulett_wortschaetze"], fanfare: true });
 }
 
-async function borin() {
+async function borin(welt) {
   const S = "Schmied Borin";
   const B = bild("npc_borin");
   if (ohnePass()) return zuerstZuAldric(S, "npc_borin");
   if (istErledigt("dorf_borin")) {
-    await dialog(S, "Finn ist wieder da! Er war bei der Katze von Wilma. Danke noch einmal!", B);
+    if (istErledigt("dorf_finn_brief") && !istErledigt("dorf_finn")) return finnSprichtMitBorin();
+    if (nebenquestsOffen() && !istErledigt("dorf_werkstatt")) return werkstatt(welt);
+    await dialog(S, istErledigt("dorf_werkstatt")
+      ? "Das Gartentor ist fertig und der Rat ist zufrieden. Du hast Talent fürs Handwerk!"
+      : "Finn ist wieder da! Er war bei der Katze von Wilma. Danke noch einmal!", B);
     return;
   }
   await dialog(S, "Hallo! Ich bin Borin, der Schmied. Ich habe ein großes Problem: Mein Lehrling Finn ist verschwunden!", B);
@@ -128,6 +164,83 @@ async function borin() {
   erledigen("dorf_borin");
   await dialog(S, "Rote Haare, braune Jacke, eine Katze … Das war Finn! Danke! Jetzt weiß ich, wo ich ihn suchen muss.", B);
   await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?", fanfare: true });
+}
+
+// ---------- Nebenquests: Finn und die Werkstatt ----------
+
+async function finn() {
+  const S = "Finn";
+  const B = bild("npc_finn");
+  const name = zustand.held?.name ?? "du";
+  if (!nebenquestsOffen()) {
+    await dialog(S, "Hallo! Ich bin Finn, Borins Lehrling. Danke, dass du Borin geholfen hast. Ich war nur bei Mimi – sie hatte Hunger.", B);
+    return;
+  }
+  if (istErledigt("dorf_finn")) {
+    await dialog(S, `Im Sommer mache ich ein Praktikum bei Tante Rosa in Lumen! Und danach baue ich mit Borin ein Bücherregal aus Eisen. Danke, ${name}!`, B);
+    return;
+  }
+  if (istErledigt("dorf_finn_brief")) {
+    await dialog(S, "Ich bin so nervös … Gehst du mit mir zu Borin? Er ist gleich da drüben an der Schmiede.", B);
+    return;
+  }
+  await dialog(S, [
+    `Psst, ${name}! Kannst du ein Geheimnis behalten?`,
+    "Ich habe einen Brief an meine Tante Rosa geschrieben. Aber ich traue mich nicht, ihn abzuschicken.",
+  ], B);
+  const geschafft = await questStarten({
+    sprecher: S, bild: B,
+    frageText: "Liest du ihn? Sag mir bitte ehrlich, was du denkst!",
+    ja: "Ja, ich lese deinen Brief.",
+    spaeter: "Okay … Aber bitte erzähl es noch niemandem!",
+    folge: { id: "dorf_finn", titel: "Nebenquest: Finns Geheimnis", untertitel: "Einen persönlichen Brief verstehen", aufgaben: FINN_AUFGABEN },
+  });
+  if (!geschafft) return;
+  erledigen("dorf_finn_brief");
+  await dialog(S, [
+    "Du meinst, ich soll ehrlich mit Borin sprechen? … Ja. Du hast recht.",
+    "Kommst du mit? Allein schaffe ich das nicht. Borin ist an der Schmiede.",
+  ], B);
+}
+
+async function finnSprichtMitBorin() {
+  const name = zustand.held?.name ?? "du";
+  await dialog("Finn", [
+    "Borin … ich muss dir etwas sagen. Die Arbeit in der Schmiede ist gut, und du bist ein toller Meister.",
+    "Aber ich liebe Bücher. Ich möchte im Sommer ein Praktikum bei Tante Rosa in der Buchhandlung machen.",
+  ], bild("npc_finn"));
+  await dialog("Schmied Borin", [
+    "Finn, Junge … Glaubst du, das habe ich nicht gemerkt? Du liest sogar beim Mittagessen!",
+    "Mach das Praktikum. Ich bin stolz auf dich, wenn du deinen eigenen Weg findest.",
+    "Und weißt du was? Wenn du zurück bist, bauen wir zusammen ein Bücherregal aus Eisen. Ein Schmied, der Bücher liebt – das gab es noch nie!",
+  ], bild("npc_borin"));
+  erledigen("dorf_finn");
+  await dialog("Finn", `Danke, Borin! Und danke dir, ${name}. Hier, das ist mein Lieblingslesezeichen. Es soll dir Glück bringen.`, bild("npc_finn"));
+  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Finns Geheimnis", gegenstaende: ["lesezeichen_finn"], fanfare: true });
+}
+
+async function werkstatt(welt) {
+  const S = "Schmied Borin";
+  const B = bild("npc_borin");
+  const geschafft = await questStarten({
+    sprecher: S, bild: B,
+    frageText: "Gut, dass du da bist! Der Rat hat ein Gartentor bei mir bestellt. Ich brauche einen Helfer, der die Bestellung und meine Anleitung genau liest. Hilfst du mir in der Werkstatt?",
+    ja: "Ja, ich helfe in der Werkstatt!",
+    spaeter: "In Ordnung. Das Eisen wartet auf dich!",
+    folge: { id: "dorf_werkstatt", titel: "Nebenquest: Borins Werkstatt", untertitel: "Bestellung und Arbeitsanleitung verstehen", aufgaben: WERKSTATT_AUFGABEN },
+  });
+  if (!geschafft) return;
+  erledigen("dorf_werkstatt");
+  await dialog(S, [
+    "Klong! Klong! … Fertig! Schwarz, mit Schloss, genau 1,20 Meter breit – so wie der Rat es wollte.",
+    "Wir haben das Tor schon am Kräutergarten eingebaut. Schau es dir an! Du hast Talent fürs Handwerk.",
+  ], B);
+  welt?.aktualisieren?.();
+  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Borins Werkstatt", gegenstaende: ["schmiedehammer"], fanfare: true });
+}
+
+async function gartentor() {
+  await dialog("Gartentor", "Ein schwarzes Tor aus Eisen mit einem kleinen Schloss. Du hast geholfen, es zu bauen!");
 }
 
 async function brett() {
@@ -206,11 +319,18 @@ export default {
     { id: "aldric", art: "npc", name: "Ratsältester Aldric", bild: "npc_aldric", x: 16, y: 5, aktion: aldric,
       marker: (z) => !z.erledigt.dorf_heldenpass || (!z.erledigt.dorf_abschluss && DORF_QUESTS.every(([id]) => z.erledigt[id])) },
     { id: "wilma", art: "npc", name: "Händlerin Wilma", bild: "npc_wilma", x: 6, y: 9, aktion: wilma,
-      marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_wilma },
+      marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_wilma ? true
+        : z.erledigt.dorf_wilma && nebenquestsOffen(z) && !z.erledigt.dorf_markt ? "neben" : false },
     { id: "stand", art: "objekt", bild: "marktstand", x: 7, y: 9, breite: 2 },
     { id: "borin", art: "npc", name: "Schmied Borin", bild: "npc_borin", x: 24, y: 5, aktion: borin,
-      marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_borin },
+      marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_borin ? true
+        : z.erledigt.dorf_borin && nebenquestsOffen(z) && ((z.erledigt.dorf_finn_brief && !z.erledigt.dorf_finn) || !z.erledigt.dorf_werkstatt) ? "neben" : false },
     { id: "amboss", art: "objekt", bild: "amboss", x: 26, y: 5 },
+    { id: "finn", art: "npc", name: "Finn", bild: "npc_finn", x: 21, y: 6, aktion: finn,
+      sichtbar: (z) => Boolean(z.erledigt.dorf_borin),
+      marker: (z) => nebenquestsOffen(z) && !z.erledigt.dorf_finn_brief ? "neben" : false },
+    { id: "gartentor", art: "objekt", name: "Gartentor", bild: "gartentor", x: 9, y: 14, breite: 2, aktion: gartentor, hinweis: "Das Gartentor ansehen",
+      sichtbar: (z) => Boolean(z.erledigt.dorf_werkstatt) && Boolean(globalThis.eldoriaDreiD) },
     { id: "brett", art: "objekt", name: "Schwarzes Brett", bild: "brett", x: 12, y: 9, aktion: brett, hinweis: "Aushang lesen",
       marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_brett },
     { id: "brunnen", art: "objekt", name: "Brunnen", bild: "brunnen", x: 17, y: 10, aktion: brunnen, hinweis: "In den Brunnen schauen" },

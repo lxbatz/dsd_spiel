@@ -39,4 +39,5 @@ export const CODES = {
   "2d00579a15392ec19670296a45ec59c7bb3a7977ad2bbb08eaaa35b8f84e6bea": { sprung: "q5_waechter", grund: "Sprungcode" },
   "685a3aebdae4dd460d23fde55d1f013868fbdf6b7d87f905ea8d5075ac8471e7": { sprung: "buch", grund: "Sprungcode" },
   "0312929b9db869d081416847de7c8b1295f332280d129935a6dfd399fcede861": { sprung: "ende", grund: "Sprungcode" },
+  "77983742c7a038f0ca6f01bbbaf973c03897bc22e629e246324ceeb64141260a": { sprung: "dorf_neben", grund: "Sprungcode" },
 };

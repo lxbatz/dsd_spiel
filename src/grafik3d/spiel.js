@@ -220,6 +220,12 @@ export class Spiel3D {
   markerBauen() {
     const g = new THREE.Group();
     const gold = new THREE.MeshStandardMaterial({ color: "#ffd040", emissive: "#ffb000", emissiveIntensity: 0.9, roughness: 0.3, metalness: 0.3 });
+    // Gold = Hauptquest, Blau = Nebenquest (marker() liefert dann "neben")
+    g.userData.farbe = (neben) => {
+      gold.color.set(neben ? "#60b8ff" : "#ffd040");
+      gold.emissive.set(neben ? "#1a6aff" : "#ffb000");
+      schein.material.color.set(neben ? "#8ac8ff" : "#ffffff");
+    };
     const strich = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.3, 4, 10), gold);
     strich.position.y = 0.36;
     const punkt = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), gold);
@@ -333,7 +339,9 @@ export class Spiel3D {
       if (def.leuchtet) modell.userData.setzeLeuchten?.(def.leuchtet(zustand), this.ersteAktualisierung);
       obj.interaktiv = Boolean(def.aktion) && sichtbar && !offen;
       obj.aktivFest = obj.fest && sichtbar && !offen;
-      marker.visible = obj.interaktiv && Boolean(def.marker?.(zustand));
+      const markerWert = def.marker?.(zustand);
+      marker.visible = obj.interaktiv && Boolean(markerWert);
+      marker.userData.farbe?.(markerWert === "neben");
     }
     if (this.held && this.heldKey !== this.heldSchluessel()) this.heldBauen();
   }

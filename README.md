@@ -18,7 +18,11 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Halle der Tausend Tore: fünf Tore = Thema, Quelle, Interesse, Leser, Überschrift
    - Pult des Beobachters: eigene Einleitung schreiben (mit Selbstcheck und Textprüfung)
    - Bosskampf gegen den Torwächter der Quellen → *Rolle des Beobachters*
-3. **Lythara, Quests 2–5: Die Inseln der Stimmen** (hinter der Siegeltür, nur 3D)
+3. **Nebenquests im Dorf** (freiwillig, nach dem Torwächter; blaue Zeichen über den Figuren)
+   - *Finns Geheimnis* (Lesen): Finns Brief an Tante Rosa verstehen, ihm einen Rat geben, dann mit ihm zu Borin gehen → *Finns Lesezeichen*
+   - *Ein Tag am Marktstand* (Sprechen): für die erkältete Wilma Kunden bedienen, Preise nennen, rechnen, höflich sein → *Trinkgeld*
+   - *Borins Werkstatt* (Lesen, Beruf): eine Bestellung und eine Arbeitsanleitung verstehen, Werkzeuge zuordnen → das Gartentor steht danach im Dorf
+4. **Lythara, Quests 2–5: Die Inseln der Stimmen** (hinter der Siegeltür, nur 3D)
    - Durch das Siegel geht es hinaus: schwebende Inseln im Abendhimmel hoch über Lythara, verbunden durch magische Brücken. Die Brücke zur nächsten Insel erscheint erst, wenn der Wächter besiegt ist.
    - Insel der Echos (Grotte mit Wasserbecken und Wasserfall): einen Text wiedergeben → Wächter: der Kopist → *Rolle des Chronisten*
    - Insel der Erinnerungen (Herbstgarten mit schwebenden Erinnerungsbildern): von eigenen Erfahrungen berichten → Wächter des Vergessens → *Rolle des Erzählers*

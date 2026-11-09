@@ -2,7 +2,7 @@
 
 import { INSELN } from "../inhalte/lythara_inseln.js";
 
-export function ziele(z) {
+function hauptziele(z) {
   const e = (id) => Boolean(z.erledigt[id]);
   const tore = ["tor1", "tor2", "tor3", "tor4", "tor5"].filter((t) => e(`lythara_${t}`)).length;
   const liste = [
@@ -31,4 +31,17 @@ export function ziele(z) {
   liste.push({ text: "Schreibe deinen ganzen Forumsbeitrag in das Buch der Stimmen.", erledigt: e("lythara_buch") });
   liste.push({ text: "Sprich ein letztes Mal mit Meisterin Lyra.", erledigt: e("lythara_finale") });
   return liste;
+}
+
+// Nebenquests im Dorf (freiwillig, nach dem Torwächter in Lythara)
+const NEBEN = [
+  ["dorf_finn", "Finns Geheimnis: Sprich mit Finn an der Schmiede."],
+  ["dorf_markt", "Ein Tag am Marktstand: Hilf der erkälteten Wilma."],
+  ["dorf_werkstatt", "Borins Werkstatt: Hilf Borin bei einem Auftrag."],
+];
+
+export function ziele(z) {
+  const liste = hauptziele(z);
+  if (!z.erledigt.lythara_q1_boss) return liste;
+  return [...liste, ...NEBEN.map(([id, text]) => ({ text: `Nebenquest im Dorf (freiwillig) – ${text}`, erledigt: Boolean(z.erledigt[id]) }))];
 }

@@ -369,6 +369,23 @@ export function objektBauen(o, animationen) {
     const oben = netz(new THREE.BoxGeometry(0.9, 0.22, 0.38), eisen); oben.position.y = 0.98; g.add(oben);
     const horn = netz(new THREE.ConeGeometry(0.14, 0.45, 6), eisen); horn.rotation.z = Math.PI / 2; horn.position.set(-0.65, 0.98, 0); g.add(horn);
     const hammer = netz(new THREE.BoxGeometry(0.28, 0.12, 0.12), eisen); hammer.position.set(0.2, 1.15, 0.05); g.add(hammer);
+  } else if (o.bild === "gartentor") {
+    // Schwarzes Eisentor mit Schloss (Nebenquest „Borins Werkstatt“)
+    const eisen = mat("#1e1e24", { metalness: 0.6, roughness: 0.45 });
+    for (const sx of [-1.55, 1.55]) {
+      const pfosten = netz(new THREE.BoxGeometry(0.3, 1.6, 0.3), stein); pfosten.position.set(sx, 0.8, 0); g.add(pfosten);
+      const kappe = netz(new THREE.ConeGeometry(0.24, 0.3, 4), stein); kappe.position.set(sx, 1.75, 0); kappe.rotation.y = Math.PI / 4; g.add(kappe);
+    }
+    for (const sy of [0.2, 1.0]) { const q = netz(new THREE.BoxGeometry(2.8, 0.07, 0.06), eisen); q.position.set(0, sy, 0); g.add(q); }
+    for (let i = 0; i < 11; i++) {
+      const x = -1.3 + i * 0.26;
+      const stab = netz(new THREE.CylinderGeometry(0.025, 0.025, 1.0, 5), eisen); stab.position.set(x, 0.62, 0); g.add(stab);
+      const spitze = netz(new THREE.ConeGeometry(0.05, 0.14, 5), eisen); spitze.position.set(x, 1.18, 0); g.add(spitze);
+    }
+    for (const sx of [-0.65, 0.65]) {
+      const kringel = netz(new THREE.TorusGeometry(0.18, 0.025, 5, 14), eisen); kringel.position.set(sx, 0.62, 0); g.add(kringel);
+    }
+    const schloss = netz(new THREE.BoxGeometry(0.16, 0.2, 0.1), mat("#c9a24e", { metalness: 0.8, roughness: 0.3 })); schloss.position.set(0, 0.6, 0.05); g.add(schloss);
   } else if (o.bild === "brett") {
     for (const sx of [-0.8, 0.8]) { const p = netz(new THREE.BoxGeometry(0.14, 2.3, 0.14), holz); p.position.set(sx, 1.15, 0); g.add(p); }
     const tafel = netz(new THREE.BoxGeometry(2.0, 1.4, 0.1), [holz, holz, holz, holz, new THREE.MeshStandardMaterial({ map: textur(aushangTextur()), roughness: 0.9 }), holz]);

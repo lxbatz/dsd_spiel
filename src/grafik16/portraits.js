@@ -17,6 +17,7 @@ export const PORTRAITS = {
   npc_aldric: { hintergrund: "#3a4a7a", augen: "#4a6a9a", ausdruck: "weise", alt: true, szene: "dorf", amulett: true },
   npc_wilma: { hintergrund: "#6a8a4a", augen: "#6a4a2a", ausdruck: "froh", ohrringe: true, szene: "markt", blume: true },
   npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schmiede", licht: { farbe: "#ffb060", seite: 1 } },
+  npc_finn: { hintergrund: "#6a5a3a", augen: "#3a8a4a", ausdruck: "neugierig", szene: "schmiede", schal: "#3a5a9a", licht: { farbe: "#ffb060", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)

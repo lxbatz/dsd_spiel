@@ -207,6 +207,7 @@ export const FIGUREN = {
   npc_aldric: { h: "#e8e8e8", s: "#f0c8a0", k: "#2f4f8f", a: "#e6c45a", p: "#2f4f8f", o: "#3a2a1a", w: "#f4f4f4", bart: true, robe: true },
   npc_wilma: { h: "#7a4a2a", s: "#f0c8a0", k: "#4f8a3c", a: "#f4f0e0", p: "#4f8a3c", o: "#3a2a1a", robe: true },
   npc_borin: { h: "#c98b5e", s: "#c98b5e", k: "#5a4a3a", a: "#8a6a3a", p: "#3a3a3a", o: "#2a1a1a", w: "#8a4a1a", bart: true },
+  npc_finn: { h: "#c4472a", s: "#f6d4b4", k: "#7a5230", a: "#e8d8b0", p: "#3a5a9a", o: "#4a2a1a" },
   npc_lyra: { h: "#d8d8f0", s: "#f2d0aa", k: "#6a3fa0", a: "#e6c45a", p: "#6a3fa0", o: "#2a1a2a", m: "#4a2a80", hut: true, robe: true },
 };
 

@@ -54,6 +54,7 @@ export const SPRUNGPUNKTE = [
   { id: "halle_tore", name: "Halle: die fünf Tore", bis: "lythara_intro", karte: "halle", spawn: "eingang" },
   { id: "halle_pult", name: "Halle: alle Tore offen, Pult des Beobachters", bis: "lythara_tor5", karte: "halle", spawn: "pult" },
   { id: "halle_boss", name: "Halle: vor dem Torwächter der Quellen", bis: "lythara_einleitung", karte: "halle", spawn: "torwaechter" },
+  { id: "dorf_neben", name: "Dorf: Nebenquests (nach Quest 1, Finn, Wilma, Borin)", bis: "lythara_q1_boss", karte: "dorf", spawn: "vonLythara" },
   { id: "kammern", name: "Inseln der Stimmen: Ankunft (Lyra)", bis: "lythara_q1_abschluss", karte: "turm", spawn: "eingang" },
   ...INSELN.flatMap((q, i) => [
     { id: `${q.id}_anfang`, name: `${q.insel}: Anfang (${q.lernziel})`, bis: i === 0 ? "lythara_turm_intro" : `lythara_${INSELN[i - 1].id}_boss`, karte: "turm", spawn: q.id },
