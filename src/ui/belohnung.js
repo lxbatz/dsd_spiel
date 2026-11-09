@@ -8,6 +8,7 @@ export function belohnung({ xp = 0, grund = "", gegenstaende = [], fanfare = fal
   if (fanfare) spieleJingle("fanfare");
   const neu = gegenstaende.filter((id) => geben(id));
   const ergebnis = xp ? xpGeben(xp, grund) : null;
+  if (ergebnis?.aufgestiegen) spieleJingle("stufe", { danach: true });
   // Für die 3D-Darstellung: Funken um die Spielfigur
   window.dispatchEvent(new CustomEvent("eldoria:belohnung", { detail: { xp, aufgestiegen: Boolean(ergebnis?.aufgestiegen) } }));
 

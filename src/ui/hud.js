@@ -14,7 +14,7 @@ import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
-import { istStumm, stummSchalten, beimStummschalten } from "../musik.js";
+import { istStumm, stummSchalten, beimStummschalten, spieleJingle } from "../musik.js";
 
 const hud = document.getElementById("hud");
 
@@ -128,6 +128,7 @@ export function codeAnzeigen({ zurueck } = {}) {
     zustand.codes.push(hash);
     if (eintrag.gegenstand) geben(eintrag.gegenstand);
     const e = xpGeben(eintrag.xp ?? 0, `Lehrercode: ${eintrag.grund}`);
+    if (e.aufgestiegen) spieleJingle("stufe");
     speichern();
     meldung.className = "feedback gut";
     meldung.textContent = `✔ +${eintrag.xp} XP für „${eintrag.grund}“` +

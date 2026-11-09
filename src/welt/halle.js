@@ -70,7 +70,7 @@ function torAktion(torId) {
     erledigen(`lythara_${torId}`);
     welt.aktualisieren();
     welt.erschuettern();
-    await belohnung({ xp: 20, grund: `${tor.name} ist offen!` });
+    await belohnung({ xp: 20, grund: `${tor.name} ist offen!`, fanfare: true });
   };
 }
 
@@ -90,7 +90,7 @@ async function pult() {
   });
   if (!geschafft) return;
   erledigen("lythara_einleitung");
-  await belohnung({ xp: 25, grund: "Bonusaufgabe: Deine eigene Einleitung" });
+  await belohnung({ xp: 25, grund: "Bonusaufgabe: Deine eigene Einleitung", fanfare: true });
 }
 
 async function torwaechter(welt) {

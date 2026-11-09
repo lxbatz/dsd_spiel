@@ -3,7 +3,10 @@
 //   - Intro-Text (Prolog):           MUSIK.intro
 //   - Karten: Feld "musik" in der Kartendefinition (src/welt/*.js)
 //   - Bosskampf:                     MUSIK.kampf, Sieg: JINGLES.sieg (src/ui/kampf.js)
-//   - Quest abgeschlossen:           JINGLES.fanfare (über belohnung({ fanfare: true }))
+//   - Quest abgeschlossen:           JINGLES.fanfare  (fanfare_01, über belohnung({ fanfare: true }))
+//   - Neue Stufe (Levelaufstieg):    JINGLES.stufe    (fanfare_02, in belohnung() und beim Lehrercode)
+//   - Bossgegner besiegt:            JINGLES.sieg     (fanfare_03, src/ui/kampf.js)
+//   Läuft schon ein Jingle (z. B. die Siegesfanfare), wartet die Stufen-Fanfare, bis er zu Ende ist.
 
 export const MUSIK = {
   intro: "Sound/opening_03.mp3",
@@ -14,6 +17,7 @@ export const MUSIK = {
 
 export const JINGLES = {
   fanfare: "Sound/fanfare_01.mp3",
+  stufe: "Sound/fanfare_02.mp3",
   sieg: "Sound/fanfare_03.mp3",
 };
 
@@ -25,6 +29,7 @@ try { stumm = localStorage.getItem(EINSTELLUNG) === "1"; } catch { /* egal */ }
 
 let aktuell = null;   // { id, audio }
 let jingle = null;
+let naechster = null; // Jingle, der nach dem laufenden gespielt wird
 const beobachter = new Set();
 
 function ausblenden(audio, dauer = 600) {
@@ -65,10 +70,15 @@ export function musik(id, { sofort = false } = {}) {
   if (!stumm && !jingle) abspielen(audio);
 }
 
-/** Spielt einen kurzen Jingle; die Hintergrundmusik pausiert so lange. */
-export function spieleJingle(id) {
+/**
+ * Spielt einen kurzen Jingle; die Hintergrundmusik pausiert so lange.
+ * danach: true – läuft gerade ein Jingle, wird dieser erst zu Ende gespielt.
+ */
+export function spieleJingle(id, { danach = false } = {}) {
   if (stumm || !JINGLES[id]) return;
+  if (danach && jingle) { naechster = id; return; }
   jingle?.pause();
+  naechster = null;
   const audio = new Audio(JINGLES[id]);
   audio.volume = Math.min(1, LAUTSTAERKE + 0.2);
   jingle = audio;
@@ -76,6 +86,7 @@ export function spieleJingle(id) {
   const weiter = () => {
     if (jingle !== audio) return;
     jingle = null;
+    if (naechster) { const n = naechster; naechster = null; spieleJingle(n); return; }
     if (aktuell && !stumm) abspielen(aktuell.audio);
   };
   audio.addEventListener("ended", weiter);
@@ -94,6 +105,7 @@ export function stummSchalten(wert = !stumm) {
     aktuell?.audio.pause();
     jingle?.pause();
     jingle = null;
+    naechster = null;
   } else if (aktuell) {
     abspielen(aktuell.audio);
   }

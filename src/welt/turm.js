@@ -45,7 +45,7 @@ async function lyra() {
   if (istErledigt("lythara_buch")) {
     if (!istErledigt("lythara_finale")) {
       erledigen("lythara_finale");
-      await belohnung({ xp: 0, grund: "Lythara ist gerettet!", gegenstaende: ["silber_abzeichen"] });
+      await belohnung({ xp: 0, grund: "Lythara ist gerettet!", gegenstaende: ["silber_abzeichen"], fanfare: true });
     }
     await dialog(LYRA, [
       `${name}, du hast es geschafft! Das Buch der Stimmen ist wieder ganz.`,
@@ -92,7 +92,7 @@ function kristallAktion(q, s) {
     });
     if (!geschafft) return;
     erledigen(s.id);
-    await belohnung({ xp: 20, grund: `${s.name}: Der Kristall leuchtet!` });
+    await belohnung({ xp: 20, grund: `${s.name}: Der Kristall leuchtet!`, fanfare: true });
   };
 }
 
@@ -118,7 +118,7 @@ function pultAktion(q) {
     });
     if (!geschafft) return;
     erledigen(q.text.id);
-    await belohnung({ xp: 25, grund: `${q.pult}: Dein Text ist gespeichert.` });
+    await belohnung({ xp: 25, grund: `${q.pult}: Dein Text ist gespeichert.`, fanfare: true });
   };
 }
 
@@ -165,7 +165,7 @@ async function buchDerStimmen() {
   });
   if (!geschafft) return;
   erledigen("lythara_buch");
-  await belohnung({ xp: 200, grund: "Das Buch der Stimmen ist wieder ganz!", gegenstaende: ["buch_der_stimmen"] });
+  await belohnung({ xp: 200, grund: "Das Buch der Stimmen ist wieder ganz!", gegenstaende: ["buch_der_stimmen"], fanfare: true });
   await dialog("Lyras Stimme", "Komm zu mir zum Eingang, ich muss dir etwas sagen!", lyraBild());
 }
 
