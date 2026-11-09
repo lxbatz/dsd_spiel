@@ -583,7 +583,7 @@ function ausruestung(t, rumpf, arme, ellbogen, d) {
 
 /** Großer Steinwächter mit Kapuze, leuchtenden Augen und schwebenden Runenringen. */
 /**
- * Der Torwächter – und mit anderen Farben und Emblemen auch die Wächter der Kammern der Stimmen.
+ * Der Torwächter – und mit anderen Farben und Emblemen auch die Wächter der Inseln der Stimmen.
  * f: { stein, steinH, dunkel, glut, rune, emblem: "kristall" | "feder" | "sanduhr" | "waage" | "ringe" }
  */
 export function torwaechterBauen(f = {}) {

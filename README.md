@@ -18,12 +18,13 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Halle der Tausend Tore: fünf Tore = Thema, Quelle, Interesse, Leser, Überschrift
    - Pult des Beobachters: eigene Einleitung schreiben (mit Selbstcheck und Textprüfung)
    - Bosskampf gegen den Torwächter der Quellen → *Rolle des Beobachters*
-3. **Lythara, Quests 2–5: Die Kammern der Stimmen** (hinter der Siegeltür, nur 3D)
-   - Kammer der Echos: einen Text wiedergeben → Wächter: der Kopist → *Rolle des Chronisten*
-   - Kammer der Erinnerungen: von eigenen Erfahrungen berichten → Wächter des Vergessens → *Rolle des Erzählers*
-   - Kammer der Waage: die eigene Meinung sagen und begründen → der Zauderer → *Rolle des Fürsprechers*
-   - Kammer des Siegels: einen Schluss schreiben → das Endlose Echo → *Rolle der Vollendung*
-   - In jeder Kammer: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
+3. **Lythara, Quests 2–5: Die Inseln der Stimmen** (hinter der Siegeltür, nur 3D)
+   - Durch das Siegel geht es hinaus: schwebende Inseln im Abendhimmel hoch über Lythara, verbunden durch magische Brücken. Die Brücke zur nächsten Insel erscheint erst, wenn der Wächter besiegt ist.
+   - Insel der Echos (Grotte mit Wasserbecken und Wasserfall): einen Text wiedergeben → Wächter: der Kopist → *Rolle des Chronisten*
+   - Insel der Erinnerungen (Herbstgarten mit schwebenden Erinnerungsbildern): von eigenen Erfahrungen berichten → Wächter des Vergessens → *Rolle des Erzählers*
+   - Insel der Waage (Marmorterrasse mit großer Waage): die eigene Meinung sagen und begründen → der Zauderer → *Rolle des Fürsprechers*
+   - Insel des Siegels (Sternwarte): einen Schluss schreiben → das Endlose Echo → *Rolle der Vollendung*
+   - Auf jeder Insel: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
    - Finale: **Das Buch der Stimmen** – der ganze Forumsbeitrag aus allen fünf Teilen → *Silber-Abzeichen*
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
@@ -38,6 +39,7 @@ Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden 
 
 - **Dorf der Ankömmlinge:** Schmetterlinge, Vögel, fallende Blätter, Pollen, Blumen und Gras im Wind, glitzerndes Wasser, Rauch aus der Schmiede – und Mimi, die Katze von Händlerin Wilma (man kann sie streicheln).
 - **Halle der Tausend Tore:** verlorene Bibliothek mit Bücherregalen, Kerzenlicht, Mondlicht durch hohe Fenster, schwebenden Büchern und fünf magischen Toren, die sich nach dem Rätsel öffnen. Der Torwächter löst sich nach dem Sieg in Funken auf.
+- **Inseln der Stimmen:** Abendhimmel mit zwei Monden, Wolkenmeer, schwebende Felsinseln mit leuchtenden Kristallen, magische Brücken, die sich Planke für Planke aufbauen. In der Ferne liegt die Halle der Tausend Tore.
 - **Effekte:** goldene Funken bei Belohnungen, eine Lichtsäule beim Stufenaufstieg, Treffer-Funken im Bosskampf, sanftes Leuchten (Bloom) auf starken Geräten.
 - **Grafikstufen:** Hoch, Mittel, Niedrig. Das Spiel wählt automatisch eine passende Stufe und schaltet selbst herunter, wenn es ruckelt. Im Menü kann man die Stufe auch selbst wählen.
 
@@ -69,7 +71,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 
   Alles wird nur im Browser ausgewertet. Mit „Beispielklasse zeigen“ kann man es ohne echte Daten ausprobieren.
 
-- **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Halle: vor dem Torwächter“ oder „Kammer der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
+- **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Halle: vor dem Torwächter“ oder „Insel der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).
@@ -87,7 +89,7 @@ css/thema3d.css        Aussehen der 3D-Version
 src/main3d.js          Start der 3D-Version
 src/start.js           Titelbildschirm und Prolog
 src/zustand.js         Spielstand, XP, Stufen, Speichern, Spielstand-Datei
-src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore, Kammern der Stimmen)
+src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore, Inseln der Stimmen)
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes
 src/ui/                Fenster: Dialoge, Aufgabentypen, Bosskampf, Heldenpass, Kopfleiste
 src/grafik3d/          3D: Figuren, Dorf, Halle, Effekte, Katze, Kamera, Touch, Grafikstufen

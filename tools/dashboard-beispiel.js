@@ -3,7 +3,7 @@
 
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../src/inhalte/dorf.js";
 import { TORE, EINLEITUNG, TORWAECHTER } from "../src/inhalte/lythara_q1.js";
-import { KAMMERN, BUCH } from "../src/inhalte/lythara_kammern.js";
+import { INSELN, BUCH } from "../src/inhalte/lythara_inseln.js";
 
 const PERSONEN = [
   ["Mira", "kriegerin", 0.82, 22], ["Ahmad", "magier", 0.9, 32], ["Oksana", "waldlaeufer", 0.7, 15],
@@ -42,7 +42,7 @@ export function beispielKlasse() {
       ...Object.entries(TORE).map(([id, tor]) => [`lythara_${id}`, tor.aufgaben, 20]),
       ["lythara_einleitung", [EINLEITUNG], 25],
       ["lythara_q1_boss", null, 150, TORWAECHTER],
-      ...KAMMERN.flatMap((q) => [
+      ...INSELN.flatMap((q) => [
         ...q.stationen.map((st) => [st.id, st.aufgaben.map((a) => (typeof a === "function" ? a(z) : a)), 20]),
         [q.text.id, [q.text], 25],
         [`lythara_${q.id}_boss`, null, 150, q.waechter],

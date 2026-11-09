@@ -1,37 +1,37 @@
-// Lythara – Quests 2 bis 5 und das Finale: Die Kammern der Stimmen
+// Lythara – Quests 2 bis 5 und das Finale: Die Inseln der Stimmen
 //
 // Aufbau nach dem Reader „Prüfungsteil Schriftliche Kommunikation“, Teil B (Aufgaben B15–B64):
-//   Quest 2  Kammer der Echos         → Den Text wiedergeben (Wiedergabe)         → Rolle des Chronisten
-//   Quest 3  Kammer der Erinnerungen  → Von eigenen Erfahrungen berichten         → Rolle des Erzählers
-//   Quest 4  Kammer der Waage         → Die eigene Meinung sagen und begründen    → Rolle des Fürsprechers
-//   Quest 5  Kammer des Siegels       → Einen Schluss schreiben                   → Rolle der Vollendung
+//   Quest 2  Insel der Echos         → Den Text wiedergeben (Wiedergabe)         → Rolle des Chronisten
+//   Quest 3  Insel der Erinnerungen  → Von eigenen Erfahrungen berichten         → Rolle des Erzählers
+//   Quest 4  Insel der Waage         → Die eigene Meinung sagen und begründen    → Rolle des Fürsprechers
+//   Quest 5  Insel des Siegels       → Einen Schluss schreiben                   → Rolle der Vollendung
 //   Finale   Das Buch der Stimmen     → Den ganzen Forumsbeitrag schreiben
 //
 // Alle Übungen sind eigene Texte (keine Abschriften aus dem Buch). Grundlage ist wie in
 // Quest 1 der Forumsbeitrag von Jonas (texte.js → nachricht_reisender) und die Frage:
 // „Sollten alle Auszubildenden ein Praktikum im Ausland machen?“
 //
-// Jede Kammer: drei Echo-Kristalle (Übungen), ein Pult (freier Text) und ein Wächter (Bosskampf).
+// Jede Insel: drei Echo-Kristalle (Übungen), ein Pult (freier Text) und ein Wächter (Bosskampf).
 
 const TEXT = "nachricht_reisender";
 export const FRAGE = "Sollten alle Auszubildenden ein Praktikum im Ausland machen?";
 
 // ---------------------------------------------------------------------------
-// Quest 2: Die Kammer der Echos – Wiedergabe
+// Quest 2: Die Insel der Echos – Wiedergabe
 // ---------------------------------------------------------------------------
 
 const Q2 = {
   id: "q2",
-  kammer: "Die Kammer der Echos",
+  insel: "Die Insel der Echos",
   lernziel: "Den Text wiedergeben",
   rolle: "rolle_chronist",
   rollenName: "Rolle des Chronisten",
   farbe: "#58d8f0",
   lyra: [
-    "Das ist die Kammer der Echos. Hier lernst du, einen Text wiederzugeben.",
+    "Das ist die Insel der Echos. Hier lernst du, einen Text wiederzugeben.",
     "Wiedergeben heißt: Du erzählst deinen Lesern, was Jonas geschrieben hat – kurz, richtig und mit deinen eigenen Worten.",
     "Die drei Echo-Kristalle zeigen dir, wie das geht: Wer hat geschrieben? Was hat er erlebt? Was meint er und was möchte er von den Lesern?",
-    "Aber Vorsicht: Der Wächter dieser Kammer ist der Kopist. Er schreibt alles nur ab …",
+    "Aber Vorsicht: Der Wächter dieser Insel ist der Kopist. Er schreibt alles nur ab …",
   ],
   stationen: [
     {
@@ -295,18 +295,18 @@ const Q2 = {
 };
 
 // ---------------------------------------------------------------------------
-// Quest 3: Die Kammer der Erinnerungen – Erfahrungsbericht
+// Quest 3: Die Insel der Erinnerungen – Erfahrungsbericht
 // ---------------------------------------------------------------------------
 
 const Q3 = {
   id: "q3",
-  kammer: "Die Kammer der Erinnerungen",
+  insel: "Die Insel der Erinnerungen",
   lernziel: "Von eigenen Erfahrungen berichten",
   rolle: "rolle_erzaehler",
   rollenName: "Rolle des Erzählers",
   farbe: "#ffb347",
   lyra: [
-    "Willkommen in der Kammer der Erinnerungen. Hier geht es um DICH.",
+    "Willkommen auf der Insel der Erinnerungen. Hier geht es um DICH.",
     "Nach der Wiedergabe erzählst du von deinen eigenen Erfahrungen zum Thema: Arbeit, Praktikum, Ausbildung, Ausland.",
     "Du hast noch kein Praktikum gemacht? Kein Problem! Du kannst auch von Freunden oder deiner Familie erzählen.",
     "Wichtig ist: Dein Bericht passt zum Thema, er hat Details und die Sätze sind gut verbunden. Der Wächter hier hat alles vergessen – zeig ihm, wie man erzählt!",
@@ -538,21 +538,21 @@ const Q3 = {
 };
 
 // ---------------------------------------------------------------------------
-// Quest 4: Die Kammer der Waage – Meinung sagen und begründen
+// Quest 4: Die Insel der Waage – Meinung sagen und begründen
 // ---------------------------------------------------------------------------
 
 const Q4 = {
   id: "q4",
-  kammer: "Die Kammer der Waage",
+  insel: "Die Insel der Waage",
   lernziel: "Die eigene Meinung sagen und begründen",
   rolle: "rolle_fuersprecher",
   rollenName: "Rolle des Fürsprechers",
   farbe: "#7aff9a",
   lyra: [
-    "Dies ist die Kammer der Waage. Hier wiegst du Argumente ab.",
+    "Dies ist die Insel der Waage. Hier wiegst du Argumente ab.",
     `Die Frage lautet: „${FRAGE}“`,
     "Du sagst deine Meinung deutlich, nennst Argumente und begründest sie mit Erklärungen und Beispielen.",
-    "Hüte dich vor dem Zauderer, dem Wächter der Kammer. Er kann sich nie entscheiden – und will, dass du es auch nicht kannst.",
+    "Hüte dich vor dem Zauderer, dem Wächter der Insel. Er kann sich nie entscheiden – und will, dass du es auch nicht kannst.",
   ],
   stationen: [
     {
@@ -779,21 +779,21 @@ const Q4 = {
 };
 
 // ---------------------------------------------------------------------------
-// Quest 5: Die Kammer des Siegels – Schluss
+// Quest 5: Die Insel des Siegels – Schluss
 // ---------------------------------------------------------------------------
 
 const Q5 = {
   id: "q5",
-  kammer: "Die Kammer des Siegels",
+  insel: "Die Insel des Siegels",
   lernziel: "Einen Schluss schreiben",
   rolle: "rolle_vollendung",
   rollenName: "Rolle der Vollendung",
   farbe: "#b48aff",
   lyra: [
-    "Die letzte Kammer: die Kammer des Siegels. Jeder gute Text braucht ein Ende.",
+    "Die letzte Insel: die Insel des Siegels. Jeder gute Text braucht ein Ende.",
     "Im Schluss fasst du deine Meinung kurz zusammen und verabschiedest dich von deinen Lesern.",
     "Neue Argumente gehören nicht mehr hierher!",
-    "Der Wächter dieser Kammer ist das Endlose Echo. Sein Text hört nie auf … Setz ihm ein Ende!",
+    "Der Wächter dieser Insel ist das Endlose Echo. Sein Text hört nie auf … Setz ihm ein Ende!",
   ],
   stationen: [
     {
@@ -993,7 +993,7 @@ const Q5 = {
   },
 };
 
-export const KAMMERN = [Q2, Q3, Q4, Q5];
+export const INSELN = [Q2, Q3, Q4, Q5];
 
 // ---------------------------------------------------------------------------
 // Finale: Das Buch der Stimmen – der ganze Forumsbeitrag
@@ -1012,7 +1012,7 @@ export const BUCH = {
   id: "lythara_buch",
   lesetext: TEXT,
   vorlage: entwurf,
-  frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine Texte aus den fünf Kammern stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
+  frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine fünf Texte aus der Halle und von den Inseln stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
   minWoerter: 180,
   stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. In der echten Prüfung hast du dafür 75 Minuten Zeit.",
   muster: [

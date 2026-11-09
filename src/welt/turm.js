@@ -1,6 +1,9 @@
-// Lythara – Die Kammern der Stimmen (Quests 2–5 und Finale)
-// Hinter der Siegeltür der Halle. Vier Kammern übereinander, jede mit drei Echo-Kristallen,
-// einem Pult (freier Text) und einem Wächter. Ganz oben liegt das Buch der Stimmen.
+// Lythara – Die Inseln der Stimmen (Quests 2–5 und Finale)
+// Hinter der Siegeltür der Halle: schwebende Inseln hoch über Lythara. Auf jeder der vier Inseln
+// stehen drei Echo-Kristalle, ein Pult (freier Text) und ein Wächter. Ist der Wächter besiegt,
+// erscheint die Brücke zur nächsten Insel. Auf der obersten Insel liegt das Buch der Stimmen.
+// Die Karten-ID bleibt "turm", damit alte Spielstände weiter passen.
+// Form und Lage der Inseln: inseln_layout.js
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -9,17 +12,15 @@ import { belohnung } from "../ui/belohnung.js";
 import { kampf } from "../ui/kampf.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
-import { KAMMERN, BUCH, FRAGE } from "../inhalte/lythara_kammern.js";
+import { INSELN, BUCH, FRAGE } from "../inhalte/lythara_inseln.js";
+import { LAYOUT, INSEL_FORMEN } from "./inseln_layout.js";
 
 const LYRA = "Meisterin Lyra";
 const lyraBild = () => bild("npc_lyra");
 
-// Oberste Zeile jeder Kammer (Kammer 0 = unten, Kammer 3 = oben)
-const OBEN = [25, 17, 9, 1];
-
-/** Ist die Kammer erreichbar (Tor davor offen)? */
-function kammerOffen(i, z = zustand) {
-  return i === 0 ? Boolean(z.erledigt.lythara_turm_intro) : Boolean(z.erledigt[`lythara_${KAMMERN[i - 1].id}_boss`]);
+/** Ist die Insel erreichbar (Brücke dorthin da)? */
+function inselOffen(i, z = zustand) {
+  return i === 0 ? Boolean(z.erledigt.lythara_turm_intro) : Boolean(z.erledigt[`lythara_${INSELN[i - 1].id}_boss`]);
 }
 
 const stationenFertig = (q, z = zustand) => q.stationen.every((s) => z.erledigt[s.id]);
@@ -32,11 +33,11 @@ async function lyra() {
 
   if (!istErledigt("lythara_turm_intro")) {
     await dialog(LYRA, [
-      `Da bist du ja, ${name}! Willkommen in den Kammern der Stimmen.`,
-      "In der Halle hast du gelernt, wie man einen Text einleitet. Aber ein ganzer Beitrag hat noch mehr Teile.",
-      "Über uns liegen vier Kammern. In jeder wartet eine Schriftrolle: Wiedergabe, Erfahrungen, Meinung und Schluss.",
-      `Am Ende schreibst du in das Buch der Stimmen deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage: „${FRAGE}“`,
-      "Genau so einen Text schreibst du auch in der DSD-Prüfung. Das Tor zur Kammer der Echos ist jetzt offen. Viel Glück!",
+      `Da bist du ja, ${name}! Willkommen auf den Inseln der Stimmen – hoch über Lythara.`,
+      "Schau dich um: Dort unten liegt die Halle der Tausend Tore. In der Halle hast du gelernt, wie man einen Text einleitet. Aber ein ganzer Beitrag hat noch mehr Teile.",
+      "Über uns schweben vier Inseln. Auf jeder wartet eine Schriftrolle: Wiedergabe, Erfahrungen, Meinung und Schluss.",
+      `Auf der höchsten Insel liegt das Buch der Stimmen. Dort schreibst du am Ende deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage: „${FRAGE}“`,
+      "Genau so einen Text schreibst du auch in der DSD-Prüfung. Ich rufe jetzt die erste Brücke – zur Insel der Echos. Viel Glück!",
     ], B);
     erledigen("lythara_turm_intro");
     return;
@@ -55,17 +56,17 @@ async function lyra() {
     return;
   }
 
-  const i = KAMMERN.findIndex((q) => !istErledigt(`lythara_${q.id}_boss`));
+  const i = INSELN.findIndex((q) => !istErledigt(`lythara_${q.id}_boss`));
   if (i < 0) {
-    await dialog(LYRA, "Alle vier Rollen gehören dir! Geh ganz nach oben zum Buch der Stimmen und schreibe deinen ganzen Beitrag.", B);
+    await dialog(LYRA, "Alle vier Rollen gehören dir! Geh hinauf zur höchsten Insel. Dort wartet das Buch der Stimmen.", B);
     return;
   }
-  const q = KAMMERN[i];
-  await dialog(LYRA, `Deine nächste Aufgabe wartet in der ${q.kammer.replace(/^Die /, "")} (${q.lernziel}). Geh nach Norden!`, B);
+  const q = INSELN[i];
+  await dialog(LYRA, `Deine nächste Aufgabe wartet auf der ${q.insel.replace(/^Die /, "")} (${q.lernziel}). Folge den Brücken nach oben!`, B);
 }
 
-/** Lyra spricht beim ersten Kristall einer Kammer durch einen Kristall zu dir. */
-async function kammerEinfuehrung(q) {
+/** Lyra spricht beim ersten Kristall einer Insel durch den Kristall zu dir. */
+async function inselEinfuehrung(q) {
   const id = `lythara_${q.id}_intro`;
   if (istErledigt(id)) return;
   await dialog("Lyras Stimme", q.lyra, lyraBild());
@@ -76,11 +77,11 @@ async function kammerEinfuehrung(q) {
 
 function kristallAktion(q, s) {
   return async () => {
-    await kammerEinfuehrung(q);
+    await inselEinfuehrung(q);
     if (istErledigt(s.id)) {
       const nochmal = await frage(s.name, `„${s.inschrift}“\n\nDiesen Kristall hast du schon zum Leuchten gebracht. Möchtest du noch einmal üben?`, ["Ja, noch einmal üben", "Nein"]);
       if (nochmal !== 0) return;
-      await aufgabenFolge({ id: s.id, titel: s.name, untertitel: `${q.kammer} · ${q.lernziel}`, aufgaben: s.aufgaben });
+      await aufgabenFolge({ id: s.id, titel: s.name, untertitel: `${q.insel} · ${q.lernziel}`, aufgaben: s.aufgaben });
       return;
     }
     const geschafft = await questStarten({
@@ -88,7 +89,7 @@ function kristallAktion(q, s) {
       frageText: `Im Kristall flüstert eine Stimme:\n„${s.inschrift}“\n\nWillst du die Aufgabe des Kristalls jetzt lösen?`,
       ja: "Ja, jetzt lösen",
       spaeter: "Der Kristall leuchtet weiter und wartet auf dich.",
-      folge: { id: s.id, titel: s.name, untertitel: `${q.kammer} · ${q.lernziel}`, aufgaben: s.aufgaben },
+      folge: { id: s.id, titel: s.name, untertitel: `${q.insel} · ${q.lernziel}`, aufgaben: s.aufgaben },
     });
     if (!geschafft) return;
     erledigen(s.id);
@@ -100,7 +101,7 @@ function pultAktion(q) {
   return async () => {
     if (!stationenFertig(q)) {
       const fehlen = q.stationen.filter((s) => !istErledigt(s.id)).length;
-      await dialog(q.pult, `Die Feder bewegt sich nicht. Bring zuerst die Echo-Kristalle dieser Kammer zum Leuchten (noch ${fehlen}).`);
+      await dialog(q.pult, `Die Feder bewegt sich nicht. Bring zuerst die Echo-Kristalle dieser Insel zum Leuchten (noch ${fehlen}).`);
       return;
     }
     if (istErledigt(q.text.id)) {
@@ -138,10 +139,10 @@ function waechterAktion(q) {
     erledigen(quest);
     welt.aktualisieren();
     await belohnung({ xp: 150, grund: `Bosskampf gewonnen: ${q.rollenName}`, gegenstaende: [q.rolle] });
-    const naechste = KAMMERN[KAMMERN.indexOf(q) + 1];
+    const naechste = INSELN[INSELN.indexOf(q) + 1];
     await dialog("Lyras Stimme", naechste
-      ? `Wunderbar! Das Tor zur ${naechste.kammer.replace(/^Die /, "")} hat sich geöffnet.`
-      : "Unglaublich – alle vier Rollen gehören dir! Oben wartet das Buch der Stimmen.", lyraBild());
+      ? `Wunderbar! Schau – die Brücke zur ${naechste.insel.replace(/^Die /, "")} erscheint!`
+      : "Unglaublich – alle vier Rollen gehören dir! Jetzt wartet das Buch der Stimmen auf dich.", lyraBild());
   };
 }
 
@@ -158,7 +159,7 @@ async function buchDerStimmen() {
   }
   const geschafft = await questStarten({
     sprecher: "Das Buch der Stimmen",
-    frageText: "Die leeren Seiten des Buches leuchten. Hier schreibst du deinen ganzen Forumsbeitrag. Deine Texte aus den Kammern liegen schon bereit.\n\nMöchtest du jetzt schreiben?",
+    frageText: "Die leeren Seiten des Buches leuchten. Hier schreibst du deinen ganzen Forumsbeitrag. Deine Texte aus der Halle und von den Inseln liegen schon bereit.\n\nMöchtest du jetzt schreiben?",
     ja: "Ja, jetzt schreiben",
     spaeter: "Das Buch wartet auf deine Worte.",
     folge: { id: "lythara_buch", titel: "Das Buch der Stimmen", untertitel: "Dein ganzer Forumsbeitrag", aufgaben: [BUCH] },
@@ -166,44 +167,45 @@ async function buchDerStimmen() {
   if (!geschafft) return;
   erledigen("lythara_buch");
   await belohnung({ xp: 200, grund: "Das Buch der Stimmen ist wieder ganz!", gegenstaende: ["buch_der_stimmen"], fanfare: true });
-  await dialog("Lyras Stimme", "Komm zu mir zum Eingang, ich muss dir etwas sagen!", lyraBild());
+  await dialog("Lyras Stimme", "Komm zu mir zurück auf die Ankunftsinsel, ich muss dir etwas sagen!", lyraBild());
 }
 
 async function rueckweg(welt) {
-  const antwort = await frage("Siegeltür", "Möchtest du zurück in die Halle der Tausend Tore gehen?", ["Ja, zurück in die Halle", "Nein, ich bleibe"]);
+  const antwort = await frage("Das zerbrochene Siegel", "Durch das Siegel siehst du die Halle der Tausend Tore. Möchtest du zurück in die Halle gehen?", ["Ja, zurück in die Halle", "Nein, ich bleibe"]);
   if (antwort === 0) welt.reisen("halle", "vonTurm");
 }
 
 // ---------- Objekte ----------
 
-function kammerObjekte(q, i) {
-  const a = OBEN[i];
-  const bossY = i === 3 ? a + 2 : a;
-  const plaetze = [[8, a + 5], [21, a + 5], [8, a + 2]];
-  const offen = (z) => kammerOffen(i, z);
+function inselObjekte(q, i) {
+  const ort = LAYOUT.orte[q.id];
+  const brueckeDahin = LAYOUT.bruecken[i];
+  const offen = (z) => inselOffen(i, z);
+  const vorher = INSELN[i - 1];
   return [
-    // Tor in diese Kammer (in der Trennwand darunter)
+    // Brücke zu dieser Insel: erscheint, wenn Lyra sie ruft bzw. der Wächter davor besiegt ist
     {
-      id: `turm_tor${i + 1}`, art: "tor", name: q.kammer.replace(/^Die /, ""), farbe: q.farbe, x: 14, y: a + 7, breite: 2,
+      id: `bruecke_${q.id}`, art: "bruecke", name: `Brücke zur ${q.insel.replace(/^Die /, "")}`, farbe: q.farbe,
+      x: brueckeDahin.x, y: brueckeDahin.y, breite: brueckeDahin.breite, hoehe: brueckeDahin.hoehe,
       offen,
-      aktion: async () => dialog(q.kammer, i === 0
-        ? "Das Tor ist verschlossen. Sprich zuerst mit Meisterin Lyra."
-        : `Das Tor ist verschlossen. Besiege zuerst den Wächter der ${KAMMERN[i - 1].kammer.replace(/^Die /, "")}.`),
-      hinweis: "Das Tor untersuchen",
+      aktion: async () => dialog(`Brücke zur ${q.insel.replace(/^Die /, "")}`, i === 0
+        ? "Hier schimmert nur ein schwacher Lichtstreifen über dem Abgrund. Sprich zuerst mit Meisterin Lyra."
+        : `Hier schimmert nur ein schwacher Lichtstreifen über dem Abgrund. Die Brücke erscheint, wenn du den Wächter der ${vorher.insel.replace(/^Die /, "")} besiegt hast.`),
+      hinweis: "Den Lichtstreifen untersuchen",
     },
     ...q.stationen.map((s, k) => ({
-      id: s.id, art: "objekt", name: s.name, bild: "kristall", farbe: q.farbe, x: plaetze[k][0], y: plaetze[k][1],
+      id: s.id, art: "objekt", name: s.name, bild: "kristall", farbe: q.farbe, x: ort.kristalle[k][0], y: ort.kristalle[k][1],
       aktion: kristallAktion(q, s), hinweis: `${s.name} berühren`,
       leuchtet: (z) => Boolean(z.erledigt[s.id]),
       marker: (z) => offen(z) && !z.erledigt[s.id],
     })),
     {
-      id: `pult_${q.id}`, art: "objekt", name: q.pult, bild: "pult", x: 21, y: a + 2,
+      id: `pult_${q.id}`, art: "objekt", name: q.pult, bild: "pult", x: ort.pult[0], y: ort.pult[1],
       aktion: pultAktion(q), hinweis: "Am Pult schreiben",
       marker: (z) => stationenFertig(q, z) && !z.erledigt[q.text.id],
     },
     {
-      id: `waechter_${q.id}`, art: "npc", name: q.waechter.name, bild: q.waechter.bild, x: 14, y: bossY, breite: 2, hoehe: 2,
+      id: `waechter_${q.id}`, art: "npc", name: q.waechter.name, bild: q.waechter.bild, x: ort.waechter[0], y: ort.waechter[1], breite: 2, hoehe: 2,
       aktion: waechterAktion(q), hinweis: `${q.waechter.name} herausfordern`,
       sichtbar: (z) => !z.erledigt[`lythara_${q.id}_boss`],
       marker: (z) => Boolean(z.erledigt[q.text.id]) && !z.erledigt[`lythara_${q.id}_boss`],
@@ -211,52 +213,33 @@ function kammerObjekte(q, i) {
   ];
 }
 
-// Raster: 30 × 40. Kammern 7 Zeilen hoch, Trennwände mit Durchgang (==) in Spalte 14/15.
-const KAMMER_ZEILEN = [
-  "######B_______==_______B######",
-  "######c_______==_______c######",
-  "######________==________######",
-  "######B_______==_______B######",
-  "######________==________######",
-  "######c_______==_______c######",
-  "######B_______==_______B######",
-];
-const TRENN = "##############==##############";
-const WAND = "##############################";
+const ankunft = INSEL_FORMEN[0];
+const siegelInsel = LAYOUT.orte.q5;
 
 export default {
   id: "turm",
-  name: "Lythara – Die Kammern der Stimmen",
-  musik: "kammern",
+  name: "Lythara – Die Inseln der Stimmen",
+  musik: "inseln",
   nur3d: true,
-  raster: [
-    WAND,
-    ...KAMMER_ZEILEN, TRENN,   // Kammer des Siegels (Zeilen 1–7)
-    ...KAMMER_ZEILEN, TRENN,   // Kammer der Waage (9–15)
-    ...KAMMER_ZEILEN, TRENN,   // Kammer der Erinnerungen (17–23)
-    ...KAMMER_ZEILEN, TRENN,   // Kammer der Echos (25–31)
-    "######________==________######",
-    "######_c______==______c_######",
-    "######________==________######",
-    "######________==________######",
-    "######_c______==______c_######",
-    "######________==________######",
-    WAND,
-  ],
+  raster: LAYOUT.raster,
+  inseln: INSEL_FORMEN,
   spawns: {
-    start: [15, 37],
-    eingang: [15, 37],
-    // Startpunkte für Sprungcodes der Lehrkraft: Anfang jeder Kammer, vor jedem Wächter, beim Buch
-    ...Object.fromEntries(KAMMERN.flatMap((q, i) => [[q.id, [15, OBEN[i] + 6]], [`${q.id}_waechter`, [15, OBEN[i] + (i === 3 ? 6 : 4)]]])),
-    buch: [15, 4],
+    start: [ankunft.cx, ankunft.cy + 1],
+    eingang: [ankunft.cx, ankunft.cy + 1],
+    // Startpunkte für Sprungcodes der Lehrkraft: Anfang jeder Insel, vor jedem Wächter, beim Buch
+    ...Object.fromEntries(INSELN.flatMap((q) => {
+      const o = LAYOUT.orte[q.id];
+      return [[q.id, o.ankunft], [`${q.id}_waechter`, [o.waechter[0] + 1, o.waechter[1] + 4]]];
+    })),
+    buch: [siegelInsel.buch[0] + 1, siegelInsel.buch[1] + 3],
   },
   objekte: [
-    { id: "lyra_turm", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: 18, y: 35, aktion: lyra,
+    { id: "lyra_turm", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: ankunft.cx + 3, y: ankunft.cy - 2, aktion: lyra,
       marker: (z) => !z.erledigt.lythara_turm_intro || (z.erledigt.lythara_buch && !z.erledigt.lythara_finale) },
-    { id: "rueckweg", art: "portal", name: "Weg zurück in die Halle", x: 10, y: 37, breite: 2, aktion: rueckweg, hinweis: "Zurück in die Halle gehen",
-      aktiv: () => true },
-    ...KAMMERN.flatMap(kammerObjekte),
-    { id: "buch_stimmen", art: "objekt", name: "Das Buch der Stimmen", bild: "buch_stimmen", x: 14, y: 1, breite: 2,
+    { id: "rueckweg", art: "portal", name: "Das zerbrochene Siegel", bild: "siegel_portal", x: ankunft.cx - 6, y: ankunft.cy + 1, breite: 2,
+      aktion: rueckweg, hinweis: "Durch das Siegel zurück in die Halle", aktiv: () => true },
+    ...INSELN.flatMap(inselObjekte),
+    { id: "buch_stimmen", art: "objekt", name: "Das Buch der Stimmen", bild: "buch_stimmen", x: siegelInsel.buch[0], y: siegelInsel.buch[1], breite: 2,
       aktion: buchDerStimmen, hinweis: "Im Buch der Stimmen schreiben",
       leuchtet: (z) => Boolean(z.erledigt.lythara_buch),
       marker: (z) => Boolean(z.erledigt.lythara_q5_boss) && !z.erledigt.lythara_buch },

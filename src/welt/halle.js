@@ -40,8 +40,8 @@ async function lyra() {
     erledigen("lythara_q1_abschluss");
     await dialog(LYRA, [
       "Du hast die Rolle des Beobachters! Die erste Seite des Buches der Stimmen leuchtet wieder.",
-      "Jetzt ist das Siegel offen. Dahinter liegen die Kammern der Stimmen mit den vier anderen Schriftrollen.",
-      "Ich gehe schon voraus. Komm durch die Siegeltür am Ende der Halle – ich warte am Eingang auf dich!",
+      "Jetzt ist das Siegel offen. Es führt hinaus zu den Inseln der Stimmen, hoch über Lythara. Dort warten die vier anderen Schriftrollen.",
+      "Ich gehe schon voraus. Komm durch die Siegeltür am Ende der Halle – ich warte auf dich!",
     ], B);
     return;
   }
@@ -115,10 +115,10 @@ async function siegel(welt) {
     return;
   }
   if (!welt.dreiD) {
-    await dialog("Siegeltür", "Hinter dieser Tür liegen die Kammern der Stimmen (Quests 2–5). Sie gibt es nur in der 3D-Version des Spiels (index.html).");
+    await dialog("Siegeltür", "Hinter dieser Tür liegen die Inseln der Stimmen (Quests 2–5). Sie gibt es nur in der 3D-Version des Spiels (index.html).");
     return;
   }
-  const antwort = await frage("Siegeltür", "Das Siegel leuchtet hell und die Ketten fallen ab. Möchtest du die Kammern der Stimmen betreten?", ["Ja, eintreten", "Nein, noch nicht"]);
+  const antwort = await frage("Siegeltür", "Das Siegel leuchtet hell und die Ketten fallen ab. Hinter der Tür siehst du Himmel und Wolken! Möchtest du zu den Inseln der Stimmen gehen?", ["Ja, hindurchgehen", "Nein, noch nicht"]);
   if (antwort === 0) welt.reisen("turm", "eingang");
 }
 
@@ -192,7 +192,7 @@ export default {
   },
   objekte: [
     { id: "lyra", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: 18, y: 36, aktion: lyra,
-      // Nach Quest 1 geht Lyra in die Kammern der Stimmen voraus (nur in der 3D-Version gibt es sie dort)
+      // Nach Quest 1 geht Lyra in die Inseln der Stimmen voraus (nur in der 3D-Version gibt es sie dort)
       sichtbar: (z) => !z.erledigt.lythara_q1_abschluss || !globalThis.eldoriaDreiD,
       marker: (z) => !z.erledigt.lythara_intro || (z.erledigt.lythara_q1_boss && !z.erledigt.lythara_q1_abschluss) },
     { id: "rueckportal", art: "portal", name: "Portal ins Dorf", x: 10, y: 38, breite: 2, aktion: rueckportal, hinweis: "Portal ins Dorf benutzen",

@@ -19,7 +19,7 @@ export const PORTRAITS = {
   npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schmiede", licht: { farbe: "#ffb060", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
-  // Wächter der Kammern der Stimmen (gleiche Gestalt, andere Farben)
+  // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)
   boss_kopist: { hintergrund: "#14222c", szene: "runen", waechter: { stein: "#5a6c7e", dunkel: "#34424e", glut: "#d0fbff", rune: "#58d8f0" } },
   boss_vergessen: { hintergrund: "#2a2420", szene: "runen", waechter: { stein: "#7c7670", dunkel: "#4a4642", glut: "#ffd890", rune: "#ffb347" } },
   boss_zauderer: { hintergrund: "#16261a", szene: "runen", waechter: { stein: "#5e7660", dunkel: "#34443a", glut: "#d0ffd6", rune: "#7aff9a" } },

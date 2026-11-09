@@ -3,7 +3,7 @@
 // gesetzt, als wäre alles davor erledigt (XP, Gegenstände, Beispieltexte) und als
 // „Testspielstand“ markiert – das Lehrerzimmer zeigt ihn mit 🧪 an.
 
-import { KAMMERN } from "./lythara_kammern.js";
+import { INSELN } from "./lythara_inseln.js";
 
 // Fortschritt in Spielreihenfolge: [Markierung, XP, Gegenstand]
 const SCHRITTE = [
@@ -18,7 +18,7 @@ const SCHRITTE = [
   ["lythara_q1_boss", 150, "rolle_beobachter"],
   ["lythara_q1_abschluss", 0],
   ["lythara_turm_intro", 0],
-  ...KAMMERN.flatMap((q) => [
+  ...INSELN.flatMap((q) => [
     [`lythara_${q.id}_intro`, 0],
     ...q.stationen.map((s) => [s.id, 20]),
     [q.text.id, 25],
@@ -41,7 +41,7 @@ BEISPIELTEXTE.lythara_buch = ["lythara_einleitung", "lythara_q2_text", "lythara_
 
 // Welcher Text gehört zu welcher Markierung?
 const TEXT_ZU = { dorf_heldenpass: "dorf_vorstellung", lythara_einleitung: "lythara_einleitung", lythara_buch: "lythara_buch" };
-for (const q of KAMMERN) TEXT_ZU[q.text.id] = q.text.id;
+for (const q of INSELN) TEXT_ZU[q.text.id] = q.text.id;
 
 /**
  * Die Sprungpunkte. bis: letzte Markierung, die schon erledigt ist (null = nichts erledigt).
@@ -54,10 +54,10 @@ export const SPRUNGPUNKTE = [
   { id: "halle_tore", name: "Halle: die fünf Tore", bis: "lythara_intro", karte: "halle", spawn: "eingang" },
   { id: "halle_pult", name: "Halle: alle Tore offen, Pult des Beobachters", bis: "lythara_tor5", karte: "halle", spawn: "pult" },
   { id: "halle_boss", name: "Halle: vor dem Torwächter der Quellen", bis: "lythara_einleitung", karte: "halle", spawn: "torwaechter" },
-  { id: "kammern", name: "Kammern der Stimmen: Eingang (Lyra)", bis: "lythara_q1_abschluss", karte: "turm", spawn: "eingang" },
-  ...KAMMERN.flatMap((q, i) => [
-    { id: `${q.id}_anfang`, name: `${q.kammer}: Anfang (${q.lernziel})`, bis: i === 0 ? "lythara_turm_intro" : `lythara_${KAMMERN[i - 1].id}_boss`, karte: "turm", spawn: q.id },
-    { id: `${q.id}_waechter`, name: `${q.kammer}: vor dem Wächter (${q.waechter.name})`, bis: q.text.id, karte: "turm", spawn: `${q.id}_waechter` },
+  { id: "kammern", name: "Inseln der Stimmen: Ankunft (Lyra)", bis: "lythara_q1_abschluss", karte: "turm", spawn: "eingang" },
+  ...INSELN.flatMap((q, i) => [
+    { id: `${q.id}_anfang`, name: `${q.insel}: Anfang (${q.lernziel})`, bis: i === 0 ? "lythara_turm_intro" : `lythara_${INSELN[i - 1].id}_boss`, karte: "turm", spawn: q.id },
+    { id: `${q.id}_waechter`, name: `${q.insel}: vor dem Wächter (${q.waechter.name})`, bis: q.text.id, karte: "turm", spawn: `${q.id}_waechter` },
   ]),
   { id: "buch", name: "Das Buch der Stimmen (Finale)", bis: "lythara_q5_boss", karte: "turm", spawn: "buch" },
   { id: "ende", name: "Ende: alles erledigt", bis: "lythara_finale", karte: "turm", spawn: "eingang" },

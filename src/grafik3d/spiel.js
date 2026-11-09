@@ -18,12 +18,13 @@ import { PORTRAITS, portraitBild } from "../grafik16/portraits.js";
 import { figurBauen } from "./figuren.js";
 import { E, welt, dorfBauen, objektBauen } from "./welt.js";
 import { halleBauen } from "./halle3d.js";
+import { inselnBauen } from "./inseln3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: (szene, raster, k) => halleBauen(szene, raster, { ...k, thema: "turm" }) };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -172,7 +173,7 @@ export class Spiel3D {
     const def = KARTEN[id];
     const szene = new THREE.Scene();
     const animationen = [];
-    const bau = BAUER[id](szene, def.raster, { animationen, qualitaet: this.q });
+    const bau = BAUER[id](szene, def.raster, { animationen, qualitaet: this.q, def });
     const effekte = new Effekte(szene, this.q.partikel);
     const karte = { id, def, szene, animationen, bau, effekte, raster: def.raster, objekte: [] };
 
@@ -318,9 +319,9 @@ export class Spiel3D {
       }
       obj.warSichtbar = sichtbar;
       let offen = false;
-      if (def.art === "tor") {
+      if (def.art === "tor" || def.offen) {
         offen = Boolean(def.offen?.(zustand));
-        if (offen && obj.warOffen === false && !this.ersteAktualisierung) {
+        if (def.art === "tor" && offen && obj.warOffen === false && !this.ersteAktualisierung) {
           const p = modell.position;
           karte.effekte.staub(new THREE.Vector3(p.x, 0.1, p.z + 1.4), 2.2, 40);
           karte.effekte.explosion(new THREE.Vector3(p.x, 3, p.z + 1.2), "#ffe8a0", 50, 4);
@@ -605,7 +606,7 @@ export class Spiel3D {
       for (const o of this.karte.objekte) {
         if (!o.aktivFest || o === this.gespraech) continue;
         const q = o.rechteck;
-        const hoch = o.def.art === "tor" ? 7 : o.boss ? 4.5 : 3.3;
+        const hoch = o.def.art === "bruecke" ? 0 : o.def.art === "tor" ? 7 : o.boss ? 4.5 : 3.3;
         if (v.x > q.x0 - 0.3 && v.x < q.x1 + 0.3 && v.z > q.z0 - 0.4 && v.z < q.z1 + 0.4 && v.y < hoch) return Math.max(1.0, s - 0.45);
       }
     }

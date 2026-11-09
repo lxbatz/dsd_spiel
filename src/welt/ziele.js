@@ -1,6 +1,6 @@
 // Aufgabenliste (Fenster „Aufgaben“): Was ist erledigt, was kommt als Nächstes?
 
-import { KAMMERN } from "../inhalte/lythara_kammern.js";
+import { INSELN } from "../inhalte/lythara_inseln.js";
 
 export function ziele(z) {
   const e = (id) => Boolean(z.erledigt[id]);
@@ -18,12 +18,12 @@ export function ziele(z) {
   ];
   if (!e("lythara_q1_boss")) return liste;
 
-  liste.push({ text: "Geh durch die Siegeltür und sprich in den Kammern der Stimmen mit Lyra.", erledigt: e("lythara_turm_intro") });
-  for (const q of KAMMERN) {
+  liste.push({ text: "Geh durch die Siegeltür und sprich in den Inseln der Stimmen mit Lyra.", erledigt: e("lythara_turm_intro") });
+  for (const q of INSELN) {
     const boss = e(`lythara_${q.id}_boss`);
     const kristalle = q.stationen.filter((s) => e(s.id)).length;
     liste.push({
-      text: `${q.kammer} – ${q.lernziel} (Kristalle ${kristalle}/3 · Text am Pult ${e(q.text.id) ? "✔" : "–"} · Wächter: ${q.waechter.name})`,
+      text: `${q.insel} – ${q.lernziel} (Kristalle ${kristalle}/3 · Text am Pult ${e(q.text.id) ? "✔" : "–"} · Wächter: ${q.waechter.name})`,
       erledigt: boss,
     });
     if (!boss) return liste;

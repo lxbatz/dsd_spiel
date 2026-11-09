@@ -7,7 +7,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `texte.js` | Lesetexte (Steckbrief, Aushang, Forumsbeitrag …) |
 | `dorf.js` | Aufgaben im Dorf der Ankömmlinge |
 | `lythara_q1.js` | Lythara Quest 1: die fünf Tore, die Einleitung am Pult, der Torwächter |
-| `lythara_kammern.js` | Lythara Quests 2–5 und Finale (Kammern der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
+| `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
 | `codes.js` | Lehrercodes (nur Prüfsummen, siehe `tools/lehrercodes.html`) |
@@ -22,13 +22,13 @@ Die fünf Quests in Lythara folgen dem Reader „Prüfungsteil Schriftliche Komm
 | Quest | Ort | Reader | Lernziel |
 |---|---|---|---|
 | 1 | Halle der Tausend Tore | B1–B14 | Einleitung: Thema, Quelle, Interesse, Leser, Überschrift |
-| 2 | Kammer der Echos | B15–B37 | Wiedergabe: Verfasser, Situation, Meinung, Appell; eigene Worte, richtig und vollständig |
-| 3 | Kammer der Erinnerungen | B38–B48 | Erfahrungsbericht: Überleitung, passende Erfahrungen, W-Fragen, Verknüpfungen, Perfekt |
-| 4 | Kammer der Waage | B49–B61 | Meinung: deutlich sagen, Argumente nach Kriterien, echte Begründungen, Beispiele, Verknüpfungen |
-| 5 | Kammer des Siegels | B62–B64 | Schluss: Meinung zusammenfassen, Leser ansprechen, Gruß und Name |
+| 2 | Insel der Echos | B15–B37 | Wiedergabe: Verfasser, Situation, Meinung, Appell; eigene Worte, richtig und vollständig |
+| 3 | Insel der Erinnerungen | B38–B48 | Erfahrungsbericht: Überleitung, passende Erfahrungen, W-Fragen, Verknüpfungen, Perfekt |
+| 4 | Insel der Waage | B49–B61 | Meinung: deutlich sagen, Argumente nach Kriterien, echte Begründungen, Beispiele, Verknüpfungen |
+| 5 | Insel des Siegels | B62–B64 | Schluss: Meinung zusammenfassen, Leser ansprechen, Gruß und Name |
 | Finale | Buch der Stimmen | – | Der ganze Forumsbeitrag. Die fünf eigenen Texte stehen schon im Feld und werden zusammengefügt und überarbeitet. |
 
-Eine Kammer in `lythara_kammern.js` hat diese Teile: `stationen` (drei Kristalle mit je 3–4 Aufgaben), `text` (freier Text am Pult), `waechter` (Bosskampf) und `lyra` (was Lyra beim ersten Kristall sagt). Neue Aufgaben kann man einfach in die Listen schreiben.
+Eine Insel in `lythara_inseln.js` hat diese Teile: `stationen` (drei Kristalle mit je 3–4 Aufgaben), `text` (freier Text am Pult), `waechter` (Bosskampf) und `lyra` (was Lyra beim ersten Kristall sagt). Neue Aufgaben kann man einfach in die Listen schreiben.
 
 ## Aufgabentypen
 
@@ -132,9 +132,9 @@ Vorsicht bei Angaben, die die Grammatik ändern (z. B. „aus Polen“, aber „
 | Tor in der Halle geöffnet | 20 |
 | Eigene Einleitung geschrieben (Bonus) | 25 |
 | Torwächter besiegt + Quest abgeschlossen | 150 |
-| Echo-Kristall in den Kammern der Stimmen | 20 |
-| Eigener Text am Pult einer Kammer | 25 |
-| Wächter einer Kammer besiegt | 150 |
+| Echo-Kristall auf den Inseln der Stimmen | 20 |
+| Eigener Text am Pult einer Insel | 25 |
+| Wächter einer Insel besiegt | 150 |
 | Ganzer Forumsbeitrag im Buch der Stimmen | 200 |
 | Lehrercodes | je nach Code (Teamarbeit 20, mündlicher Beitrag 10 …) |
 
@@ -149,7 +149,7 @@ Ein neuer Ort braucht zwei Teile:
 
 Figuren (`art: "npc"`) bekommen automatisch ein 3D-Modell und ein Pixel-Porträt, wenn es für ihr `bild` einen Eintrag in `AUSSEHEN` (`src/grafik16/figuren.js`) und `PORTRAITS` (`src/grafik16/portraits.js`) gibt. Die Figuren kann man mit `tools/vorschau3d.html` ansehen.
 
-Die Kammern der Stimmen (`turm`) benutzen denselben 3D-Bau wie die Halle, nur mit anderen Farben (`thema: "turm"`). Sie gibt es nur in der 3D-Version (`nur3d: true`); die älteren Versionen bleiben in der Halle.
+Die Inseln der Stimmen (Karten-ID `turm`, damit alte Spielstände passen) haben einen eigenen 3D-Bau: `src/grafik3d/inseln3d.js`. Form und Lage der Inseln, Brücken und Hindernisse stehen in `src/welt/inseln_layout.js` (Mittelpunkt, Größe und Thema je Insel; das Raster wird daraus erzeugt). Eine Brücke (`art: "bruecke"`) sperrt den Weg, bis `offen(zustand)` wahr wird, und baut sich dann Planke für Planke auf. Die Inseln gibt es nur in der 3D-Version (`nur3d: true`); die älteren Versionen bleiben in der Halle.
 
 Ein Echo-Kristall (`bild: "kristall"`, `farbe`) glimmt schwach und leuchtet hell, sobald `leuchtet(zustand)` wahr ist. Die Wächter sind Varianten des Torwächters; ihre Farben und Zeichen stehen in `WAECHTER` (`src/grafik3d/halle3d.js`), die Porträts in `PORTRAITS` (`waechter: {...}`).
 

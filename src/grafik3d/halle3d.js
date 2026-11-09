@@ -14,10 +14,9 @@ const REGAL_H = 4.4;
 // Farben der fünf Tore (Thema, Quellen, Interesse, Leser, Überschrift)
 export const TORFARBEN = { tor1: "#ffb347", tor2: "#58d8f0", tor3: "#ff7aa2", tor4: "#7aff9a", tor5: "#b48aff" };
 
-// Die Kammern der Stimmen benutzen denselben Bau, aber eigene Farben.
+// Farben des Hallenbaus (weitere Themen können hier ergänzt werden)
 const THEMEN = {
   halle: { himmel: "#0c0a14", nebel: "#141020", hemi: "#9a94d0", banner: null },
-  turm: { himmel: "#0a0e16", nebel: "#101624", hemi: "#94a8d8", banner: ["#c9a24e", "#58d8f0", "#ffb347", "#7aff9a", "#b48aff"] },
 };
 
 // Farben der Wächter (Stein, dunkler Stein, Glut, Emblem auf dem Stab)
@@ -156,7 +155,7 @@ function buchseitenTextur() {
   return c;
 }
 
-function strahlTextur() {
+export function strahlTextur() {
   const [c, g] = leinwand(8, 128);
   const v = g.createLinearGradient(0, 0, 0, 128);
   v.addColorStop(0, "rgba(255,255,255,0)"); v.addColorStop(0.25, "rgba(255,255,255,0.9)"); v.addColorStop(1, "rgba(255,255,255,0)");
@@ -721,7 +720,7 @@ function geo2(name) {
   return geoCache2.get(name);
 }
 
-function pultBauen(animationen) {
+export function pultBauen(animationen) {
   const g = new THREE.Group();
   const t = new Teile();
   const holz = "#5a3a22";
@@ -781,10 +780,10 @@ function siegelBauen(animationen) {
   return g;
 }
 
-// ---------- Kammern der Stimmen: Echo-Kristall und Buch der Stimmen ----------
+// ---------- Für die Inseln der Stimmen: Echo-Kristall und Buch der Stimmen ----------
 
 /** Echo-Kristall auf einem Steinsockel. Glimmt schwach, bis die Aufgabe gelöst ist – dann leuchtet er hell. */
-function kristallBauen(o, animationen) {
+export function kristallBauen(o, animationen) {
   const farbe = new THREE.Color(o.farbe ?? "#9af4ff");
   const dunkel = farbe.clone().multiplyScalar(0.28);
   const g = new THREE.Group();
@@ -844,7 +843,7 @@ function kristallBauen(o, animationen) {
 }
 
 /** Das Buch der Stimmen: ein großes Pult mit aufgeschlagenem Buch und einer Lichtsäule. */
-function buchBauen(animationen) {
+export function buchBauen(animationen) {
   const g = new THREE.Group();
   const pult = pultBauen(animationen);
   pult.scale.setScalar(1.55);

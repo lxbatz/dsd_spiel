@@ -76,7 +76,7 @@ export class Karte16 extends Phaser.Scene {
   }
 
   create() {
-    // Karten nur für die 3D-Version (z. B. die Kammern der Stimmen): zurück in die Halle
+    // Karten nur für die 3D-Version (z. B. die Inseln der Stimmen): zurück in die Halle
     if (KARTEN[this.kartenId]?.nur3d) { this.kartenId = "halle"; this.spawnId = "vonTurm"; }
     const def = KARTEN[this.kartenId] ?? KARTEN.dorf;
     this.def = def;
