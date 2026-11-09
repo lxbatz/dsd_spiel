@@ -186,6 +186,9 @@ export default {
     start: [15, 38],
     eingang: [15, 38],
     vonTurm: [15, 4],
+    // Startpunkte für Sprungcodes der Lehrkraft
+    pult: [11, 8],
+    torwaechter: [15, 6],
   },
   objekte: [
     { id: "lyra", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: 18, y: 36, aktion: lyra,

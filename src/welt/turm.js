@@ -246,6 +246,9 @@ export default {
   spawns: {
     start: [15, 37],
     eingang: [15, 37],
+    // Startpunkte für Sprungcodes der Lehrkraft: Anfang jeder Kammer, vor jedem Wächter, beim Buch
+    ...Object.fromEntries(KAMMERN.flatMap((q, i) => [[q.id, [15, OBEN[i] + 6]], [`${q.id}_waechter`, [15, OBEN[i] + (i === 3 ? 6 : 4)]]])),
+    buch: [15, 4],
   },
   objekte: [
     { id: "lyra_turm", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: 18, y: 35, aktion: lyra,

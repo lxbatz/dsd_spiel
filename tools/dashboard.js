@@ -124,6 +124,7 @@ function auswerten(z, gespeichert, dateiname) {
     schluessel: z.spielerId ?? `${z.held?.name ?? "?"}|${z.held?.kennung ?? ""}`,
     name: z.held?.name || "(ohne Heldenpass)",
     kennung: z.held?.kennung ?? "",
+    test: Boolean(z.testmodus),
     heldenklasse: KLASSEN[z.held?.klasse]?.name ?? "",
     xp: z.xp ?? 0,
     stufe: stufeVon(z.xp ?? 0),
@@ -265,7 +266,7 @@ function uebersicht() {
     const oeffnen = () => { gewaehlt = gewaehlt === s.schluessel ? null : s.schluessel; uebersicht(); akte(); if (gewaehlt) $("akte").scrollIntoView({ behavior: "smooth", block: "nearest" }); };
     tr.addEventListener("click", oeffnen);
     tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); oeffnen(); } });
-    tr.append(el("td", { class: "name" }, el("b", {}, s.kennung || s.name), s.kennung ? el("span", { class: "klein" }, s.name) : null));
+    tr.append(el("td", { class: "name" }, el("b", {}, s.kennung || s.name, s.test ? el("span", { title: "Testspielstand: Mit einem Sprungcode der Lehrkraft erstellt. Die Werte sind nicht echt." }, " 🧪") : null), s.kennung ? el("span", { class: "klein" }, s.name) : null));
     for (const q of QUESTS) {
       const i = s.quests[q.id];
       const text = i.status === "offen" ? "·" : i.status === "begonnen" ? "…" : i.rate == null ? "✓" : Math.round(i.rate * 100);

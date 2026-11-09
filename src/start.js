@@ -2,7 +2,7 @@
 
 import { zustand, zuruecksetzen, spielzeitZaehlen, speichern } from "./zustand.js";
 import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
-import { hudZeigen } from "./ui/hud.js";
+import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 
@@ -49,6 +49,11 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
     starten();
   };
 
+  // Nach einem Sprungcode (Lehrkraft) direkt weiterspielen
+  let direkt = false;
+  try { direkt = sessionStorage.getItem("eldoria-direkt-weiter") === "1"; sessionStorage.removeItem("eldoria-direkt-weiter"); } catch { /* egal */ }
+  if (direkt) { starten(); return; }
+
   const hatSpielstand = Boolean(zustand.held) || zustand.xp > 0;
   const knoepfe = hatSpielstand
     ? [knopf("▶ Weiterspielen", starten), knopf("Neues Spiel", async () => {
@@ -70,6 +75,10 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
       hatSpielstand && zustand.held ? el("p", {}, `Willkommen zurück, ${zustand.held.name}! (${zustand.xp} XP)`) : null),
     el("div", { class: "knopfleiste", style: "justify-content:center" }, knoepfe),
     el("p", { class: "titel-steuerung" }, "Steuerung: Pfeiltasten oder WASD · E oder Leertaste zum Sprechen"),
+    el("p", { class: "titel-code" }, el("button", {
+      type: "button", class: "link-knopf",
+      onclick: () => codeAnzeigen({ zurueck: () => titelZeigen({ beimStart, untertitel, titelBild, bildGroesse }) }),
+    }, "🔑 Code eingeben")),
   );
   fokus(knoepfe[0]);
 }

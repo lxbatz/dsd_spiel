@@ -314,3 +314,10 @@ body.touch:not(.im-spiel) #joystick { display: none; }
   .hud-knoepfe button { font-size: 16px; padding: 3px 6px; }
   .hud-knoepfe { gap: 3px; flex-wrap: nowrap; }
 }
+
+/* Titelbildschirm: Code eingeben (für Lehrercodes und Sprungcodes) */
+.titel-code { text-align: center; margin-top: 6px; }
+.link-knopf { background: none; border: none; color: inherit; opacity: 0.75; font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px 8px; }
+.link-knopf:hover, .link-knopf:focus-visible { opacity: 1; }
+.sprung-liste { max-height: min(52vh, 460px); overflow-y: auto; padding-right: 4px; }
+.sprung-liste .knopf { font-size: 14px; padding: 8px 12px; }

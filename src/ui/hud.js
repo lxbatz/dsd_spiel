@@ -10,6 +10,7 @@ import {
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
 import { KLASSEN } from "../inhalte/klassen.js";
 import { CODES } from "../inhalte/codes.js";
+import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
@@ -71,7 +72,37 @@ function inventarAnzeigen() {
   );
 }
 
-function codeAnzeigen() {
+// ---------- Sprungcodes für Lehrkräfte ----------
+
+function springen(punkt) {
+  spielstandUebernehmen(sprungZustand(punkt, zustand));
+  try { sessionStorage.setItem("eldoria-direkt-weiter", "1"); } catch { /* egal */ }
+  location.reload();
+}
+
+async function sprungAnbieten(ziel, zurueck) {
+  const warnung = el("p", { class: "klein" },
+    "Der jetzige Spielstand auf diesem Gerät wird überschrieben (Held und Statistik bleiben). ",
+    "Er gilt danach als Testspielstand und ist im Lehrerzimmer mit 🧪 markiert. ",
+    "Tipp: Vorher über Menü → „Als Datei speichern“ sichern.");
+  if (ziel === "menue") {
+    zeigen(
+      el("h2", {}, "🧭 Sprungmenü für Lehrkräfte"),
+      el("div", { class: "untertitel" }, "Wähle die Stelle, an die du springen willst."),
+      warnung,
+      el("div", { class: "auswahl-liste sprung-liste" }, SPRUNGPUNKTE.map((p) => knopf(p.name, () => springen(p), "knopf zweitrangig"))),
+      el("div", { class: "knopfleiste" }, knopf("Abbrechen", zurueck ?? schliessen, "knopf zweitrangig")),
+    );
+    return;
+  }
+  const punkt = SPRUNGPUNKTE.find((p) => p.id === ziel);
+  if (!punkt) return;
+  const ja = await bestaetigen("🧭 Sprungcode", `Springen zu: ${punkt.name}?\n\n${warnung.textContent}`, "Ja, springen");
+  if (ja) springen(punkt);
+  else (zurueck ?? schliessen)();
+}
+
+export function codeAnzeigen({ zurueck } = {}) {
   const eingabe = el("input", { class: "code-eingabe", placeholder: "ELD-XXXX-XXXX", maxlength: 20, autocomplete: "off" });
   const meldung = el("div", { class: "feedback", hidden: true });
   const einloesen = async () => {
@@ -83,6 +114,10 @@ function codeAnzeigen() {
     if (!eintrag) {
       meldung.className = "feedback schlecht";
       meldung.textContent = "Diesen Code kennt der Rat nicht. Prüfe die Schreibweise.";
+      return;
+    }
+    if (eintrag.sprung) {
+      await sprungAnbieten(eintrag.sprung, zurueck);
       return;
     }
     if (zustand.codes.includes(hash)) {
@@ -106,7 +141,7 @@ function codeAnzeigen() {
     el("h2", {}, "🔑 Lehrercode einlösen"),
     el("div", { class: "untertitel" }, "Für Teamarbeit, mündliche Beiträge und Texte bekommst du von deiner Lehrkraft Codes."),
     eingabe, meldung,
-    el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen, "knopf zweitrangig"), knopf("Einlösen", einloesen)),
+    el("div", { class: "knopfleiste" }, knopf("Schließen", zurueck ?? schliessen, "knopf zweitrangig"), knopf("Einlösen", einloesen)),
   );
   fokus(eingabe);
 }

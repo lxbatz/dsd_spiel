@@ -69,6 +69,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 
   Alles wird nur im Browser ausgewertet. Mit „Beispielklasse zeigen“ kann man es ohne echte Daten ausprobieren.
 
+- **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Halle: vor dem Torwächter“ oder „Kammer der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).
