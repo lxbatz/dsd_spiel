@@ -25,6 +25,7 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Insel der Waage (Marmorterrasse mit großer Waage): die eigene Meinung sagen und begründen → der Zauderer → *Rolle des Fürsprechers*
    - Insel des Siegels (Sternwarte): einen Schluss schreiben → das Endlose Echo → *Rolle der Vollendung*
    - Auf jeder Insel: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
+   - Das zerbrochene Siegel auf der Ankunftsinsel bringt einen zurück in die Halle oder ins Dorf; vom Portal im Dorf kommt man (nach dem ersten Besuch) direkt wieder zu den Inseln
    - Finale: **Das Buch der Stimmen** – der ganze Forumsbeitrag aus allen fünf Teilen → *Silber-Abzeichen*
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.

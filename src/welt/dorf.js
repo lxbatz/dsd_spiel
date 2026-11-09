@@ -160,6 +160,14 @@ async function portal(welt) {
     await dialog("Altes Portal", "Die Steine sind kalt und dunkel. Der Rat muss das Portal erst öffnen.");
     return;
   }
+  // Wer schon auf den Inseln der Stimmen war, kann direkt dorthin reisen (nur in der 3D-Version)
+  if (istErledigt("lythara_turm_intro") && welt.dreiD) {
+    const ziel = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Wohin in Lythara möchtest du reisen?",
+      ["In die Halle der Tausend Tore", "Zu den Inseln der Stimmen", "Noch nicht."]);
+    if (ziel === 0) welt.reisen("halle", "eingang");
+    if (ziel === 1) welt.reisen("turm", "eingang");
+    return;
+  }
   const antwort = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Möchtest du nach Lythara reisen, ins Reich der Schreiber?", ["Ja, ich reise nach Lythara!", "Noch nicht."]);
   if (antwort === 0) welt.reisen("halle", "eingang");
 }

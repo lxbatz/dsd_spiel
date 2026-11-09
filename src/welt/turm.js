@@ -171,8 +171,11 @@ async function buchDerStimmen() {
 }
 
 async function rueckweg(welt) {
-  const antwort = await frage("Das zerbrochene Siegel", "Durch das Siegel siehst du die Halle der Tausend Tore. Möchtest du zurück in die Halle gehen?", ["Ja, zurück in die Halle", "Nein, ich bleibe"]);
+  const antwort = await frage("Das zerbrochene Siegel",
+    "Im Siegel schimmern zwei Bilder: die Halle der Tausend Tore und das Dorf der Ankömmlinge. Wohin möchtest du reisen?",
+    ["In die Halle der Tausend Tore", "Ins Dorf der Ankömmlinge", "Ich bleibe hier"]);
   if (antwort === 0) welt.reisen("halle", "vonTurm");
+  if (antwort === 1) welt.reisen("dorf", "vonLythara");
 }
 
 // ---------- Objekte ----------
@@ -237,7 +240,7 @@ export default {
     { id: "lyra_turm", art: "npc", name: "Meisterin Lyra", bild: "npc_lyra", x: ankunft.cx + 3, y: ankunft.cy - 2, aktion: lyra,
       marker: (z) => !z.erledigt.lythara_turm_intro || (z.erledigt.lythara_buch && !z.erledigt.lythara_finale) },
     { id: "rueckweg", art: "portal", name: "Das zerbrochene Siegel", bild: "siegel_portal", x: ankunft.cx - 6, y: ankunft.cy + 1, breite: 2,
-      aktion: rueckweg, hinweis: "Durch das Siegel zurück in die Halle", aktiv: () => true },
+      aktion: rueckweg, hinweis: "Durch das Siegel reisen", aktiv: () => true },
     ...INSELN.flatMap(inselObjekte),
     { id: "buch_stimmen", art: "objekt", name: "Das Buch der Stimmen", bild: "buch_stimmen", x: siegelInsel.buch[0], y: siegelInsel.buch[1], breite: 2,
       aktion: buchDerStimmen, hinweis: "Im Buch der Stimmen schreiben",
