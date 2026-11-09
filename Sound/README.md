@@ -19,9 +19,11 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 | `town_03` | Dorf der Ankömmlinge | wie oben (Platzhalter) |
 | `fanfare_01` | Quest abgeschlossen | wie oben (Platzhalter) |
 | `castle_01` | Halle der Tausend Tore | wie oben (Platzhalter) |
+| `castle_03` | Kammern der Stimmen | wie oben (Platzhalter) |
 | `battle_02` | Bosskampf | wie oben (Platzhalter) |
 | `fanfare_03` | Sieg im Bosskampf | wie oben (Platzhalter) |
-| `fanfare_02`, `evil_03` | noch nicht verwendet | wie oben (Platzhalter) |
+| `fanfare_02` | Levelaufstieg | wie oben (Platzhalter) |
+| `evil_03` | noch nicht verwendet | wie oben (Platzhalter) |
 
 Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit FluidSynth und dem Klangsatz „FluidR3 GM“ (MIT-Lizenz, Frank Wen) erzeugt; die Stille am Ende wurde abgeschnitten, damit die Musik ohne Lücke in Schleife läuft.
 

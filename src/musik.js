@@ -12,6 +12,7 @@ export const MUSIK = {
   intro: "Sound/opening_03.mp3",
   dorf: "Sound/town_03.mp3",
   halle: "Sound/castle_01.mp3",
+  kammern: "Sound/castle_03.mp3",
   kampf: "Sound/battle_02.mp3",
 };
 

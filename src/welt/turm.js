@@ -227,7 +227,7 @@ const WAND = "##############################";
 export default {
   id: "turm",
   name: "Lythara – Die Kammern der Stimmen",
-  musik: "halle",
+  musik: "kammern",
   nur3d: true,
   raster: [
     WAND,
