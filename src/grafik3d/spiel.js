@@ -19,12 +19,13 @@ import { figurBauen } from "./figuren.js";
 import { E, welt, dorfBauen, objektBauen } from "./welt.js";
 import { halleBauen } from "./halle3d.js";
 import { inselnBauen } from "./inseln3d.js";
+import { nichtsBauen } from "./nichts3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -197,6 +198,7 @@ export class Spiel3D {
       const rand = o.art === "npc" ? 0.45 : 0.1;
       karte.objekte.push({
         def: o, modell: res.modell, figur: res.figur ?? null, marker, setzeOffen: res.setzeOffen, boss: res.boss,
+        kopfY: res.kopfY, weit: res.weit, kameraY: res.kameraY,
         rechteck: { x0: o.x * E + rand, z0: o.y * E + rand, x1: (o.x + b) * E - rand, z1: (o.y + h) * E - rand },
         fest: o.art !== "portal",
         grundDrehung: 0,
@@ -633,9 +635,9 @@ export class Spiel3D {
       richtung.normalize();
       const quer = new THREE.Vector3(richtung.z, 0, -richtung.x).multiplyScalar(this.gespraechSeite ?? 1);
       const gross = o.boss || o.def.art === "tor" || o.def.bild === "siegeltuer";
-      const weit = gross ? 5.0 : o.dynamisch ? 2.0 : 2.3;
-      ziel = new THREE.Vector3(p.x, gross ? 3.0 : 2.05, p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
-      const kopfY = o.boss ? 3.3 : o.def.art === "tor" ? 3.6 : o.dynamisch ? 0.5 : o.figur ? 1.85 : 1.2;
+      const weit = o.weit ?? (gross ? 5.0 : o.dynamisch ? 2.0 : 2.3);
+      ziel = new THREE.Vector3(p.x, o.kameraY ?? (gross ? 3.0 : 2.05), p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
+      const kopfY = o.kopfY ?? (o.boss ? 3.3 : o.def.art === "tor" ? 3.6 : o.dynamisch ? 0.5 : o.figur ? 1.85 : 1.2);
       blick = new THREE.Vector3(m.x, kopfY, m.z).lerp(new THREE.Vector3(p.x, 1.6, p.z), 0.18);
       // Auf niedrigen Bildschirmen (Handy quer) die Figuren höher ins Bild rücken
       blick.y -= this.behaelter.clientHeight < 520 ? 1.0 : 0.35;

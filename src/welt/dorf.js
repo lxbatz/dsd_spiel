@@ -8,6 +8,7 @@ import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen, heldSetzen, geben } from "../zustand.js";
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../inhalte/dorf.js";
 import { FINN_AUFGABEN, MARKT_AUFGABEN, WERKSTATT_AUFGABEN } from "../inhalte/dorf_neben.js";
+import { NICHTS_OFFEN } from "./nichts.js";
 
 const DORF_QUESTS = [
   ["dorf_wilma", "Händlerin Wilma am Markt"],
@@ -273,12 +274,13 @@ async function portal(welt) {
     await dialog("Altes Portal", "Die Steine sind kalt und dunkel. Der Rat muss das Portal erst öffnen.");
     return;
   }
-  // Wer schon auf den Inseln der Stimmen war, kann direkt dorthin reisen (nur in der 3D-Version)
-  if (istErledigt("lythara_turm_intro") && welt.dreiD) {
-    const ziel = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Wohin in Lythara möchtest du reisen?",
-      ["In die Halle der Tausend Tore", "Zu den Inseln der Stimmen", "Noch nicht."]);
-    if (ziel === 0) welt.reisen("halle", "eingang");
-    if (ziel === 1) welt.reisen("turm", "eingang");
+  // Mehrere Ziele (nur in der 3D-Version): die Inseln der Stimmen nach dem ersten Besuch, DAS NICHTS (Figurengalerie)
+  const ziele = [["In die Halle der Tausend Tore", "halle"]];
+  if (welt.dreiD && istErledigt("lythara_turm_intro")) ziele.push(["Zu den Inseln der Stimmen", "turm"]);
+  if (welt.dreiD && NICHTS_OFFEN) ziele.push(["In DAS NICHTS (alle Figuren ansehen)", "nichts"]);
+  if (ziele.length > 1) {
+    const wahl = await frage("Portal", "Das Portal leuchtet blau. Wohin möchtest du reisen?", [...ziele.map(([t]) => t), "Noch nicht."]);
+    if (wahl >= 0 && wahl < ziele.length) welt.reisen(ziele[wahl][1], "eingang");
     return;
   }
   const antwort = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Möchtest du nach Lythara reisen, ins Reich der Schreiber?", ["Ja, ich reise nach Lythara!", "Noch nicht."]);

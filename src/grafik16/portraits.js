@@ -24,6 +24,7 @@ export const PORTRAITS = {
   boss_kopist: { hintergrund: "#14222c", szene: "runen", waechter: { stein: "#5a6c7e", dunkel: "#34424e", glut: "#d0fbff", rune: "#58d8f0" } },
   boss_vergessen: { hintergrund: "#2a2420", szene: "runen", waechter: { stein: "#7c7670", dunkel: "#4a4642", glut: "#ffd890", rune: "#ffb347" } },
   boss_zauderer: { hintergrund: "#16261a", szene: "runen", waechter: { stein: "#5e7660", dunkel: "#34443a", glut: "#d0ffd6", rune: "#7aff9a" } },
+  boss_drachenrichter: { hintergrund: "#1c1630", drache: true },
   boss_echo: { hintergrund: "#22183a", szene: "runen", waechter: { stein: "#70608e", dunkel: "#40345a", glut: "#ecdcff", rune: "#b48aff" } },
 };
 
@@ -455,11 +456,61 @@ function torwaechter(b, p) {
   b.ueber(f);
 }
 
+/** Der Drachenrichter: Kopf im Dreiviertelprofil nach rechts, wie in der Konzeptzeichnung. */
+function drachenrichter(b, p) {
+  // Hintergrund: dunkle Glut mit Funken
+  b.verlauf(0, 0, G, G, R5(p.hintergrund), { dither: 0.9 });
+  b.fuelle(0, 0, G - 1, G - 1, (x, y) => ((x - 40) / 30) ** 2 + ((y - 30) / 26) ** 2 <= 1,
+    (x, y) => tonAus(R5("#4a3a6a"), 0.8 - Math.hypot(x - 40, y - 30) / 40, x, y, 0.9));
+  for (let i = 0; i < 16; i++) b.set(4 + Math.floor(hash(i, 1, 7) * 56), 2 + Math.floor(hash(i, 2, 7) * 58), i % 3 ? "#ff9a3a" : "#ffd27a");
+  const f = new Bild(G, G);
+  const haut = R5("#a8322a"), dunkel = R5("#76221e"), bauch = R("#e0a860"), membran = R("#c85038");
+  const schatten = (r, hellX, hellY) => (x, y) => tonAus(r, 0.75 - ((x - hellX) ** 2 + (y - hellY) ** 2) / 900, x, y, 0.5);
+  // Hals mit Kehlplatten
+  f.poly([[12, 40], [30, 40], [34, 64], [6, 64]], schatten(haut, 18, 44));
+  for (let i = 0; i < 4; i++) f.poly([[24 + i, 44 + i * 5], [32 + i, 45 + i * 5], [33 + i, 48 + i * 5], [25 + i, 48 + i * 5]], bauch[1 + (i % 2)]);
+  // Ohren: hinten (dunkler) und vorne, spitz mit S-Rand
+  f.poly([[10, 30], [6, 3], [12, 12], [20, 20], [22, 28]], (x, y) => tonAus(dunkel, 0.45 - (y - 3) / 80, x, y, 0.4));
+  f.poly([[11, 28], [8, 9], [13, 15], [19, 22]], membran[0]);
+  f.poly([[26, 24], [33, 1], [36, 10], [37, 16], [44, 21], [40, 28]], (x, y) => tonAus(membran, 0.7 - (y - 1) / 60, x, y, 0.4));
+  f.linie(26, 24, 33, 1, dunkel[1]); f.linie(27, 24, 34, 2, dunkel[2]);
+  // Schädel
+  f.fuelle(12, 18, 40, 44, (x, y) => ((x - 26) / 13) ** 2 + ((y - 31) / 12) ** 2 <= 1, (x, y) => kugelTon(haut, 24, 26, 13, 12, x, y));
+  f.ellipse(30, 25, 3, 3, dunkel[1]); f.ellipse(30, 25, 2, 2, dunkel[2]);   // „Pflaster“ des Ohrs
+  // Schnauze: langer Kasten, Oberseite heller, Vorderseite dunkler
+  f.poly([[30, 23], [56, 26], [57, 38], [31, 39]], (x, y) => tonAus(haut, 0.95 - (y - 23) / 22, x, y, 0.4));
+  f.poly([[30, 23], [56, 26], [56, 28], [31, 26]], haut[4]);
+  for (const x of [38, 46]) f.linie(x, 24, x, 26, haut[2]);
+  f.poly([[56, 26], [61, 28], [61, 38], [57, 38]], dunkel[2]);
+  f.rect(57, 29, 2, 3, "#1a0606"); f.set(58, 28, "#1a0606");                   // Nasenloch (Tropfen)
+  // Maul: offen, Zähne oben und unten, Zunge
+  f.poly([[32, 38], [60, 38], [58, 44], [34, 46]], "#3a0e10");
+  f.poly([[40, 42], [56, 41], [54, 44], [42, 45]], "#e05a6a");
+  for (let x = 34; x <= 58; x += 4) { f.set(x, 39, "#f2ead6"); f.set(x, 40, "#f2ead6"); f.set(x + 1, 39, "#d8ccb0"); }
+  f.rect(58, 39, 1, 4, "#f2ead6"); f.rect(59, 39, 1, 2, "#f2ead6");          // Fangzahn
+  // Unterkiefer wie eine Baggerschaufel
+  f.poly([[30, 45], [59, 43], [60, 49], [32, 52]], (x, y) => tonAus(dunkel, 0.75 - (y - 43) / 14, x, y, 0.4));
+  f.poly([[33, 48], [58, 46], [58, 48], [34, 50]], bauch[1]);
+  for (let x = 37; x <= 57; x += 5) f.set(x, 44, "#f2ead6");
+  // Auge: dreieckig, glühend, mit wütender Braue
+  f.poly([[30, 31], [40, 26], [37, 33]], "#ffd23a");
+  f.poly([[31, 31], [37, 28], [36, 31]], "#ffe680");
+  f.set(36, 29, "#fff4b0"); f.rect(34, 30, 1, 2, "#5a1a04");
+  f.linie(29, 25, 39, 23, dunkel[0]); f.linie(29, 26, 39, 24, dunkel[1]);
+  // Stacheln am Hinterkopf
+  for (const [x, y] of [[14, 21], [12, 26], [11, 31]]) { f.set(x, y, "#3a2a28"); f.set(x - 1, y - 1, "#3a2a28"); f.set(x - 2, y - 2, "#5a4a44"); }
+  // Rauchwölkchen aus der Nase
+  for (const [x, y, rr] of [[60, 22, 2], [62, 18, 2], [59, 15, 1]]) f.ellipse(x, y, rr, rr, "#b8b0a8");
+  f.umriss(null, { staerke: 0.3 });
+  b.ueber(f);
+}
+
 /** Malt das Porträt einer Figur (64×64). */
 export function portraitBild(schluessel) {
   const p = PORTRAITS[schluessel];
   const b = new Bild(G, G);
   if (p?.waechter) { torwaechter(b, p); return b; }
+  if (p?.drache) { drachenrichter(b, p); return b; }
   const d = AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);
