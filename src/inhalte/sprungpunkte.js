@@ -26,6 +26,11 @@ const SCHRITTE = [
   ]),
   ["lythara_buch", 200, "buch_der_stimmen"],
   ["lythara_finale", 0, "silber_abzeichen"],
+  ["aurelia_intro", 0],
+  ["aurelia_q1_start", 0],
+  ["aurelia_q1_m1", 20], ["aurelia_q1_m2", 20], ["aurelia_q1_m3", 20],
+  ["aurelia_q1_reisende", 0],
+  ["aurelia_q1", 150, "ton_hafen"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -61,7 +66,10 @@ export const SPRUNGPUNKTE = [
     { id: `${q.id}_waechter`, name: `${q.insel}: vor dem Wächter (${q.waechter.name})`, bis: q.text.id, karte: "turm", spawn: `${q.id}_waechter` },
   ]),
   { id: "buch", name: "Das Buch der Stimmen (Finale)", bis: "lythara_q5_boss", karte: "turm", spawn: "buch" },
-  { id: "ende", name: "Ende: alles erledigt", bis: "lythara_finale", karte: "turm", spawn: "eingang" },
+  { id: "ende", name: "Lythara gerettet (Ende von Lythara)", bis: "lythara_finale", karte: "turm", spawn: "eingang" },
+  { id: "aurelia", name: "Aurelia: Ankunft am Stadttor (Orpheon)", bis: "lythara_finale", karte: "aurelia", spawn: "eingang" },
+  { id: "aurelia_q1", name: "Aurelia: Hafen, Rufmuscheln (Quest 1)", bis: "aurelia_q1_start", karte: "aurelia", spawn: "hafen" },
+  { id: "aurelia_q1_ende", name: "Aurelia: Rufmuscheln gehört, Reisende beraten", bis: "aurelia_q1_m3", karte: "aurelia", spawn: "hafen" },
 ];
 
 const TESTHELD = {

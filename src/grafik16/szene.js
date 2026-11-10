@@ -77,7 +77,7 @@ export class Karte16 extends Phaser.Scene {
 
   create() {
     // Karten nur für die 3D-Version (z. B. die Inseln der Stimmen): zurück in die Halle
-    if (KARTEN[this.kartenId]?.nur3d) { this.kartenId = "halle"; this.spawnId = "vonTurm"; }
+    if (KARTEN[this.kartenId]?.nur3d) { [this.kartenId, this.spawnId] = KARTEN[this.kartenId].nur3dZiel ?? ["halle", "vonTurm"]; }
     const def = KARTEN[this.kartenId] ?? KARTEN.dorf;
     this.def = def;
     ortSetzen(def.id, this.spawnId);

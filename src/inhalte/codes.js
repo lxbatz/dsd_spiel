@@ -40,4 +40,7 @@ export const CODES = {
   "685a3aebdae4dd460d23fde55d1f013868fbdf6b7d87f905ea8d5075ac8471e7": { sprung: "buch", grund: "Sprungcode" },
   "0312929b9db869d081416847de7c8b1295f332280d129935a6dfd399fcede861": { sprung: "ende", grund: "Sprungcode" },
   "77983742c7a038f0ca6f01bbbaf973c03897bc22e629e246324ceeb64141260a": { sprung: "dorf_neben", grund: "Sprungcode" },
+  "0c130a3f7946e986ecdc0cad78de18af9d41e5589d910402d5ef1e2175c57c79": { sprung: "aurelia", grund: "Sprungcode" },
+  "adbc8ce12c8b6171cf51e10aa13ac052def8854035e999bc292642f20f582911": { sprung: "aurelia_q1", grund: "Sprungcode" },
+  "54d6a07071745f50a9b4031e82fe303295321bf17d80e03db35909db0afecb78": { sprung: "aurelia_q1_ende", grund: "Sprungcode" },
 };

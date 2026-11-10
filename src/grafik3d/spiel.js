@@ -20,12 +20,13 @@ import { E, welt, dorfBauen, objektBauen } from "./welt.js";
 import { halleBauen } from "./halle3d.js";
 import { inselnBauen } from "./inseln3d.js";
 import { nichtsBauen } from "./nichts3d.js";
+import { aureliaBauen } from "./aurelia3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;

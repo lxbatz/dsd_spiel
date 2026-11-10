@@ -18,6 +18,8 @@ export const PORTRAITS = {
   npc_wilma: { hintergrund: "#6a8a4a", augen: "#6a4a2a", ausdruck: "froh", ohrringe: true, szene: "markt", blume: true },
   npc_borin: { hintergrund: "#7a4a2a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schmiede", licht: { farbe: "#ffb060", seite: 1 } },
   npc_finn: { hintergrund: "#6a5a3a", augen: "#3a8a4a", ausdruck: "neugierig", szene: "schmiede", schal: "#3a5a9a", licht: { farbe: "#ffb060", seite: 1 } },
+  npc_orpheon: { hintergrund: "#4a7ab8", augen: "#3a6a9a", ausdruck: "weise", alt: true, szene: "meer", amulett: true, licht: { farbe: "#fff0c0", seite: -1 } },
+  npc_nerea: { hintergrund: "#3a8ac8", augen: "#5a3a1a", ausdruck: "froh", ohrringe: true, szene: "meer", licht: { farbe: "#ffe0a0", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)
@@ -180,6 +182,17 @@ const SZENEN = {
       if (k > 0 && hash(x, y, 31) < k * 1.4) b.set(x, y, mische(b.get(x, y), "#ffcf70", k * 0.5));
     }
     b.rect(7, 16, 2, 6, "#f2ead6"); b.set(7, 14, "#fff4b0"); b.set(8, 14, "#ffd050"); b.set(7, 15, "#ff9a30"); b.set(8, 15, "#ffd050");
+  },
+  meer(b, p) {
+    // Mittelmeer: heller Himmel, Sonne, Meereslinie mit Glitzern, weiße Häuser am Horizont
+    const himmel = R5(mische("#7ac0f0", p.hintergrund, 0.2));
+    b.verlauf(0, 0, G, 38, [...himmel].reverse(), { dither: 0.9, umkehren: true });
+    b.fuelle(46, 4, 60, 18, (x, y) => (x - 53) ** 2 + (y - 11) ** 2 <= 36, "#fff4c0");
+    wolke(b, 6, 8, 12);
+    const meer = R5("#2a7ab8");
+    b.verlauf(0, 38, G, 26, meer, { dither: 0.8 });
+    for (let i = 0; i < 26; i++) b.set(Math.floor(hash(i, 1, 9) * G), 39 + Math.floor(hash(i, 2, 9) * 24), "#d8f0ff");
+    for (let i = 0; i < 6; i++) { const x = 2 + i * 10 + Math.floor(hash(i, 3, 9) * 4), h = 4 + Math.floor(hash(i, 4, 9) * 4); b.rect(x, 38 - h, 6, h, "#f4f0e8"); b.rect(x, 38 - h - 1, 6, 1, "#c8603a"); }
   },
   runen(b) {
     b.verlauf(0, 0, G, G, R5("#1e1a30"), { dither: 0.9 });

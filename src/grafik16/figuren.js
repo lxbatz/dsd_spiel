@@ -46,6 +46,14 @@ export const AUSSEHEN = {
     haut: "#f6d4b4", haare: "#c4472a", frisur: "kurz",
     kleid: "#7a5230", akzent: "#e8d8b0", hose: "#3a5a9a", stiefel: "#4a2a1a", extra: "buch",
   },
+  npc_orpheon: {
+    haut: "#e2b48c", haare: "#e8e4dc", frisur: "lang", bart: "lang", bartfarbe: "#ece8e0",
+    kleid: "#f2ece0", akzent: "#3a7ab8", hose: "#f2ece0", stiefel: "#8a6a40", robe: true, extra: "wanderstab",
+  },
+  npc_nerea: {
+    haut: "#c88a5a", haare: "#2a1a14", frisur: "lockig", wangen: true,
+    kleid: "#2a6a9a", akzent: "#e8c060", hose: "#2a6a9a", stiefel: "#6a4a2a", robe: true, ohrringe: true,
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

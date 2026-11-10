@@ -32,6 +32,11 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Auf jeder Insel: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
    - Das zerbrochene Siegel auf der Ankunftsinsel bringt einen zurück in die Halle oder ins Dorf; vom Portal im Dorf kommt man (nach dem ersten Besuch) direkt wieder zu den Inseln
    - Finale: **Das Buch der Stimmen** – der ganze Forumsbeitrag aus allen fünf Teilen → *Silber-Abzeichen*
+5. **Aurelia – die Hafenstadt der Glocken** (Reich des Hörens, nur 3D; über das Portal im Dorf, nachdem Lythara gerettet ist)
+   - Antike Mittelmeerstadt: weiße Häuser mit Ziegeldächern, Agora mit Säulenhallen und Brunnen, Glockenturm auf der Akropolis, Leuchtturm, Stadtmauer, Hafen mit fünf Stegen, Booten und Werft
+   - Orpheon, der Glockenhüter, erzählt die Geschichte: Die große Glocke schweigt, fünf Töne müssen zurückgeholt werden
+   - Quest 1 *Die Stimmen des Hafens* (Durchsagen): drei Rufmuscheln am Kai anhören (Fähre, Ausflug, Fundsache, Sperrung, Wetter), dann bei Hafenmeisterin Nerea die Reisenden beraten → *Der Ton des Hafens*
+   - Markt, Leuchtturm, Werft und Glockenturm (Quests 2–5, Endkampf gegen den Drachenrichter) sind schon zu sehen und folgen
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

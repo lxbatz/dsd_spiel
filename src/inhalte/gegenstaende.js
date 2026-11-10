@@ -83,4 +83,9 @@ export const GEGENSTAENDE = {
     icon: "🐱",
     text: "Mimi und ihre drei Kätzchen im Heukorb, gemalt von Finn. Ein Dank von Wilma fürs Suchen und gute Zuhören.",
   },
+  ton_hafen: {
+    name: "Der Ton des Hafens",
+    icon: "🔔",
+    text: "Der erste von fünf Tönen der großen Glocke von Aurelia. Du kannst Durchsagen verstehen: Zeiten, Orte, Zahlen und Änderungen.",
+  },
 };
