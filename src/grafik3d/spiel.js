@@ -128,7 +128,9 @@ export class Spiel3D {
   composerBauen() {
     if (!this.karte) return;
     const w = this.behaelter.clientWidth || 800, h = this.behaelter.clientHeight || 600;
-    this.composer = new EffectComposer(this.renderer);
+    // Mit Kantenglättung (MSAA): ohne eigenes Ziel würde der Composer ohne Antialiasing rendern
+    const ziel = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, samples: 4 });
+    this.composer = new EffectComposer(this.renderer, ziel);
     this.renderPass = new RenderPass(this.karte.szene, this.kamera);
     this.composer.addPass(this.renderPass);
     this.bloom = new UnrealBloomPass(new THREE.Vector2(w, h), 0.32, 0.45, 0.82);
@@ -723,7 +725,7 @@ export class Spiel3D {
       this.kamera.position.set(m.x + Math.sin(t * 0.08) * 26, 14, m.z + Math.cos(t * 0.08) * 22);
       this.kamera.lookAt(m.x, 1, m.z - 2);
     }
-    if (this.q.bloom) {
+    if (this.q.bloom && karte.bau.bloom !== false) {
       if (!this.composer) this.composerBauen();
       if (this.renderPass.scene !== karte.szene) this.renderPass.scene = karte.szene;
       this.composer.render(dt);

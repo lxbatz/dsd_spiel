@@ -5,7 +5,7 @@
 const SCHLUESSEL = "eldoria-grafik";
 
 export const STUFEN = {
-  hoch: { name: "Hoch", schatten: true, schattenGroesse: 2048, pixelRatio: 2, bloom: true, kerzenlichter: 6, partikel: 1 },
+  hoch: { name: "Hoch", schatten: true, schattenGroesse: 1024, pixelRatio: 2, bloom: true, kerzenlichter: 6, partikel: 1 },
   mittel: { name: "Mittel", schatten: true, schattenGroesse: 1024, pixelRatio: 1.5, bloom: false, kerzenlichter: 4, partikel: 0.75 },
   niedrig: { name: "Niedrig", schatten: false, schattenGroesse: 512, pixelRatio: 1, bloom: false, kerzenlichter: 3, partikel: 0.45 },
 };

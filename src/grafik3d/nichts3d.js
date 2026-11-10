@@ -130,7 +130,7 @@ export function nichtsBauen(szene, raster, kontext) {
   const mitte = new THREE.Vector3(B / 2, 0, T / 2);
 
   szene.background = new THREE.Color(WEISS);
-  szene.fog = new THREE.Fog(WEISS, 28, 120);
+  szene.fog = new THREE.Fog(WEISS, 60, 160);   // nur ganz weit hinten, damit der Horizont verschwindet
 
   szene.add(new THREE.HemisphereLight("#ffffff", "#d6d0c4", 1.5));
   const licht = new THREE.DirectionalLight("#fffaf0", 1.9);
@@ -167,5 +167,6 @@ export function nichtsBauen(szene, raster, kontext) {
       licht.target.position.set(p.x, 0, p.z);
     },
     kamera: { hoehe: 3.0, abstand: 6.6, maxHoehe: 9 },
+    bloom: false,   // Leuchten würde die weiße Leere überstrahlen und die Figuren verschleiern
   };
 }
