@@ -279,3 +279,122 @@ export const WERKSTATT_AUFGABEN = [
     erklaerung: "„damit“ nennt einen Zweck: Man trägt Handschuhe, damit man sich nicht verbrennt.",
   },
 ];
+
+// ---------- Mimi ist weg! (Hören) ----------
+// Hörtexte: Die Sprachausgabe des Browsers liest vor. Für eigene Aufnahmen bei einem Hörtext
+// datei: "Sound/hoeren/<name>.mp3" ergänzen (siehe src/ui/hoeren.js).
+
+export const HOER_WILMA = {
+  sprecher: "Händlerin Wilma",
+  stimme: { tonhoehe: 1.15, tempo: 0.86 },
+  text: "Hallo, schön, dass du da bist! Ich bin so traurig. Mimi ist weg! Gestern Abend war sie noch hier am Marktstand. Sie hat Milch getrunken und dann auf dem Tisch geschlafen. Aber heute Morgen um sieben Uhr war sie nicht mehr da. Ich habe überall gesucht: im Haus, im Garten und unter dem Marktstand. Nichts! Mimi ist eine kleine Katze mit rotem Fell und weißen Pfoten. Sie trägt ein blaues Halsband mit einer Glocke. In den letzten Tagen war sie sehr müde und hat viel gegessen. Bitte frag die Leute im Dorf. Vielleicht hat jemand Mimi gesehen!",
+};
+
+export const HOER_ALDRIC = {
+  sprecher: "Ratsältester Aldric",
+  stimme: { tonhoehe: 0.75, tempo: 0.82 },
+  text: "Mimi? Ja, ich glaube, ich habe sie gesehen. Heute früh, so gegen halb sieben, bin ich zum Brunnen gegangen. Ich hole jeden Morgen frisches Wasser. Da ist eine rote Katze an mir vorbeigelaufen. Sie hatte etwas im Maul, vielleicht ein Stück Stoff. Sie ist sehr schnell in Richtung Schmiede gelaufen. Frag doch mal Borin!",
+};
+
+export const HOER_BORIN = {
+  sprecher: "Schmied Borin",
+  stimme: { tonhoehe: 0.65, tempo: 0.9 },
+  text: "Die Katze von Wilma? Hm. Heute Morgen habe ich ein Geräusch gehört: Miau, miau! Es kam vom Dach der Schmiede. Ich bin auf die Leiter gestiegen, aber da war keine Katze mehr. Nur mein altes Handtuch war weg! Das hängt sonst immer neben der Tür. Seltsam, oder? Finn war heute auch schon draußen. Vielleicht weiß er mehr.",
+};
+
+export const HOER_FINN = {
+  sprecher: "Finn",
+  stimme: { tonhoehe: 1.3, tempo: 0.95 },
+  text: "Ich weiß, wo Mimi ist! Aber psst, nicht so laut! Ich habe sie vor einer Stunde gesehen. Sie ist hinter Wilmas Garten zum alten Holzzaun gelaufen. Dort steht ein großer Korb mit Heu. Sie ist in den Korb geklettert und nicht mehr herausgekommen. Ich glaube, sie hat eine Überraschung für Wilma! Geh leise hin und schau nach.",
+};
+
+export const MIMI_WILMA = [
+  {
+    typ: "auswahl", hoertext: HOER_WILMA,
+    frage: "Wann hat Wilma Mimi zum letzten Mal gesehen?",
+    optionen: ["gestern Abend", "heute Morgen um sieben Uhr", "gestern Mittag"],
+    richtig: 0,
+    erklaerung: "„Gestern Abend war sie noch hier.“ Um sieben Uhr heute Morgen war sie schon weg.",
+  },
+  {
+    typ: "richtigfalsch", hoertext: HOER_WILMA,
+    frage: "Was hast du gehört? Richtig oder falsch?",
+    aussagen: [
+      ["Mimi hat rotes Fell.", true],
+      ["Mimi hat weiße Pfoten.", true],
+      ["Mimi trägt ein rotes Halsband.", false],
+      ["Wilma hat auch im Garten gesucht.", true],
+      ["Mimi war in den letzten Tagen sehr aktiv.", false],
+    ],
+  },
+  {
+    typ: "auswahl", hoertext: HOER_WILMA,
+    frage: "Worum bittet Wilma dich?",
+    optionen: ["Ich soll die Leute im Dorf fragen.", "Ich soll eine neue Katze kaufen.", "Ich soll den Marktstand putzen."],
+    richtig: 0,
+  },
+];
+
+export const MIMI_ALDRIC = [
+  {
+    typ: "auswahl", hoertext: HOER_ALDRIC,
+    frage: "Wann hat Aldric die Katze gesehen?",
+    optionen: ["gegen 6:30 Uhr", "gegen 7:30 Uhr", "gegen 9:00 Uhr"],
+    richtig: 0,
+    erklaerung: "„halb sieben“ = 6:30 Uhr",
+  },
+  {
+    typ: "auswahl", hoertext: HOER_ALDRIC,
+    frage: "Was hatte die Katze im Maul?",
+    optionen: ["vielleicht ein Stück Stoff", "einen Fisch", "eine Maus"],
+    richtig: 0,
+  },
+  {
+    typ: "auswahl", hoertext: HOER_ALDRIC,
+    frage: "Wohin ist die Katze gelaufen?",
+    optionen: ["in Richtung Schmiede", "zum Marktstand", "zum Portal"],
+    richtig: 0,
+  },
+];
+
+export const MIMI_BORIN = [
+  {
+    typ: "richtigfalsch", hoertext: HOER_BORIN,
+    frage: "Was hast du gehört? Richtig oder falsch?",
+    aussagen: [
+      ["Borin hat Mimi gesehen.", false],
+      ["Borin hat ein Miauen gehört.", true],
+      ["Das Geräusch kam vom Dach der Schmiede.", true],
+      ["Borins Handtuch ist weg.", true],
+    ],
+    erklaerung: "Borin hat Mimi nur gehört, nicht gesehen: „da war keine Katze mehr“.",
+  },
+  {
+    typ: "auswahl", hoertext: HOER_BORIN,
+    frage: "Was glaubst du: Warum hat Mimi Stoff und ein Handtuch geholt?",
+    optionen: ["Sie baut ein weiches Bett.", "Sie will es waschen.", "Sie will es Wilma schenken."],
+    richtig: 0,
+  },
+];
+
+export const MIMI_FINN = [
+  {
+    typ: "auswahl", hoertext: HOER_FINN,
+    frage: "Wo ist Mimi?",
+    optionen: ["in einem Korb am alten Holzzaun", "auf dem Dach der Schmiede", "im Brunnen"],
+    richtig: 0,
+  },
+  {
+    typ: "luecke", hoertext: HOER_FINN,
+    frage: "Ergänze, was Finn sagt.",
+    text: "Mimi ist in einen großen {Korb} mit {Heu} geklettert.",
+    auswahl: true,
+    ablenker: ["Kiste", "Stroh", "Topf"],
+  },
+  {
+    typ: "auswahl", hoertext: HOER_FINN,
+    frage: "Wie sollst du zum Korb gehen?",
+    optionen: ["leise", "schnell und laut", "mit Wilma zusammen"],
+    richtig: 0,
+  },
+];

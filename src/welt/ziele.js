@@ -38,6 +38,7 @@ const NEBEN = [
   ["dorf_finn", "Finns Geheimnis: Sprich mit Finn an der Schmiede."],
   ["dorf_markt", "Ein Tag am Marktstand: Hilf der erkälteten Wilma."],
   ["dorf_werkstatt", "Borins Werkstatt: Hilf Borin bei einem Auftrag."],
+  ["dorf_mimi", "Mimi ist weg! Hilf Wilma, ihre Katze zu finden (nach dem Marktstand)."],
 ];
 
 export function ziele(z) {

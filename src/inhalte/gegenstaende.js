@@ -78,4 +78,9 @@ export const GEGENSTAENDE = {
     icon: "🔨",
     text: "Ein Geschenk von Borin für deine Hilfe beim Gartentor. „Damit schlägt man auf das Eisen.“",
   },
+  katzenbild: {
+    name: "Finns Bild von Mimis Kätzchen",
+    icon: "🐱",
+    text: "Mimi und ihre drei Kätzchen im Heukorb, gemalt von Finn. Ein Dank von Wilma fürs Suchen und gute Zuhören.",
+  },
 };

@@ -13,6 +13,8 @@
 //
 // Alle Typen können zusätzlich einen Lesetext haben:
 //   lesetext: "<id aus texte.js>"  oder  { titel, text, quelle }
+// und/oder einen Hörtext (siehe ui/hoeren.js):
+//   hoertext: { sprecher, text, datei?, stimme?: { tonhoehe, tempo } }
 //
 // Eine Aufgabe kann auch eine Funktion sein, die den Spielstand bekommt und die
 // Aufgabe liefert. So lassen sich Angaben aus dem Heldenpass einbauen:
@@ -22,6 +24,7 @@ import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { mischen, woerterZaehlen } from "../hilfen.js";
 import { hatEffekt, textSpeichern, zustand, questErgebnis } from "../zustand.js";
 import { TEXTE } from "../inhalte/texte.js";
+import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 
 // ---------- Hilfen ----------
 
@@ -442,6 +445,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         el("h2", {}, titel),
         el("div", { class: "fortschritt" }, [untertitel, aufgaben.length > 1 ? `Aufgabe ${i + 1} von ${aufgaben.length}` : null].filter(Boolean).join(" · ")),
         lesetextElement(a.lesetext ?? lesetext),
+        hoertextElement(a.hoertext),
         el("div", { class: "frage" }, a.frage),
         r.element,
         feedback,
@@ -449,6 +453,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
       );
       fokus(r.erstesFeld);
     });
+    hoerenStoppen();
     if (ok === ABBRUCH) {
       questErgebnis(id, protokoll, { abgebrochen: true });
       return { abgebrochen: true };

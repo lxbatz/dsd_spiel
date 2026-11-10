@@ -321,3 +321,10 @@ body.touch:not(.im-spiel) #joystick { display: none; }
 .link-knopf:hover, .link-knopf:focus-visible { opacity: 1; }
 .sprung-liste { max-height: min(52vh, 460px); overflow-y: auto; padding-right: 4px; }
 .sprung-liste .knopf { font-size: 14px; padding: 8px 12px; }
+
+/* Hörtexte */
+.hoertext { border: 1px solid var(--pergament-2); border-left: 4px solid #4a8ad8; border-radius: 6px; padding: 10px 14px; margin: 10px 0 14px; }
+.hoer-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hoer-zaehler { font-size: 13px; opacity: 0.75; }
+.hoer-knoepfe { justify-content: flex-start; margin-top: 8px; }
+.hoer-text { margin-bottom: 0; }

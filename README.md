@@ -21,6 +21,7 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
 3. **Nebenquests im Dorf** (freiwillig, nach dem Torwächter; blaue Zeichen über den Figuren)
    - *Finns Geheimnis* (Lesen): Finns Brief an Tante Rosa verstehen, ihm einen Rat geben, dann mit ihm zu Borin gehen → *Finns Lesezeichen*
    - *Ein Tag am Marktstand* (Sprechen): für die erkältete Wilma Kunden bedienen, Preise nennen, rechnen, höflich sein → *Trinkgeld*
+   - *Mimi ist weg!* (Hören, nach dem Marktstand): Wilmas Katze ist verschwunden. Hinweise von Wilma, Aldric, Borin und Finn anhören, dann den Korb am Zaun finden → drei Kätzchen und *Finns Bild*. Die Hörtexte liest die Sprachausgabe des Browsers vor; eigene Aufnahmen lassen sich später als MP3 einsetzen.
    - *Borins Werkstatt* (Lesen, Beruf): eine Bestellung und eine Arbeitsanleitung verstehen, Werkzeuge zuordnen → das Gartentor steht danach im Dorf
 4. **Lythara, Quests 2–5: Die Inseln der Stimmen** (hinter der Siegeltür, nur 3D)
    - Durch das Siegel geht es hinaus: schwebende Inseln im Abendhimmel hoch über Lythara, verbunden durch magische Brücken. Die Brücke zur nächsten Insel erscheint erst, wenn der Wächter besiegt ist.

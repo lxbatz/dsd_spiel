@@ -105,6 +105,14 @@ Mehrere richtige Lösungen mit `|` trennen: `{stammt|kommt}`. Beim Schreiben wir
 ```
 `such` ist ein regulärer Ausdruck (Groß-/Kleinschreibung egal). Freie Texte werden nicht bewertet: Die Schülerin/der Schüler muss die Mindestwortzahl erreichen und den Selbstcheck abhaken. Die Lehrkraft liest den Text im Heldenpass und vergibt ggf. einen Lehrercode.
 
+### Hörtexte
+
+Jede Aufgabe kann einen Hörtext haben (zusätzlich oder statt eines Lesetextes):
+```js
+hoertext: { sprecher: "Händlerin Wilma", text: "Hallo, schön, dass du da bist! …", stimme: { tonhoehe: 1.15, tempo: 0.86 } }
+```
+Die Sprachausgabe des Browsers liest den Text auf Deutsch vor. Für eine eigene Aufnahme `datei: "Sound/hoeren/mimi_wilma.mp3"` ergänzen, dann wird die Datei abgespielt. Nach zweimal Hören kann man den Text einblenden. Beispiele: `dorf_neben.js` (Mimi ist weg!).
+
 ### Angaben aus dem Heldenpass einbauen
 
 Statt eines festen Objekts kann eine Aufgabe auch eine Funktion sein. Sie bekommt den Spielstand `z` und liefert die Aufgabe. Die Angaben aus dem Heldenpass stehen in `z.held` (`name`, `alter`, `land`, `wohnort`, `sprachen`, `hobbys`, `beruf`, `klasse`).

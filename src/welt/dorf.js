@@ -7,7 +7,8 @@ import { heldenpassFormular } from "../ui/heldenpass.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen, heldSetzen, geben } from "../zustand.js";
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../inhalte/dorf.js";
-import { FINN_AUFGABEN, MARKT_AUFGABEN, WERKSTATT_AUFGABEN } from "../inhalte/dorf_neben.js";
+import { FINN_AUFGABEN, MARKT_AUFGABEN, WERKSTATT_AUFGABEN, MIMI_WILMA, MIMI_ALDRIC, MIMI_BORIN, MIMI_FINN } from "../inhalte/dorf_neben.js";
+import { aufgabenFolge } from "../ui/aufgaben.js";
 import { NICHTS_OFFEN } from "./nichts.js";
 
 const DORF_QUESTS = [
@@ -24,7 +25,37 @@ export const NEBENQUESTS = [
   ["dorf_finn", "Finns Geheimnis (Finn an der Schmiede)"],
   ["dorf_markt", "Ein Tag am Marktstand (Händlerin Wilma)"],
   ["dorf_werkstatt", "Borins Werkstatt (Schmied Borin)"],
+  ["dorf_mimi", "Mimi ist weg! (Händlerin Wilma, nach dem Marktstand)"],
 ];
+
+// ---------- Nebenquest „Mimi ist weg!“ (Hören) ----------
+// Ablauf: Wilma (dorf_mimi_start) → Aldric (dorf_mimi_aldric) → Borin (dorf_mimi_borin)
+// → Finn (dorf_mimi_finn) → Korb am Holzzaun (dorf_mimi_gefunden) → zurück zu Wilma (dorf_mimi)
+const mimiSchritt = (z = zustand) => {
+  const e = (id) => Boolean(z.erledigt[id]);
+  if (!e("dorf_markt") || e("dorf_mimi")) return null;
+  if (!e("dorf_mimi_start")) return "wilma";
+  if (!e("dorf_mimi_aldric")) return "aldric";
+  if (!e("dorf_mimi_borin")) return "borin";
+  if (!e("dorf_mimi_finn")) return "finn";
+  if (!e("dorf_mimi_gefunden")) return "korb";
+  return "wilma_ende";
+};
+export { mimiSchritt };
+
+/** Ein Hörschritt: kurze Einleitung, dann die Höraufgaben. */
+async function mimiHoeren(sprecher, B, einleitung, id, titel, aufgaben, danach) {
+  await dialog(sprecher, einleitung, B);
+  const ergebnis = await aufgabenFolge({ id, titel: `Nebenquest: Mimi ist weg! – ${titel}`, untertitel: "Hören: Klicke auf „Anhören“. Du kannst so oft hören, wie du möchtest.", aufgaben });
+  if (ergebnis.abgebrochen) {
+    await dialog(sprecher, "Komm einfach wieder, wenn du Zeit hast.", B);
+    return false;
+  }
+  erledigen(id);
+  await belohnung({ xp: 15, grund: `Hinweis gefunden: ${titel}`, fanfare: true });
+  if (danach) await dialog(sprecher, danach, B);
+  return true;
+}
 
 async function zuerstZuAldric(sprecher, bildKey) {
   await dialog(sprecher, "Hallo, Fremde, Fremder! Du bist neu hier, oder? Geh zuerst zum Ratsältesten Aldric vor dem Rathaus.", bild(bildKey));
@@ -93,6 +124,11 @@ async function aldric(welt) {
     return;
   }
 
+  if (mimiSchritt() === "aldric") {
+    await mimiHoeren(S, B, "Wilmas Katze wird gesucht? Lass mich überlegen …", "dorf_mimi_aldric", "Aldric erinnert sich", MIMI_ALDRIC,
+      "Borin ist an der Schmiede. Vielleicht hat er etwas bemerkt.");
+    return;
+  }
   const offeneNeben = nebenquestsOffen() ? NEBENQUESTS.filter(([id]) => !istErledigt(id)) : [];
   await dialog(S, offeneNeben.length
     ? ["Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!",
@@ -105,6 +141,20 @@ async function wilma() {
   const B = bild("npc_wilma");
   if (ohnePass()) return zuerstZuAldric(S, "npc_wilma");
   if (istErledigt("dorf_wilma")) {
+    if (mimiSchritt() === "wilma") {
+      return mimiHoeren(S, B, "Oh … hallo. Meine Stimme ist wieder da, aber jetzt habe ich ein neues Problem. Hör mir bitte gut zu!",
+        "dorf_mimi_start", "Wilmas Nachricht", MIMI_WILMA, "Danke! Frag zuerst Aldric vor dem Rathaus. Er ist jeden Morgen früh unterwegs.");
+    }
+    if (mimiSchritt() === "wilma_ende") {
+      await dialog(S, [
+        "Was? Mimi hat drei Kätzchen bekommen? In dem alten Korb am Zaun? Auf Borins Handtuch?",
+        "Deshalb war sie so müde und hat so viel gegessen! Oh, ich bin so glücklich!",
+        "Finn hat schon ein Bild von den Kleinen gemalt. Das sollst du bekommen – als Dank fürs Suchen und Zuhören.",
+      ], B);
+      erledigen("dorf_mimi");
+      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Mimi ist weg!", gegenstaende: ["katzenbild"], fanfare: true });
+      return;
+    }
     if (nebenquestsOffen() && !istErledigt("dorf_markt")) {
       const geschafft = await questStarten({
         sprecher: S, bild: B,
@@ -147,6 +197,11 @@ async function borin(welt) {
   if (ohnePass()) return zuerstZuAldric(S, "npc_borin");
   if (istErledigt("dorf_borin")) {
     if (istErledigt("dorf_finn_brief") && !istErledigt("dorf_finn")) return finnSprichtMitBorin();
+    if (mimiSchritt() === "borin") {
+      await mimiHoeren(S, B, "Eine rote Katze? Warte mal …", "dorf_mimi_borin", "Borin hat etwas gehört", MIMI_BORIN,
+        "Finn steht da drüben. Frag ihn!");
+      return;
+    }
     if (nebenquestsOffen() && !istErledigt("dorf_werkstatt")) return werkstatt(welt);
     await dialog(S, istErledigt("dorf_werkstatt")
       ? "Das Gartentor ist fertig und der Rat ist zufrieden. Du hast Talent fürs Handwerk!"
@@ -175,6 +230,11 @@ async function finn() {
   const name = zustand.held?.name ?? "du";
   if (!nebenquestsOffen()) {
     await dialog(S, "Hallo! Ich bin Finn, Borins Lehrling. Danke, dass du Borin geholfen hast. Ich war nur bei Mimi – sie hatte Hunger.", B);
+    return;
+  }
+  if (mimiSchritt() === "finn") {
+    await mimiHoeren(S, B, "Du suchst Mimi? Komm näher, ich muss leise sprechen!", "dorf_mimi_finn", "Finns Geheimtipp", MIMI_FINN,
+      "Der Korb steht hinter Wilmas Garten, am alten Holzzaun. Leise!");
     return;
   }
   if (istErledigt("dorf_finn")) {
@@ -238,6 +298,22 @@ async function werkstatt(welt) {
   ], B);
   welt?.aktualisieren?.();
   await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Borins Werkstatt", gegenstaende: ["schmiedehammer"], fanfare: true });
+}
+
+async function katzenkorb(welt) {
+  if (mimiSchritt() === "korb") {
+    await dialog("Alter Korb", [
+      "Du gehst ganz leise zum Korb und schaust hinein …",
+      "Da ist Mimi! Sie liegt auf Borins altem Handtuch und einem Stück Stoff. Und neben ihr schlafen drei winzige Kätzchen!",
+      "Mimi schnurrt leise. Jetzt weißt du, warum sie so müde war. Erzähl es schnell Wilma!",
+    ]);
+    erledigen("dorf_mimi_gefunden");
+    welt?.aktualisieren?.();
+    return;
+  }
+  await dialog("Alter Korb", istErledigt("dorf_mimi_gefunden")
+    ? "Mimi und ihre drei Kätzchen schlafen im Heu. Pssst!"
+    : "Ein alter Korb voller Heu am Holzzaun.");
 }
 
 async function gartentor() {
@@ -319,18 +395,22 @@ export default {
   },
   objekte: [
     { id: "aldric", art: "npc", name: "Ratsältester Aldric", bild: "npc_aldric", x: 16, y: 5, aktion: aldric,
-      marker: (z) => !z.erledigt.dorf_heldenpass || (!z.erledigt.dorf_abschluss && DORF_QUESTS.every(([id]) => z.erledigt[id])) },
+      marker: (z) => !z.erledigt.dorf_heldenpass || (!z.erledigt.dorf_abschluss && DORF_QUESTS.every(([id]) => z.erledigt[id])) ? true
+        : mimiSchritt(z) === "aldric" ? "neben" : false },
     { id: "wilma", art: "npc", name: "Händlerin Wilma", bild: "npc_wilma", x: 6, y: 9, aktion: wilma,
       marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_wilma ? true
-        : z.erledigt.dorf_wilma && nebenquestsOffen(z) && !z.erledigt.dorf_markt ? "neben" : false },
+        : z.erledigt.dorf_wilma && nebenquestsOffen(z) && (!z.erledigt.dorf_markt || ["wilma", "wilma_ende"].includes(mimiSchritt(z))) ? "neben" : false },
     { id: "stand", art: "objekt", bild: "marktstand", x: 7, y: 9, breite: 2 },
     { id: "borin", art: "npc", name: "Schmied Borin", bild: "npc_borin", x: 24, y: 5, aktion: borin,
       marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_borin ? true
-        : z.erledigt.dorf_borin && nebenquestsOffen(z) && ((z.erledigt.dorf_finn_brief && !z.erledigt.dorf_finn) || !z.erledigt.dorf_werkstatt) ? "neben" : false },
+        : z.erledigt.dorf_borin && nebenquestsOffen(z) && ((z.erledigt.dorf_finn_brief && !z.erledigt.dorf_finn) || !z.erledigt.dorf_werkstatt || mimiSchritt(z) === "borin") ? "neben" : false },
     { id: "amboss", art: "objekt", bild: "amboss", x: 26, y: 5 },
     { id: "finn", art: "npc", name: "Finn", bild: "npc_finn", x: 21, y: 6, aktion: finn,
       sichtbar: (z) => Boolean(z.erledigt.dorf_borin),
-      marker: (z) => nebenquestsOffen(z) && !z.erledigt.dorf_finn_brief ? "neben" : false },
+      marker: (z) => nebenquestsOffen(z) && (!z.erledigt.dorf_finn_brief || mimiSchritt(z) === "finn") ? "neben" : false },
+    { id: "katzenkorb", art: "objekt", name: "Alter Korb", bild: "katzenkorb", x: 4, y: 15, aktion: katzenkorb, hinweis: "In den Korb schauen",
+      leuchtet: (z) => Boolean(z.erledigt.dorf_mimi_gefunden),
+      marker: (z) => (mimiSchritt(z) === "korb" ? "neben" : false) },
     { id: "gartentor", art: "objekt", name: "Gartentor", bild: "gartentor", x: 9, y: 14, breite: 2, aktion: gartentor, hinweis: "Das Gartentor ansehen",
       sichtbar: (z) => Boolean(z.erledigt.dorf_werkstatt) && Boolean(globalThis.eldoriaDreiD) },
     { id: "brett", art: "objekt", name: "Schwarzes Brett", bild: "brett", x: 12, y: 9, aktion: brett, hinweis: "Aushang lesen",

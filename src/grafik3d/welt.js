@@ -9,6 +9,7 @@ import { hash } from "../grafik16/pinsel.js";
 import { windMaterial, schmetterlingeBauen, voegelBauen, blaetterBauen, lichtpunkteBauen } from "./effekte.js";
 import { katzeBauen, katzeVerhalten } from "./katze.js";
 import { dialog } from "../ui/fenster.js";
+import { zustand } from "../zustand.js";
 
 export const E = 2; // Welteinheiten pro Kachel
 export const welt = (t) => t * E + E / 2;
@@ -369,6 +370,30 @@ export function objektBauen(o, animationen) {
     const oben = netz(new THREE.BoxGeometry(0.9, 0.22, 0.38), eisen); oben.position.y = 0.98; g.add(oben);
     const horn = netz(new THREE.ConeGeometry(0.14, 0.45, 6), eisen); horn.rotation.z = Math.PI / 2; horn.position.set(-0.65, 0.98, 0); g.add(horn);
     const hammer = netz(new THREE.BoxGeometry(0.28, 0.12, 0.12), eisen); hammer.position.set(0.2, 1.15, 0.05); g.add(hammer);
+  } else if (o.bild === "katzenkorb") {
+    // Heukorb am Zaun – nach dem Fund liegen Mimi und drei Kätzchen darin
+    const korb = netz(new THREE.CylinderGeometry(0.62, 0.48, 0.5, 14, 1, true), mat("#a8784a", { side: THREE.DoubleSide }));
+    korb.position.y = 0.25; g.add(korb);
+    for (const y of [0.1, 0.25, 0.4]) { const r = netz(new THREE.TorusGeometry(0.55 + y * 0.12, 0.03, 4, 18), mat("#8a5a30")); r.rotation.x = Math.PI / 2; r.position.y = y; g.add(r); }
+    const heu = netz(new THREE.CylinderGeometry(0.58, 0.58, 0.12, 14), mat("#e0c060")); heu.position.y = 0.42; g.add(heu);
+    for (let i = 0; i < 10; i++) { const h = netz(new THREE.BoxGeometry(0.4, 0.02, 0.03), mat("#d8b450")); h.position.set((hash(i, 1) - 0.5) * 0.9, 0.49, (hash(i, 2) - 0.5) * 0.9); h.rotation.y = hash(i, 3) * 3; g.add(h); }
+    const tuch = netz(new THREE.BoxGeometry(0.6, 0.03, 0.45), mat("#6a8ab8")); tuch.position.set(0.05, 0.5, 0); tuch.rotation.y = 0.3; g.add(tuch);
+    const familie = new THREE.Group();
+    const mimi = katzeBauen(); mimi.gruppe.position.set(-0.05, 0.42, -0.05); mimi.gruppe.rotation.y = 1.2; mimi.gruppe.scale.setScalar(0.9);
+    familie.add(mimi.gruppe);
+    const kleine = [[0.22, 0.12, -0.6, "#e8a050"], [0.15, -0.2, 2.2, "#f4f0e8"], [-0.25, 0.18, 0.4, "#5a4a42"]].map(([x, z, r, f]) => {
+      const k = katzeBauen(); k.gruppe.scale.setScalar(0.42); k.gruppe.position.set(x, 0.5, z); k.gruppe.rotation.y = r;
+      if (f !== "#e8a050") k.gruppe.traverse((m) => { if (m.isMesh && m.geometry.attributes.color) { m.material = m.material.clone(); m.material.vertexColors = false; m.material.color.set(f); } });
+      familie.add(k.gruppe); return k;
+    });
+    familie.visible = false;
+    g.add(familie);
+    g.userData.setzeLeuchten = (an) => { familie.visible = Boolean(an); };
+    animationen.push((t, dt = 0.016) => {
+      if (!familie.visible) return;
+      mimi.animieren(t, 0, dt, true);
+      kleine.forEach((k, i) => { k.animieren(t + i * 1.7, 0, dt, false); k.gruppe.position.y = 0.5 + Math.abs(Math.sin(t * 2 + i)) * 0.02; });
+    });
   } else if (o.bild === "gartentor") {
     // Schwarzes Eisentor mit Schloss (Nebenquest „Borins Werkstatt“)
     const eisen = mat("#1e1e24", { metalness: 0.6, roughness: 0.45 });
@@ -512,6 +537,12 @@ export function dorfBauen(szene, raster, kontext) {
       await dialog("Mimi", saetze[Math.floor(Math.random() * saetze.length)]);
     },
     update(zeit, dt, spieler, tempo, frei) {
+      // Während der Nebenquest „Mimi ist weg!“ ist Mimi verschwunden (sie liegt im Korb)
+      const e = zustand.erledigt;
+      const weg = Boolean(e.dorf_mimi_start) && !e.dorf_mimi;
+      katze.gruppe.visible = !weg;
+      this.interaktiv = !weg;
+      if (weg) return;
       verhalten ??= katzeVerhalten(katze, { x0: 6, z0: 19, x1: 34, z1: 33 }, frei);
       verhalten.update(zeit, dt, spieler, tempo);
     },

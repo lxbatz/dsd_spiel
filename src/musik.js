@@ -95,6 +95,11 @@ export function spieleJingle(id, { danach = false } = {}) {
   abspielen(audio);
 }
 
+/** Musik leiser stellen, solange ein Hörtext läuft. */
+export function leiser(an) {
+  if (aktuell) aktuell.audio.volume = an ? LAUTSTAERKE * 0.15 : LAUTSTAERKE;
+}
+
 export function istStumm() {
   return stumm;
 }

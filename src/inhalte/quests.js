@@ -43,6 +43,10 @@ export const QUESTS = [
   { id: "lythara_buch", titel: "Buch der Stimmen", ort: "Insel des Siegels", fertigkeit: "schreiben", thema: "Freier Text: ganzer Forumsbeitrag" },
   { id: "dorf_finn", titel: "Finns Geheimnis", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Einen persönlichen Brief verstehen, Rat geben" },
   { id: "dorf_markt", titel: "Am Marktstand", ort: "Dorf: Nebenquests", fertigkeit: "sprechen", thema: "Verkaufsgespräche, Preise, Höflichkeit" },
+  { id: "dorf_mimi_start", titel: "Mimi: Wilmas Nachricht", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Eine Nachricht verstehen (Details)" },
+  { id: "dorf_mimi_aldric", titel: "Mimi: Aldric", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Zeitangaben, Orte heraushören" },
+  { id: "dorf_mimi_borin", titel: "Mimi: Borin", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Gehört oder gesehen? Schlüsse ziehen" },
+  { id: "dorf_mimi_finn", titel: "Mimi: Finn", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Ortsangaben, Wegbeschreibung" },
   { id: "dorf_werkstatt", titel: "Borins Werkstatt", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Bestellung und Arbeitsanleitung verstehen" },
 ];
 
