@@ -93,4 +93,9 @@ export const GEGENSTAENDE = {
     icon: "🎶",
     text: "Der zweite von fünf Tönen der großen Glocke von Aurelia. Du verstehst Gespräche im Alltag: Wer will was? Wo sind die Leute? Wie geht das Gespräch aus?",
   },
+  ton_leuchtturm: {
+    name: "Der Ton des Leuchtturms",
+    icon: "🗼",
+    text: "Der dritte von fünf Tönen der großen Glocke von Aurelia. Du verstehst Nachrichten am Telefon: Wer ruft an, was will die Person, was muss man tun – und du schreibst dir Zeiten und Nummern auf.",
+  },
 };

@@ -10,6 +10,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `aurelia_q1.js` | Aurelia Quest 1: Durchsagen an den Rufmuscheln, Reisende beraten (Hörtexte mit Gong) |
+| `aurelia_q3.js` | Aurelia Quest 3: Telefonnachrichten auf drei Klangperlen (mit Piepton), Talos' Notizbuch |
 | `aurelia_q2.js` | Aurelia Quest 2: Gespräche am Markt (drei Händler, Gespräche mit zwei Stimmen), Ohrenprobe bei Ione |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
@@ -113,7 +114,7 @@ Jede Aufgabe kann einen Hörtext haben (zusätzlich oder statt eines Lesetextes)
 ```js
 hoertext: { sprecher: "Händlerin Wilma", text: "Hallo, schön, dass du da bist! …", stimme: { tonhoehe: 1.15, tempo: 0.86 } }
 ```
-Mit `gong: true` erklingt vorher ein Gong wie bei einer Durchsage. Für Gespräche mit mehreren Stimmen statt `text` eine Liste `teile: [{ sprecher, text, stimme }, …]` angeben. Die Sprachausgabe des Browsers liest den Text auf Deutsch vor. Für eine eigene Aufnahme `datei: "Sound/hoeren/mimi_wilma.mp3"` ergänzen, dann wird die Datei abgespielt. Nach zweimal Hören kann man den Text einblenden. Beispiele: `dorf_neben.js` (Mimi ist weg!), `aurelia_q2.js` (Gespräche mit zwei Stimmen).
+Mit `gong: true` erklingt vorher ein Gong wie bei einer Durchsage, mit `piep: true` ein Piepton wie beim Anrufbeantworter. Für Gespräche mit mehreren Stimmen statt `text` eine Liste `teile: [{ sprecher, text, stimme }, …]` angeben. Die Sprachausgabe des Browsers liest den Text auf Deutsch vor. Für eine eigene Aufnahme `datei: "Sound/hoeren/mimi_wilma.mp3"` ergänzen, dann wird die Datei abgespielt. Nach zweimal Hören kann man den Text einblenden. Beispiele: `dorf_neben.js` (Mimi ist weg!), `aurelia_q2.js` (Gespräche mit zwei Stimmen).
 
 ### Angaben aus dem Heldenpass einbauen
 

@@ -1,5 +1,6 @@
-// Hörtexte für Aufgaben: { sprecher, text, datei?, stimme?: { tonhoehe, tempo }, gong?: true }
+// Hörtexte für Aufgaben: { sprecher, text, datei?, stimme?: { tonhoehe, tempo }, gong?: true, piep?: true }
 //   gong: vor dem Text erklingt ein Gong (Durchsagen)
+//   piep: vor dem Text erklingt ein Piepton wie beim Anrufbeantworter (Telefonnachrichten)
 //   teile: [{ sprecher, text, stimme }] statt text – Gespräche mit mehreren Stimmen nacheinander
 // Ist eine Audiodatei angegeben (z. B. "Sound/hoeren/mimi_wilma.mp3"), wird sie abgespielt –
 // so können später eigene Aufnahmen eingesetzt werden. Sonst liest die Sprachausgabe
@@ -23,6 +24,27 @@ export function hoerenStoppen() {
 }
 
 let audioKontext = null;
+/** Piepton wie beim Anrufbeantworter (Web Audio, ohne Datei). */
+function piep(danach) {
+  try {
+    audioKontext ??= new (window.AudioContext || window.webkitAudioContext)();
+    const k = audioKontext, t0 = k.currentTime + 0.05;
+    const o = k.createOscillator(), g = k.createGain();
+    o.type = "sine"; o.frequency.value = 1000;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(0.18, t0 + 0.01);
+    g.gain.setValueAtTime(0.18, t0 + 0.45);
+    g.gain.linearRampToValueAtTime(0, t0 + 0.5);
+    o.connect(g).connect(k.destination);
+    o.start(t0); o.stop(t0 + 0.55);
+    const id = setTimeout(danach, 900);
+    return () => clearTimeout(id);
+  } catch {
+    danach();
+    return () => {};
+  }
+}
+
 /** Zweitoniger Gong wie bei einer Durchsage (Web Audio, ohne Datei). */
 function gong(danach) {
   try {
@@ -50,10 +72,10 @@ function gong(danach) {
 /** Spielt den Hörtext. fertig() wird am Ende aufgerufen. Liefert false, wenn nichts abgespielt werden kann. */
 function abspielen(h, fertig) {
   hoerenStoppen();
-  if (h.gong && !h._ohneGong) {
+  if ((h.gong || h.piep) && !h._ohneGong) {
     if (!h.datei && !window.speechSynthesis) return false;
     let gestoppt = false;
-    const abbrechen = gong(() => {
+    const abbrechen = (h.piep ? piep : gong)(() => {
       if (gestoppt) return;
       laufend = null;   // sonst würde abspielen() den Gong-Teil „stoppen“ und fertig() zu früh melden
       abspielen({ ...h, _ohneGong: true }, fertig);

@@ -38,7 +38,10 @@ function hauptziele(z) {
   if (!e("aurelia_q1")) return liste;
   const gespraeche = ["aurelia_q2_g1", "aurelia_q2_g2", "aurelia_q2_g3"].filter(e).length;
   liste.push({ text: `Gespräche am Markt: Hör an den Ständen auf der Agora zu (${gespraeche}/3) und mach die Ohrenprobe bei Marktaufseherin Ione.`, erledigt: e("aurelia_q2") });
-  if (e("aurelia_q2")) liste.push({ text: "Aurelia, Quest 3: Der Leuchtturm (kommt bald)", erledigt: false });
+  if (!e("aurelia_q2")) return liste;
+  const perlen = ["aurelia_q3_p1", "aurelia_q3_p2", "aurelia_q3_p3"].filter(e).length;
+  liste.push({ text: `Das Licht des Leuchtturms: Finde die Klangperlen (${perlen}/3), hör die Nachrichten an und hilf Leuchtturmwärter Talos mit seinem Notizbuch.`, erledigt: e("aurelia_q3") });
+  if (e("aurelia_q3")) liste.push({ text: "Aurelia, Quest 4: Die Werft (kommt bald)", erledigt: false });
   return liste;
 }
 

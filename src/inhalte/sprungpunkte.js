@@ -37,6 +37,11 @@ const SCHRITTE = [
   ["aurelia_q2_ohrenprobe", 0],
   ["aurelia_q2", 150, "ton_markt"],
   ["aurelia_q2_orpheon", 0],
+  ["aurelia_q3_start", 0],
+  ["aurelia_q3_p1", 25], ["aurelia_q3_p2", 25], ["aurelia_q3_p3", 25],
+  ["aurelia_q3_notizbuch", 0],
+  ["aurelia_q3", 150, "ton_leuchtturm"],
+  ["aurelia_q3_orpheon", 0],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -78,6 +83,8 @@ export const SPRUNGPUNKTE = [
   { id: "aurelia_q1_ende", name: "Aurelia: Rufmuscheln gehört, Reisende beraten", bis: "aurelia_q1_m3", karte: "aurelia", spawn: "hafen" },
   { id: "aurelia_q2", name: "Aurelia: Agora, Gespräche am Markt (Quest 2)", bis: "aurelia_q1_orpheon", karte: "aurelia", spawn: "markt" },
   { id: "aurelia_q2_ende", name: "Aurelia: Gespräche gehört, Ohrenprobe bei Ione", bis: "aurelia_q2_g3", karte: "aurelia", spawn: "markt" },
+  { id: "aurelia_q3", name: "Aurelia: Leuchtturm, Talos und die Klangperlen (Quest 3)", bis: "aurelia_q2_orpheon", karte: "aurelia", spawn: "leuchtturm" },
+  { id: "aurelia_q3_ende", name: "Aurelia: Perlen gefunden, Talos' Notizbuch", bis: "aurelia_q3_p3", karte: "aurelia", spawn: "leuchtturm" },
 ];
 
 const TESTHELD = {

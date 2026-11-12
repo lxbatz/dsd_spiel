@@ -24,6 +24,7 @@ export const PORTRAITS = {
   npc_ilias: { hintergrund: "#3a7aa8", augen: "#3a2a1a", ausdruck: "froh", szene: "meer", licht: { farbe: "#fff0c0", seite: -1 } },
   npc_kleon: { hintergrund: "#9a6a44", augen: "#4a5a6a", ausdruck: "weise", alt: true, szene: "markt", licht: { farbe: "#ffd8a0", seite: 1 } },
   npc_ione: { hintergrund: "#7a4a8a", augen: "#3a2a4a", ausdruck: "ruhig", szene: "markt", amulett: true, licht: { farbe: "#ffe8c0", seite: -1 } },
+  npc_talos: { hintergrund: "#2a4a7a", augen: "#4a6a8a", ausdruck: "weise", alt: true, szene: "meer", schal: "#c8503a", licht: { farbe: "#ffc060", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)

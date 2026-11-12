@@ -30,6 +30,7 @@ export const GALERIE = [
   { key: "npc_daphne", typ: "figur", reihe: 1, name: "Händlerin Daphne", text: "Verkauft Obst und Gemüse auf der Agora von Aurelia. Quest 2: Am Obststand." },
   { key: "npc_ilias", typ: "figur", reihe: 1, name: "Fischer Ilias", text: "Fischer und Fischhändler in Aurelia. Quest 2: Am Fischstand." },
   { key: "npc_kleon", typ: "figur", reihe: 1, name: "Töpfer Kleon", text: "Töpfer auf der Agora von Aurelia. Quest 2: Am Töpferstand (Reklamation)." },
+  { key: "npc_talos", typ: "figur", reihe: 1, name: "Leuchtturmwärter Talos", text: "Hütet seit vierzig Jahren den Leuchtturm von Aurelia. Quest 3: Das Licht des Leuchtturms (Telefonnachrichten)." },
   { key: "npc_lyra", typ: "figur", reihe: 1, name: "Meisterin Lyra", text: "Die letzte Schülerin der Schreibmeister. Führt durch Lythara." },
   { key: "boss_torwaechter", typ: "boss", reihe: 2, name: "Der Torwächter der Quellen", text: "Boss von Quest 1 (Einleitung) in der Halle der Tausend Tore." },
   { key: "boss_kopist", typ: "boss", reihe: 2, name: "Der Kopist", text: "Wächter der Insel der Echos (Wiedergabe)." },
@@ -52,7 +53,7 @@ export const GALERIE = [
 const BREITE = 44, HOEHE = 42;
 const REIHEN_Y = [30, 23, 15, 4];
 const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5 };
-const ABSTAND = { 0: 5, 1: 3.6, 2: 6, 3: 0 };
+const ABSTAND = { 0: 5, 1: 3.4, 2: 6, 3: 0 };
 
 function platzieren() {
   const objekte = [];

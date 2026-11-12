@@ -70,6 +70,10 @@ export const AUSSEHEN = {
     haut: "#ecc4a0", haare: "#1a1a2a", frisur: "zopf",
     kleid: "#e8e2d4", akzent: "#7a3a8a", hose: "#7a3a8a", stiefel: "#6a4a2a", robe: true, extra: "buch",
   },
+  npc_talos: {
+    haut: "#c89470", haare: "#e4e0d8", frisur: "kurz", bart: "kurz", bartfarbe: "#e4e0d8",
+    kleid: "#24406a", akzent: "#e0b040", hose: "#3a3a48", stiefel: "#2a2220", schal: "#c8503a",
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

@@ -2,7 +2,8 @@
 // Seit Morgraths Fluch schweigen die Glocken, und niemand versteht mehr, was die anderen sagen.
 // Quest 1: Die Stimmen des Hafens (Durchsagen) bei Hafenmeisterin Nerea.
 // Quest 2: Gespräche am Markt (Alltagsgespräche) bei Marktaufseherin Ione und drei Händlern.
-// Quests 3–5 und der Drachenrichter folgen; ihre Orte sind schon da.
+// Quest 3: Das Licht des Leuchtturms (Telefonnachrichten) bei Leuchtturmwärter Talos.
+// Quests 4–5 und der Drachenrichter folgen; ihre Orte sind schon da.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -12,14 +13,17 @@ import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { MUSCHELN, REISENDE } from "../inhalte/aurelia_q1.js";
 import { GESPRAECHE, OHRENPROBE } from "../inhalte/aurelia_q2.js";
+import { PERLEN, NOTIZBUCH } from "../inhalte/aurelia_q3.js";
 import { RASTER, KAI_Y } from "./aurelia_layout.js";
 
 const ORPHEON = "Orpheon, der Glockenhüter";
 const NEREA = "Hafenmeisterin Nerea";
 const IONE = "Marktaufseherin Ione";
+const TALOS = "Leuchtturmwärter Talos";
 
 const muschelnFertig = (z = zustand) => MUSCHELN.every((m) => z.erledigt[m.id]);
 const gespraecheFertig = (z = zustand) => GESPRAECHE.every((g) => z.erledigt[g.id]);
+const perlenFertig = (z = zustand) => PERLEN.every((p) => z.erledigt[p.id]);
 
 async function orpheon() {
   const B = bild("npc_orpheon");
@@ -35,12 +39,20 @@ async function orpheon() {
     erledigen("aurelia_intro");
     return;
   }
+  if (istErledigt("aurelia_q3")) {
+    for (const k of ["aurelia_q1_orpheon", "aurelia_q2_orpheon", "aurelia_q3_orpheon"]) erledigen(k);
+    await dialog(ORPHEON, [
+      "Sieh nur, der Leuchtturm strahlt wieder über das Meer! Drei Töne sind zurück: Hafen, Markt und Leuchtturm.",
+      "Nur noch die Werft und der Turm fehlen. (Diese Quests kommen bald.)",
+    ], B);
+    return;
+  }
   if (istErledigt("aurelia_q2")) {
     erledigen("aurelia_q1_orpheon");
     erledigen("aurelia_q2_orpheon");
     await dialog(ORPHEON, [
       "Zwei Töne! Der Hafen und der Markt klingen wieder. Hörst du, wie die Leute auf der Agora wieder miteinander reden?",
-      "Der Leuchtturm, die Werft und der Turm warten noch auf dich. (Diese Quests kommen bald.)",
+      "Jetzt brauchst du gute Ohren am Leuchtturm im Osten. Der alte Talos hört sein Muschelfon nicht mehr – und heute Nacht kommt ein Sturm!",
     ], B);
     return;
   }
@@ -192,6 +204,89 @@ function haendlerAktion(g) {
   };
 }
 
+// ---------- Quest 3: Das Licht des Leuchtturms ----------
+
+async function talos() {
+  const B = bild("npc_talos");
+  if (!istErledigt("aurelia_q2")) {
+    await dialog(TALOS, "Hm? Was? Sprich lauter, ich höre nichts mehr, seit die Glocke schweigt … Komm später wieder, junger Mensch.", B);
+    return;
+  }
+  if (!istErledigt("aurelia_q3_start")) {
+    await dialog(TALOS, [
+      "Ah, endlich Besuch! Ich bin Talos, der Wärter des Leuchtturms. Seit vierzig Jahren mache ich jeden Abend das Licht an.",
+      "Das Muschelfon hier speichert alle Nachrichten, die die Leute mir schicken – in kleinen Klangperlen. Aber letzte Nacht hat der Wind die Perlen herausgeweht!",
+      "Und meine Ohren … seit die Glocke schweigt, höre ich nur noch Rauschen. Die Nachrichten sind bestimmt wichtig.",
+      "Such die drei Klangperlen und hör dir die Nachrichten an. Eine liegt hier auf der Landzunge, eine am Kai bei Steg 5 und eine ist bis zur Stadtmauer im Nordosten geflogen.",
+      "Merk dir alles gut: Wer ruft an? Was will die Person? Was soll ich tun? Und schreib dir Zahlen und Zeiten auf!",
+    ], B);
+    erledigen("aurelia_q3_start");
+    return;
+  }
+  if (istErledigt("aurelia_q3")) {
+    await dialog(TALOS, "Das Licht brennt, Ilias ist sicher im Hafen, und am Samstag hole ich Leni ab. Danke, mein Freund – du hast die besten Ohren von Aurelia!", B);
+    return;
+  }
+  if (!perlenFertig()) {
+    const fehlen = PERLEN.filter((p) => !istErledigt(p.id)).length;
+    await dialog(TALOS, `Es fehlen noch ${fehlen === 1 ? "eine Klangperle" : `${fehlen} Klangperlen`}. Eine liegt auf der Landzunge, eine am Kai bei Steg 5, eine bei der Stadtmauer im Nordosten.`, B);
+    return;
+  }
+  const geschafft = await questStarten({
+    sprecher: TALOS, bild: B,
+    frageText: "Du hast alle Perlen! Hilfst du mir mit meinem Notizbuch? Ich muss wissen, was ich zuerst tun soll und wen ich zurückrufen muss. Du darfst die Nachrichten noch einmal anhören.",
+    ja: "Ja, wir schreiben die Notizen!",
+    spaeter: "Gut, aber nicht zu lange – der Sturm kommt!",
+    folge: { id: "aurelia_q3_notizbuch", titel: "Quest: Das Licht des Leuchtturms", untertitel: "Talos' Notizbuch", aufgaben: NOTIZBUCH },
+  });
+  if (!geschafft) return;
+  erledigen("aurelia_q3_notizbuch");
+  erledigen("aurelia_q3");
+  await dialog(TALOS, [
+    "Natürlich! Zuerst das Licht – der Sturm kommt, und Ilias ist noch draußen!",
+    "Talos zieht an einem großen Hebel. Oben im Turm faucht das Feuer auf, und ein heller Strahl wandert über das dunkle Meer.",
+    "Hörst du den Ton? Er kommt vom Licht selbst. Das ist der Ton des Leuchtturms. Er gehört dir.",
+  ], B);
+  await belohnung({ xp: 150, grund: "Quest abgeschlossen: Das Licht des Leuchtturms", gegenstaende: ["ton_leuchtturm"], fanfare: true });
+}
+
+async function muschelfon() {
+  if (!istErledigt("aurelia_q3_start")) {
+    await dialog("Muschelfon", "Eine große Muschel auf einer Säule. Ein rotes Licht blinkt. Daneben hängt ein Hörrohr aus Messing.");
+    return;
+  }
+  if (!perlenFertig()) {
+    const n = PERLEN.filter((p) => istErledigt(p.id)).length;
+    await dialog("Muschelfon", `Das rote Licht blinkt. Im Muschelfon liegen ${n} von 3 Klangperlen. Bring die fehlenden Perlen zurück!`);
+    return;
+  }
+  await dialog("Muschelfon", "Alle drei Klangperlen sind zurück. Das Licht ist grün. Sprich mit Talos.");
+}
+
+function perleAktion(p) {
+  return async () => {
+    if (!istErledigt("aurelia_q3_start")) {
+      await dialog(p.name, "Eine leere Muschel zwischen den Steinen. Hier ist nichts Besonderes.");
+      return;
+    }
+    if (istErledigt(p.id)) {
+      const nochmal = await frage(p.name, "Diese Klangperle hast du schon zum Muschelfon gebracht. Möchtest du die Nachrichten noch einmal üben?", ["Ja, noch einmal", "Nein"]);
+      if (nochmal === 0) await aufgabenFolge({ id: p.id, titel: p.name, untertitel: "Telefonnachrichten verstehen", aufgaben: p.aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher: p.name,
+      frageText: `${p.fundort} Sie summt leise. Wenn du sie ans Ohr hältst, hörst du einen Piepton …\n\nMöchtest du die Nachrichten anhören?`,
+      ja: "Ja, anhören",
+      spaeter: "Die Perle summt weiter.",
+      folge: { id: p.id, titel: p.name, untertitel: "Telefonnachrichten verstehen · Klicke auf „Anhören“", aufgaben: p.aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(p.id);
+    await belohnung({ xp: 25, grund: `${p.name}: Nachrichten verstanden!`, fanfare: true });
+  };
+}
+
 /** Orte der späteren Quests – schon zu sehen, aber noch nicht spielbar */
 function spaeter(name, text) {
   return async () => dialog(name, text);
@@ -214,6 +309,8 @@ const STAENDE = [
   { g: GESPRAECHE[2], stand: ["stand_a3", 29, 13], ware: "toepfe", segel: "#d8a838", npc: [31, 13] },
 ];
 
+const PERLEN_ORTE = [[46, 19], [40, 27], [44, 9]];
+
 const MUSCHEL_ORTE = [[11, KAI_Y - 2], [25, KAI_Y - 2], [35, KAI_Y - 2]];
 
 export default {
@@ -228,11 +325,12 @@ export default {
     eingang: [5, 19],
     hafen: [21, 24],
     markt: [22, 19],
+    leuchtturm: [40, 18],
   },
   objekte: [
     { id: "portal_aurelia", art: "portal", name: "Portal ins Dorf", x: 1, y: 18, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
     { id: "orpheon", art: "npc", name: ORPHEON, bild: "npc_orpheon", x: 7, y: 17, aktion: orpheon,
-      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) },
+      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) || (z.erledigt.aurelia_q3 && !z.erledigt.aurelia_q3_orpheon) },
     { id: "nerea", art: "npc", name: NEREA, bild: "npc_nerea", x: 20, y: 26, aktion: nerea,
       marker: (z) => Boolean(z.erledigt.aurelia_intro) && (!z.erledigt.aurelia_q1_start || (muschelnFertig(z) && !z.erledigt.aurelia_q1)) },
     ...MUSCHELN.map((m, i) => ({
@@ -250,8 +348,16 @@ export default {
       { id: g.haendler.replace("npc_", ""), art: "npc", name: g.name, bild: g.haendler, x: npc[0], y: npc[1], aktion: haendlerAktion(g),
         marker: (z) => Boolean(z.erledigt.aurelia_q2_start) && !z.erledigt[g.id] },
     ]),
-    { id: "leuchtturm_tuer", art: "objekt", name: "Tür des Leuchtturms", bild: "tafel", x: 43, y: 17,
-      aktion: spaeter("Leuchtturm", "Die Tür ist verschlossen. Drinnen klingelt das Muschelfon, aber niemand hört die Nachrichten ab. (Quest 3 kommt bald.)"), hinweis: "Die Tür untersuchen" },
+    { id: "talos", art: "npc", name: TALOS, bild: "npc_talos", x: 43, y: 19, aktion: talos,
+      marker: (z) => Boolean(z.erledigt.aurelia_q2) && (!z.erledigt.aurelia_q3_start || (perlenFertig(z) && !z.erledigt.aurelia_q3)) },
+    { id: "muschelfon", art: "objekt", name: "Muschelfon", bild: "muschelfon", x: 41, y: 17, aktion: muschelfon, hinweis: "Das Muschelfon ansehen",
+      leuchtet: (z) => perlenFertig(z) },
+    ...PERLEN.map((p, i) => ({
+      id: p.id, art: "objekt", name: p.name, bild: "klangperle", x: PERLEN_ORTE[i][0], y: PERLEN_ORTE[i][1],
+      aktion: perleAktion(p), hinweis: `${p.name} aufheben`,
+      leuchtet: (z) => Boolean(z.erledigt.aurelia_q3_start) && !z.erledigt[p.id],
+      marker: (z) => Boolean(z.erledigt.aurelia_q3_start) && !z.erledigt[p.id],
+    })),
     { id: "werft_tafel", art: "objekt", name: "Werft", bild: "tafel", x: 9, y: 27,
       aktion: spaeter("Werft", "„Werft von Aurelia – Auszubildende gesucht!“ Hier wartet bald Quest 4: Arbeitsanweisungen verstehen."), hinweis: "Die Tafel lesen" },
     { id: "turm_tuer", art: "objekt", name: "Tor des Glockenturms", bild: "tafel", x: 23, y: 7,

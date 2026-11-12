@@ -5,7 +5,7 @@
 // ein Kai mit fünf Holzstegen, Booten, einer Fähre und einer Werft – und das tiefblaue Meer.
 
 import * as THREE from "../../vendor/three.module.min.js";
-import { Teile, KUGEL, KUGEL_K, ZYL, RING, KASTEN, KEGEL, DREH, V } from "./figuren.js";
+import { Teile, KUGEL, KUGEL_K, ZYL, KAPSEL, RING, KASTEN, KEGEL, DREH, V } from "./figuren.js";
 import { textur, lichtTextur, dachTextur, holzTextur } from "./texturen.js";
 import { hash } from "../grafik16/pinsel.js";
 import { E } from "./welt.js";
@@ -383,8 +383,11 @@ function leuchtturmBauen(szene, b, animationen) {
   }));
   strahl.position.set(0, 14.0, 0);
   g.add(strahl);
+  // Bis Quest 3 brennt nur ein schwaches Feuer, danach dreht sich der Lichtstrahl wieder
   animationen.push((zeit) => {
-    feuer.scale.setScalar(3.0 + Math.sin(zeit * 9) * 0.2 + Math.sin(zeit * 23) * 0.1);
+    const an = Boolean(zustand.erledigt.aurelia_q3);
+    feuer.scale.setScalar((an ? 3.0 : 1.4) + Math.sin(zeit * 9) * 0.2 + Math.sin(zeit * 23) * 0.1);
+    strahl.visible = an;
     strahl.rotation.y = zeit * 0.5;
   });
   g.traverse((m) => { if (m.isMesh && m !== strahl) { m.castShadow = true; m.receiveShadow = true; } });
@@ -674,11 +677,67 @@ function antikerStandBauen(ware = "obst", segel = "#2a6aa8") {
   return g;
 }
 
+/** Muschelfon: große Spiralmuschel auf einer Säule mit Hörrohr (Anrufbeantworter von Talos) */
+function muschelfonBauen(animationen) {
+  const g = new THREE.Group();
+  const t = new Teile();
+  t.add(ZYL(1, 1.15, 12), MARMOR, [0, 0.55, 0], [0, 0, 0], [0.4, 1.1, 0.4]);
+  t.add(ZYL(1, 1, 12), "#e8dcc0", [0, 1.15, 0], [0, 0, 0], [0.5, 0.1, 0.5]);
+  // Spiralmuschel aus kleiner werdenden Kugeln
+  for (let i = 0; i < 9; i++) {
+    const a = i * 0.8, r = 0.42 * Math.pow(0.82, i);
+    t.add(KUGEL(), i % 2 ? "#f2d8c0" : "#e8b898", [Math.cos(a) * (0.32 - i * 0.03), 1.55 + i * 0.07, Math.sin(a) * (0.2 - i * 0.02)], [0, a, 0], [r, r * 0.85, r]);
+  }
+  t.add(KEGEL(14), "#f6e2d0", [0.15, 1.5, 0.38], [Math.PI / 2 - 0.3, 0, 0], [0.32, 0.5, 0.32]);
+  t.add(KUGEL_K(), "#c87a6a", [0.15, 1.42, 0.62], [0, 0, 0], [0.22, 0.22, 0.05]);
+  // Hörrohr an einer Kordel
+  t.add(KAPSEL(), "#b8863a", [-0.55, 1.25, 0.1], [0, 0, 0.3], [0.08, 0.28, 0.08], { art: "glanz" });
+  t.add(KEGEL(10), "#b8863a", [-0.62, 1.55, 0.1], [0, 0, Math.PI + 0.3], [0.14, 0.18, 0.14], { art: "glanz" });
+  t.in(g);
+  // Leuchtpunkt: blinkt, solange Nachrichten fehlen
+  const lampe = new THREE.Sprite(new THREE.SpriteMaterial({ map: textur(lichtTextur("rgba(255,120,90,1)")), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  lampe.position.set(0.15, 2.3, 0.3); lampe.scale.setScalar(0.7);
+  g.add(lampe);
+  let blinkt = true;
+  g.userData.setzeLeuchten = (an) => { blinkt = !an; };
+  animationen.push((zeit) => {
+    lampe.material.color.set(blinkt ? "#ff7a5a" : "#7aff9a");
+    lampe.material.opacity = blinkt ? (Math.sin(zeit * 5) > 0 ? 1 : 0.15) : 0.8;
+  });
+  g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
+  return g;
+}
+
+/** Klangperle: offene Muschel mit leuchtender Perle (verschwindet, wenn sie eingesammelt ist) */
+function klangperleBauen(animationen) {
+  const g = new THREE.Group();
+  const t = new Teile();
+  for (let i = 0; i < 4; i++) t.add(KUGEL_K(), "#9a8a72", [Math.cos(i * 1.7) * 0.6, 0.05, Math.sin(i * 1.7) * 0.5], [i, i, 0], [0.35, 0.2, 0.3]);
+  t.add(KUGEL(), "#f0d0c0", [0, 0.12, 0], [0, 0, 0], [0.45, 0.12, 0.4]);
+  t.add(KUGEL(), "#f4dccc", [0, 0.36, -0.28], [-1.0, 0, 0], [0.45, 0.1, 0.4]);
+  t.in(g);
+  const perle = new THREE.Mesh(new THREE.SphereGeometry(0.17, 18, 12), new THREE.MeshStandardMaterial({ color: "#e8f4ff", emissive: "#9ad8ff", emissiveIntensity: 0.9, roughness: 0.15, metalness: 0.2 }));
+  perle.position.set(0, 0.32, 0.02);
+  const schein = new THREE.Sprite(new THREE.SpriteMaterial({ map: textur(lichtTextur("rgba(160,220,255,1)")), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  schein.position.copy(perle.position); schein.scale.setScalar(1.3);
+  g.add(perle, schein);
+  g.userData.setzeLeuchten = (an) => { perle.visible = schein.visible = Boolean(an); };
+  animationen.push((zeit) => {
+    if (!perle.visible) return;
+    perle.position.y = 0.34 + Math.sin(zeit * 2) * 0.04;
+    schein.position.y = perle.position.y;
+    schein.material.opacity = 0.6 + Math.sin(zeit * 3) * 0.3;
+  });
+  return g;
+}
+
 function objektModell(o, animationen) {
   if (o.bild?.startsWith("stand_")) return { modell: antikerStandBauen(o.bild.slice(6), o.segel) };
   if (o.bild === "rufmuschel") return { modell: rufmuschelBauen(animationen) };
   if (o.bild === "brunnen_antik") return { modell: brunnenBauen(animationen) };
   if (o.bild === "tafel") return { modell: tafelBauen() };
+  if (o.bild === "muschelfon") return { modell: muschelfonBauen(animationen) };
+  if (o.bild === "klangperle") return { modell: klangperleBauen(animationen) };
   return null;
 }
 
