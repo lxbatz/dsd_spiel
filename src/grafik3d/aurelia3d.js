@@ -622,7 +622,60 @@ function tafelBauen() {
   return g;
 }
 
+
+/** Antiker Marktstand mit Leinensonnensegel; ware: "obst" | "fisch" | "toepfe" */
+function antikerStandBauen(ware = "obst", segel = "#2a6aa8") {
+  const g = new THREE.Group();
+  const t = new Teile();
+  const holz = "#8a6440", hell = "#f2ece0";
+  // Tisch aus Stein mit Holzplatte
+  t.add(KASTEN(), "#e4dccb", [0, 0.42, 0], [0, 0, 0], [3.2, 0.84, 1.0]);
+  t.add(KASTEN(), holz, [0, 0.88, 0], [0, 0, 0], [3.4, 0.08, 1.15]);
+  // Pfosten und Sonnensegel in Streifen
+  for (const sx of [-1.6, 1.6]) for (const sz of [-0.55, 0.55]) t.add(ZYL(1, 1, 6), holz, [sx, 1.25, sz], [0, 0, 0], [0.06, 2.5, 0.06]);
+  for (let i = 0; i < 8; i++) {
+    const x = -1.65 + i * 0.47 + 0.235;
+    t.add(KASTEN(), i % 2 ? hell : segel, [x, 2.55, 0], [0.32, 0, 0], [0.47, 0.03, 1.5]);
+    t.add(KEGEL(3), i % 2 ? hell : segel, [x, 2.2, 0.82], [Math.PI, 0, 0], [0.24, 0.3, 0.04]);
+  }
+  if (ware === "obst") {
+    const farben = ["#6a2a5a", "#7a3a6a", "#d83a2a", "#e04a32", "#e8a030", "#7ab040"];
+    for (let k = 0; k < 3; k++) {
+      t.add(ZYL(1, 0.8, 12), "#b8884a", [-1.05 + k * 1.05, 1.02, -0.1], [0, 0, 0], [0.42, 0.2, 0.36]);
+      for (let i = 0; i < 9; i++) {
+        const f = farben[k * 2 + (i % 2)];
+        t.add(KUGEL_K(), f, [-1.05 + k * 1.05 + ((i % 3) - 1) * 0.2, 1.17 + Math.floor(i / 3) * 0.02, -0.1 + (Math.floor(i / 3) - 1) * 0.17], [0, 0, 0], k === 0 ? [0.1, 0.12, 0.1] : 0.11);
+      }
+    }
+    for (const sx of [-1.9, 1.9]) { t.add(KASTEN(), holz, [sx, 0.25, 0.75], [0, 0.2, 0], [0.6, 0.5, 0.6]); t.add(KUGEL_K(), "#6ab040", [sx, 0.56, 0.75], [0, 0, 0], [0.26, 0.1, 0.26]); }
+  } else if (ware === "fisch") {
+    // Eis, Fische und ein Netz
+    t.add(KASTEN(), "#dff4fa", [0, 0.97, -0.05], [0, 0, 0], [3.0, 0.08, 0.9]);
+    for (let i = 0; i < 9; i++) {
+      const x = -1.25 + i * 0.31, z = (i % 2) * 0.3 - 0.2, f = i < 5 ? "#b8c4cc" : "#7a8aa0";
+      t.add(KUGEL(), f, [x, 1.06, z], [0, 0.5, 0], [0.11, 0.06, 0.32]);
+      t.add(KEGEL(4), f, [x - 0.11, 1.06, z - 0.34], [Math.PI / 2, 0, 0], [0.09, 0.12, 0.03]);
+    }
+    for (const sx of [-1.9, 1.9]) t.add(ZYL(1, 0.85, 10), "#8a6a44", [sx, 0.3, 0.7], [0, 0, 0], [0.3, 0.6, 0.3]);
+    t.add(KASTEN(), "#c8a870", [0.4, 1.9, -0.56], [0, 0, 0.05], [2.4, 0.9, 0.02]);
+  } else {
+    // Töpferware: Amphoren, Krüge und Schalen in Rot und Blau
+    const vasen = [["#c8643a", 0.2, 0.42], ["#2a5a9a", 0.17, 0.34], ["#b8582e", 0.22, 0.3], ["#2a5a9a", 0.15, 0.4], ["#c8643a", 0.18, 0.28]];
+    vasen.forEach(([f, r, h], i) => {
+      const x = -1.25 + i * 0.62;
+      t.add(KUGEL(), f, [x, 0.92 + h * 0.55, -0.1], [0, 0, 0], [r, h * 0.55, r]);
+      t.add(ZYL(0.7, 1, 12), f, [x, 0.92 + h * 1.15, -0.1], [0, 0, 0], [r * 0.45, h * 0.35, r * 0.45]);
+      t.add(RING(0.25), "#2a1a12", [x, 0.92 + h * 0.6, -0.1], [Math.PI / 2, 0, 0], [r * 1.0, r * 1.0, 0.03]);
+    });
+    for (const sx of [-1.8, 1.9]) { t.add(KUGEL(), "#c8643a", [sx, 0.45, 0.75], [0, 0, 0], [0.28, 0.45, 0.28]); t.add(ZYL(0.8, 1, 10), "#c8643a", [sx, 0.95, 0.75], [0, 0, 0], [0.12, 0.2, 0.12]); }
+  }
+  t.in(g);
+  g.userData.setzeLeuchten = () => {};
+  return g;
+}
+
 function objektModell(o, animationen) {
+  if (o.bild?.startsWith("stand_")) return { modell: antikerStandBauen(o.bild.slice(6), o.segel) };
   if (o.bild === "rufmuschel") return { modell: rufmuschelBauen(animationen) };
   if (o.bild === "brunnen_antik") return { modell: brunnenBauen(animationen) };
   if (o.bild === "tafel") return { modell: tafelBauen() };

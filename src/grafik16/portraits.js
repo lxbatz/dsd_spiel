@@ -20,6 +20,10 @@ export const PORTRAITS = {
   npc_finn: { hintergrund: "#6a5a3a", augen: "#3a8a4a", ausdruck: "neugierig", szene: "schmiede", schal: "#3a5a9a", licht: { farbe: "#ffb060", seite: 1 } },
   npc_orpheon: { hintergrund: "#4a7ab8", augen: "#3a6a9a", ausdruck: "weise", alt: true, szene: "meer", amulett: true, licht: { farbe: "#fff0c0", seite: -1 } },
   npc_nerea: { hintergrund: "#3a8ac8", augen: "#5a3a1a", ausdruck: "froh", ohrringe: true, szene: "meer", licht: { farbe: "#ffe0a0", seite: 1 } },
+  npc_daphne: { hintergrund: "#c8803a", augen: "#4a2a14", ausdruck: "froh", ohrringe: true, szene: "markt", blume: true, licht: { farbe: "#ffe0a0", seite: 1 } },
+  npc_ilias: { hintergrund: "#3a7aa8", augen: "#3a2a1a", ausdruck: "froh", szene: "meer", licht: { farbe: "#fff0c0", seite: -1 } },
+  npc_kleon: { hintergrund: "#9a6a44", augen: "#4a5a6a", ausdruck: "weise", alt: true, szene: "markt", licht: { farbe: "#ffd8a0", seite: 1 } },
+  npc_ione: { hintergrund: "#7a4a8a", augen: "#3a2a4a", ausdruck: "ruhig", szene: "markt", amulett: true, licht: { farbe: "#ffe8c0", seite: -1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)

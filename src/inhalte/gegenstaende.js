@@ -88,4 +88,9 @@ export const GEGENSTAENDE = {
     icon: "🔔",
     text: "Der erste von fünf Tönen der großen Glocke von Aurelia. Du kannst Durchsagen verstehen: Zeiten, Orte, Zahlen und Änderungen.",
   },
+  ton_markt: {
+    name: "Der Ton des Markts",
+    icon: "🎶",
+    text: "Der zweite von fünf Tönen der großen Glocke von Aurelia. Du verstehst Gespräche im Alltag: Wer will was? Wo sind die Leute? Wie geht das Gespräch aus?",
+  },
 };

@@ -31,6 +31,12 @@ const SCHRITTE = [
   ["aurelia_q1_m1", 20], ["aurelia_q1_m2", 20], ["aurelia_q1_m3", 20],
   ["aurelia_q1_reisende", 0],
   ["aurelia_q1", 150, "ton_hafen"],
+  ["aurelia_q1_orpheon", 0],
+  ["aurelia_q2_start", 0],
+  ["aurelia_q2_g1", 25], ["aurelia_q2_g2", 25], ["aurelia_q2_g3", 25],
+  ["aurelia_q2_ohrenprobe", 0],
+  ["aurelia_q2", 150, "ton_markt"],
+  ["aurelia_q2_orpheon", 0],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -70,6 +76,8 @@ export const SPRUNGPUNKTE = [
   { id: "aurelia", name: "Aurelia: Ankunft am Stadttor (Orpheon)", bis: "lythara_finale", karte: "aurelia", spawn: "eingang" },
   { id: "aurelia_q1", name: "Aurelia: Hafen, Rufmuscheln (Quest 1)", bis: "aurelia_q1_start", karte: "aurelia", spawn: "hafen" },
   { id: "aurelia_q1_ende", name: "Aurelia: Rufmuscheln gehört, Reisende beraten", bis: "aurelia_q1_m3", karte: "aurelia", spawn: "hafen" },
+  { id: "aurelia_q2", name: "Aurelia: Agora, Gespräche am Markt (Quest 2)", bis: "aurelia_q1_orpheon", karte: "aurelia", spawn: "markt" },
+  { id: "aurelia_q2_ende", name: "Aurelia: Gespräche gehört, Ohrenprobe bei Ione", bis: "aurelia_q2_g3", karte: "aurelia", spawn: "markt" },
 ];
 
 const TESTHELD = {

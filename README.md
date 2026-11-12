@@ -36,7 +36,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Antike Mittelmeerstadt: weiße Häuser mit Ziegeldächern, Agora mit Säulenhallen und Brunnen, Glockenturm auf der Akropolis, Leuchtturm, Stadtmauer, Hafen mit fünf Stegen, Booten und Werft
    - Orpheon, der Glockenhüter, erzählt die Geschichte: Die große Glocke schweigt, fünf Töne müssen zurückgeholt werden
    - Quest 1 *Die Stimmen des Hafens* (Durchsagen): drei Rufmuscheln am Kai anhören (Fähre, Ausflug, Fundsache, Sperrung, Wetter), dann bei Hafenmeisterin Nerea die Reisenden beraten → *Der Ton des Hafens*
-   - Markt, Leuchtturm, Werft und Glockenturm (Quests 2–5, Endkampf gegen den Drachenrichter) sind schon zu sehen und folgen
+   - Quest 2 *Gespräche am Markt* (Alltagsgespräche mit zwei Stimmen): an den Ständen von Daphne (Obst), Ilias (Fisch) und Kleon (Töpferware) zuhören – Wer will was? Wie viel? Wann? Wie geht es aus? –, dann die Ohrenprobe bei Marktaufseherin Ione (Wo sind die Personen?) → *Der Ton des Markts*
+   - Leuchtturm, Werft und Glockenturm (Quests 3–5, Endkampf gegen den Drachenrichter) sind schon zu sehen und folgen
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

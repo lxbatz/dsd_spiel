@@ -1,7 +1,8 @@
 // Aurelia – die Hafenstadt der Glocken (Reich des Hörens, nur 3D)
 // Seit Morgraths Fluch schweigen die Glocken, und niemand versteht mehr, was die anderen sagen.
 // Quest 1: Die Stimmen des Hafens (Durchsagen) bei Hafenmeisterin Nerea.
-// Quests 2–5 und der Drachenrichter folgen; ihre Orte sind schon da.
+// Quest 2: Gespräche am Markt (Alltagsgespräche) bei Marktaufseherin Ione und drei Händlern.
+// Quests 3–5 und der Drachenrichter folgen; ihre Orte sind schon da.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -10,12 +11,15 @@ import { belohnung } from "../ui/belohnung.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { MUSCHELN, REISENDE } from "../inhalte/aurelia_q1.js";
+import { GESPRAECHE, OHRENPROBE } from "../inhalte/aurelia_q2.js";
 import { RASTER, KAI_Y } from "./aurelia_layout.js";
 
 const ORPHEON = "Orpheon, der Glockenhüter";
 const NEREA = "Hafenmeisterin Nerea";
+const IONE = "Marktaufseherin Ione";
 
 const muschelnFertig = (z = zustand) => MUSCHELN.every((m) => z.erledigt[m.id]);
+const gespraecheFertig = (z = zustand) => GESPRAECHE.every((g) => z.erledigt[g.id]);
 
 async function orpheon() {
   const B = bild("npc_orpheon");
@@ -31,11 +35,20 @@ async function orpheon() {
     erledigen("aurelia_intro");
     return;
   }
+  if (istErledigt("aurelia_q2")) {
+    erledigen("aurelia_q1_orpheon");
+    erledigen("aurelia_q2_orpheon");
+    await dialog(ORPHEON, [
+      "Zwei Töne! Der Hafen und der Markt klingen wieder. Hörst du, wie die Leute auf der Agora wieder miteinander reden?",
+      "Der Leuchtturm, die Werft und der Turm warten noch auf dich. (Diese Quests kommen bald.)",
+    ], B);
+    return;
+  }
   if (istErledigt("aurelia_q1")) {
     erledigen("aurelia_q1_orpheon");
     await dialog(ORPHEON, [
       "Hörst du das? Ein leiser Ton schwebt über der Stadt. Der Ton des Hafens ist zurück!",
-      "Die anderen Töne sind noch verloren. Der Markt, der Leuchtturm, die Werft und der Turm warten auf dich. (Diese Quests kommen bald.)",
+      "Jetzt geh auf die Agora, den Marktplatz in der Mitte der Stadt. Dort reden alle durcheinander, und keiner versteht den anderen. Marktaufseherin Ione braucht deine Hilfe.",
     ], B);
     return;
   }
@@ -109,6 +122,76 @@ function muschelAktion(m) {
   };
 }
 
+// ---------- Quest 2: Gespräche am Markt ----------
+
+async function ione() {
+  const B = bild("npc_ione");
+  if (!istErledigt("aurelia_q1")) {
+    await dialog(IONE, "Ich bin Ione, die Aufseherin über den Markt. Heute ist hier zu viel los! Komm später wieder – zuerst braucht dich Nerea am Hafen.", B);
+    return;
+  }
+  if (!istErledigt("aurelia_q2_start")) {
+    await dialog(IONE, [
+      "Endlich jemand mit guten Ohren! Ich bin Ione, die Marktaufseherin. Auf der Agora ist das Chaos ausgebrochen.",
+      "Die Händler reden mit ihren Kunden, aber hinterher weiß keiner mehr, was eigentlich ausgemacht war: Wer wollte was? Wie viel? Wann?",
+      "Geh zu den drei Ständen: Daphne mit dem Obst, Ilias mit dem Fisch und Kleon, der Töpfer. Hör dir die Gespräche an und hilf ihnen.",
+      "Ein Tipp: In Gesprächen ändern die Leute oft ihre Meinung. Hör bis zum Ende zu – das Ende ist oft das Wichtigste!",
+    ], B);
+    erledigen("aurelia_q2_start");
+    return;
+  }
+  if (istErledigt("aurelia_q2")) {
+    await dialog(IONE, "Hör nur, wie friedlich der Markt jetzt klingt! Alle verstehen sich wieder. Danke!", B);
+    return;
+  }
+  if (!gespraecheFertig()) {
+    const offen = GESPRAECHE.filter((g) => !istErledigt(g.id)).map((g) => g.name);
+    await dialog(IONE, `Du musst noch bei ${offen.join(" und ")} zuhören.`, B);
+    return;
+  }
+  const geschafft = await questStarten({
+    sprecher: IONE, bild: B,
+    frageText: "Alle drei Händler sind zufrieden! Jetzt die Ohrenprobe: Ich spiele dir kurze Gespräche vor. Erkennst du, wo die Leute sind?",
+    ja: "Ja, ich mache die Ohrenprobe!",
+    spaeter: "Gut, komm wieder, wenn du bereit bist.",
+    folge: { id: "aurelia_q2_ohrenprobe", titel: "Quest: Gespräche am Markt", untertitel: "Die Ohrenprobe · Wo sind die Personen?", aufgaben: OHRENPROBE },
+  });
+  if (!geschafft) return;
+  erledigen("aurelia_q2_ohrenprobe");
+  erledigen("aurelia_q2");
+  await dialog(IONE, [
+    "Ausgezeichnet! Du hörst nicht nur die Wörter, du verstehst die ganze Situation.",
+    "Hörst du das? Der Brunnen singt wieder! Das ist der Ton des Markts. Er gehört jetzt dir.",
+  ], B);
+  await belohnung({ xp: 150, grund: "Quest abgeschlossen: Gespräche am Markt", gegenstaende: ["ton_markt"], fanfare: true });
+}
+
+function haendlerAktion(g) {
+  return async () => {
+    const B = bild(g.haendler);
+    if (!istErledigt("aurelia_q2_start")) {
+      await dialog(g.name, "Feigen! Fisch! Vasen! … Entschuldigung, ich habe gerade keine Zeit. Frag Marktaufseherin Ione, sie steht beim Brunnen.", B);
+      return;
+    }
+    if (istErledigt(g.id)) {
+      const nochmal = await frage(g.name, `${g.danach}\n\nMöchtest du das Gespräch noch einmal üben?`, ["Ja, noch einmal", "Nein"], B);
+      if (nochmal === 0) await aufgabenFolge({ id: g.id, titel: g.titel, untertitel: "Gespräche verstehen", aufgaben: g.aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher: g.name, bild: B,
+      frageText: `${g.einleitung}\n\nMöchtest du das Gespräch anhören?`,
+      ja: "Ja, ich höre zu",
+      spaeter: "Na gut, dann später.",
+      folge: { id: g.id, titel: `${g.titel} – ${g.name}`, untertitel: "Gespräche verstehen · Klicke auf „Anhören“", aufgaben: g.aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(g.id);
+    await dialog(g.name, g.danach, B);
+    await belohnung({ xp: 25, grund: `${g.name}: Gespräch verstanden!`, fanfare: true });
+  };
+}
+
 /** Orte der späteren Quests – schon zu sehen, aber noch nicht spielbar */
 function spaeter(name, text) {
   return async () => dialog(name, text);
@@ -120,8 +203,16 @@ async function heimweg(welt) {
 }
 
 async function brunnen() {
-  await dialog("Brunnen der Agora", "Das Wasser plätschert. Früher spielte der Brunnen eine Melodie. Jetzt hört man nur noch ein leises Rauschen.");
+  await dialog("Brunnen der Agora", istErledigt("aurelia_q2")
+    ? "Das Wasser plätschert und klingt wie ein kleines Glockenspiel. Der Ton des Markts ist zurück."
+    : "Das Wasser plätschert. Früher spielte der Brunnen eine Melodie. Jetzt hört man nur noch ein leises Rauschen.");
 }
+
+const STAENDE = [
+  { g: GESPRAECHE[0], stand: ["stand_a1", 16, 14], ware: "obst", segel: "#c8503a", npc: [18, 14] },
+  { g: GESPRAECHE[1], stand: ["stand_a2", 29, 19], ware: "fisch", segel: "#2a6aa8", npc: [31, 19] },
+  { g: GESPRAECHE[2], stand: ["stand_a3", 29, 13], ware: "toepfe", segel: "#d8a838", npc: [31, 13] },
+];
 
 const MUSCHEL_ORTE = [[11, KAI_Y - 2], [25, KAI_Y - 2], [35, KAI_Y - 2]];
 
@@ -136,11 +227,12 @@ export default {
     start: [5, 19],
     eingang: [5, 19],
     hafen: [21, 24],
+    markt: [22, 19],
   },
   objekte: [
     { id: "portal_aurelia", art: "portal", name: "Portal ins Dorf", x: 1, y: 18, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
     { id: "orpheon", art: "npc", name: ORPHEON, bild: "npc_orpheon", x: 7, y: 17, aktion: orpheon,
-      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) },
+      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) },
     { id: "nerea", art: "npc", name: NEREA, bild: "npc_nerea", x: 20, y: 26, aktion: nerea,
       marker: (z) => Boolean(z.erledigt.aurelia_intro) && (!z.erledigt.aurelia_q1_start || (muschelnFertig(z) && !z.erledigt.aurelia_q1)) },
     ...MUSCHELN.map((m, i) => ({
@@ -150,10 +242,14 @@ export default {
       marker: (z) => Boolean(z.erledigt.aurelia_q1_start) && !z.erledigt[m.id],
     })),
     { id: "brunnen_agora", art: "objekt", name: "Brunnen der Agora", bild: "brunnen_antik", x: 23, y: 16, breite: 2, hoehe: 2, aktion: brunnen, hinweis: "Den Brunnen ansehen" },
-    { id: "stand_a1", art: "objekt", name: "Marktstand", bild: "marktstand", x: 16, y: 14, breite: 2,
-      aktion: spaeter("Marktstand", "Die Händlerinnen und Händler reden alle durcheinander. Hier wartet bald Quest 2: Gespräche am Markt."), hinweis: "Den Marktstand ansehen" },
-    { id: "stand_a2", art: "objekt", name: "Marktstand", bild: "marktstand", x: 29, y: 19, breite: 2,
-      aktion: spaeter("Marktstand", "Oliven, Feigen, Fisch … aber niemand versteht den anderen. (Quest 2 kommt bald.)"), hinweis: "Den Marktstand ansehen" },
+    { id: "ione", art: "npc", name: IONE, bild: "npc_ione", x: 20, y: 18, aktion: ione,
+      marker: (z) => Boolean(z.erledigt.aurelia_q1) && (!z.erledigt.aurelia_q2_start || (gespraecheFertig(z) && !z.erledigt.aurelia_q2)) },
+    ...STAENDE.flatMap(({ g, stand, ware, segel, npc }) => [
+      { id: stand[0], art: "objekt", name: `Stand: ${g.titel.replace("Am ", "")}`, bild: `stand_${ware}`, segel, x: stand[1], y: stand[2], breite: 2,
+        aktion: haendlerAktion(g), hinweis: `Mit ${g.name} sprechen` },
+      { id: g.haendler.replace("npc_", ""), art: "npc", name: g.name, bild: g.haendler, x: npc[0], y: npc[1], aktion: haendlerAktion(g),
+        marker: (z) => Boolean(z.erledigt.aurelia_q2_start) && !z.erledigt[g.id] },
+    ]),
     { id: "leuchtturm_tuer", art: "objekt", name: "Tür des Leuchtturms", bild: "tafel", x: 43, y: 17,
       aktion: spaeter("Leuchtturm", "Die Tür ist verschlossen. Drinnen klingelt das Muschelfon, aber niemand hört die Nachrichten ab. (Quest 3 kommt bald.)"), hinweis: "Die Tür untersuchen" },
     { id: "werft_tafel", art: "objekt", name: "Werft", bild: "tafel", x: 9, y: 27,

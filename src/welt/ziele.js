@@ -35,7 +35,10 @@ function hauptziele(z) {
   liste.push({ text: "Reise durch das Portal im Dorf nach Aurelia und sprich mit Orpheon am Stadttor.", erledigt: e("aurelia_intro") });
   const muscheln = ["aurelia_q1_m1", "aurelia_q1_m2", "aurelia_q1_m3"].filter(e).length;
   liste.push({ text: `Die Stimmen des Hafens: Hör die Rufmuscheln am Kai an (${muscheln}/3) und hilf Hafenmeisterin Nerea mit den Reisenden.`, erledigt: e("aurelia_q1") });
-  if (e("aurelia_q1")) liste.push({ text: "Aurelia, Quest 2: Gespräche am Markt (kommt bald)", erledigt: false });
+  if (!e("aurelia_q1")) return liste;
+  const gespraeche = ["aurelia_q2_g1", "aurelia_q2_g2", "aurelia_q2_g3"].filter(e).length;
+  liste.push({ text: `Gespräche am Markt: Hör an den Ständen auf der Agora zu (${gespraeche}/3) und mach die Ohrenprobe bei Marktaufseherin Ione.`, erledigt: e("aurelia_q2") });
+  if (e("aurelia_q2")) liste.push({ text: "Aurelia, Quest 3: Der Leuchtturm (kommt bald)", erledigt: false });
   return liste;
 }
 

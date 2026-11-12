@@ -54,6 +54,22 @@ export const AUSSEHEN = {
     haut: "#c88a5a", haare: "#2a1a14", frisur: "lockig", wangen: true,
     kleid: "#2a6a9a", akzent: "#e8c060", hose: "#2a6a9a", stiefel: "#6a4a2a", robe: true, ohrringe: true,
   },
+  npc_daphne: {
+    haut: "#d9a274", haare: "#3a2214", frisur: "dutt", wangen: true,
+    kleid: "#c8603a", akzent: "#f2e6c8", hose: "#c8603a", stiefel: "#7a5230", robe: true, schuerze: "#f2e6c8", ohrringe: true,
+  },
+  npc_ilias: {
+    haut: "#c48456", haare: "#2a2422", frisur: "lockig", bart: "kurz", bartfarbe: "#2a2422",
+    kleid: "#e8eef2", akzent: "#2a5a8a", hose: "#2a4a6a", stiefel: "#3a3a3a", schuerze: "#5a8aa0", armeHaut: true,
+  },
+  npc_kleon: {
+    haut: "#d8a47a", haare: "#b8b0a4", frisur: "glatze", bart: "lang", bartfarbe: "#c8c0b4",
+    kleid: "#8a6a4a", akzent: "#c87a4a", hose: "#5a4a3a", stiefel: "#5a3a24", schuerze: "#b8784a", armeHaut: true,
+  },
+  npc_ione: {
+    haut: "#ecc4a0", haare: "#1a1a2a", frisur: "zopf",
+    kleid: "#e8e2d4", akzent: "#7a3a8a", hose: "#7a3a8a", stiefel: "#6a4a2a", robe: true, extra: "buch",
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",
