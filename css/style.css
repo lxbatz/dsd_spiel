@@ -158,6 +158,11 @@ button { font: inherit; cursor: pointer; }
 .zuordnen-tabelle td { padding: 6px 4px; border-bottom: 1px solid var(--pergament-2); }
 .zuordnen-tabelle select { font: inherit; padding: 4px; width: 100%; background: #fffaf0; }
 .zuordnen-beispiel td { font-style: italic; opacity: 0.75; }
+.block-teil { padding: 8px 10px; margin: 8px 0; border-left: 3px solid var(--pergament-2); border-radius: 4px; }
+.block-teil.richtig { border-left-color: var(--gruen); }
+.block-teil.falsch { border-left-color: var(--rot); }
+.block-frage { margin-bottom: 6px; font-weight: 600; }
+.block-frage b { display: inline-block; min-width: 1.6em; }
 .zuordnen-tabelle select.richtig { outline: 2px solid var(--gruen); }
 .zuordnen-tabelle select.falsch { outline: 2px solid var(--rot); }
 .rf-zeile { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--pergament-2); }

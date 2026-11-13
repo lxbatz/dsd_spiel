@@ -10,6 +10,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `aurelia_q1.js` | Aurelia Quest 1: Durchsagen an den Rufmuscheln, Reisende beraten (Hörtexte mit Gong) |
+| `aurelia_q4.js` | Aurelia Quest 4: Werft – Szenen am Arbeitsplatz, Interview (R/F), Bericht (Block mit 6 Aufgaben), Abnahme im Prüfungsmodus |
 | `aurelia_q3.js` | Aurelia Quest 3: Telefonnachrichten auf drei Klangperlen (mit Piepton), Talos' Notizbuch |
 | `aurelia_q2.js` | Aurelia Quest 2: Gespräche am Markt (drei Händler, Gespräche mit zwei Stimmen), Ohrenprobe bei Ione |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
@@ -83,6 +84,21 @@ Mehrere richtige Lösungen mit `|` trennen: `{stammt|kommt}`. Beim Schreiben wir
 }
 ```
 
+### Block (mehrere Aufgaben auf einem Blatt)
+Wie auf dem Aufgabenblatt der Prüfung: erst alle Aufgaben lesen, dann den Text hören, dann alles zusammen prüfen.
+```js
+{
+  typ: "block",
+  hoertext: BERICHT,                 // oder lesetext
+  nummer: 15,                        // Nummer der ersten Aufgabe
+  frage: "Lies zuerst die Aufgaben 15–20. Hör dann den Bericht.",
+  aufgaben: [
+    { typ: "auswahl", frage: "Daria", optionen: ["…", "…", "…"], richtig: 1, mischen: false },
+    // …
+  ],
+}
+```
+
 ### Richtig/Falsch
 ```js
 {
@@ -116,7 +132,7 @@ Jede Aufgabe kann einen Hörtext haben (zusätzlich oder statt eines Lesetextes)
 ```js
 hoertext: { sprecher: "Händlerin Wilma", text: "Hallo, schön, dass du da bist! …", stimme: { tonhoehe: 1.15, tempo: 0.86 } }
 ```
-Mit `gong: true` erklingt vorher ein Gong wie bei einer Durchsage, mit `piep: true` ein Piepton wie beim Anrufbeantworter. Für Gespräche mit mehreren Stimmen statt `text` eine Liste `teile: [{ sprecher, text, stimme }, …]` angeben. Die Sprachausgabe des Browsers liest den Text auf Deutsch vor. Für eine eigene Aufnahme `datei: "Sound/hoeren/mimi_wilma.mp3"` ergänzen, dann wird die Datei abgespielt. Nach zweimal Hören kann man den Text einblenden. Beispiele: `dorf_neben.js` (Mimi ist weg!), `aurelia_q2.js` (Gespräche mit zwei Stimmen).
+Mit `gong: true` erklingt vorher ein Gong wie bei einer Durchsage, mit `piep: true` ein Piepton wie beim Anrufbeantworter. Mit `pruefung: true` gilt der Prüfungsmodus: höchstens zweimal hören, kein Text zum Einblenden (`maxHoeren: 1` für Texte, die man nur einmal hört, wie DSD Hören Teil 5). Für Gespräche mit mehreren Stimmen statt `text` eine Liste `teile: [{ sprecher, text, stimme }, …]` angeben. Die Sprachausgabe des Browsers liest den Text auf Deutsch vor. Für eine eigene Aufnahme `datei: "Sound/hoeren/mimi_wilma.mp3"` ergänzen, dann wird die Datei abgespielt. Nach zweimal Hören kann man den Text einblenden. Beispiele: `dorf_neben.js` (Mimi ist weg!), `aurelia_q2.js` (Gespräche mit zwei Stimmen).
 
 ### Angaben aus dem Heldenpass einbauen
 

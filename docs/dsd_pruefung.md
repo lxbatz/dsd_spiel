@@ -178,3 +178,14 @@ Grundsätze der Bewertung:
 - **Buch der Stimmen:**
   - Der Selbstcheck folgt den Kriterien der Prüfung.
   - Hinweis: Die Reihenfolge der Teilaufgaben ist frei.
+
+**Aurelia (Hören):**
+- Quest 1: Durchsagen (wie Teil 2)
+- Quest 2: Alltagsgespräche (wie Teil 1, aber mit mehreren Aufgaben pro Text)
+- Quest 3: Telefonnachrichten (wie Teil 2)
+- **Quest 4 Werft**, genau nach dem Prüfungsformat:
+  - Teil 1: Szenen am Arbeitsplatz, je eine Aufgabe
+  - Teil 3: Interview, richtig/falsch
+  - Teil 4: Bericht mit 6 Aufgaben auf einem Blatt (Typ `block`)
+  - Abnahme im Prüfungsmodus (`pruefung: true`, höchstens zweimal hören)
+- Quest 5 (geplant): Meinungen zuordnen, nur einmal hören (wie Teil 5, `maxHoeren: 1`, `zuordnen` mit `ablenker`)

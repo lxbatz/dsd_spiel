@@ -3,7 +3,9 @@
 // Quest 1: Die Stimmen des Hafens (Durchsagen) bei Hafenmeisterin Nerea.
 // Quest 2: Gespräche am Markt (Alltagsgespräche) bei Marktaufseherin Ione und drei Händlern.
 // Quest 3: Das Licht des Leuchtturms (Telefonnachrichten) bei Leuchtturmwärter Talos.
-// Quests 4–5 und der Drachenrichter folgen; ihre Orte sind schon da.
+// Quest 4: Die Werft (Gespräche am Arbeitsplatz, Interview, Bericht – genau nach DSD Hören Teil 1, 3, 4)
+//          bei Werftmeisterin Kassia, Azubi Timon und Bootsbauerin Daria; Abnahme im Prüfungsmodus.
+// Quest 5 und der Drachenrichter folgen; ihre Orte sind schon da.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -14,16 +16,22 @@ import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { MUSCHELN, REISENDE } from "../inhalte/aurelia_q1.js";
 import { GESPRAECHE, OHRENPROBE } from "../inhalte/aurelia_q2.js";
 import { PERLEN, NOTIZBUCH } from "../inhalte/aurelia_q3.js";
+import { WERKBANK, INTERVIEW_AUFGABEN, BERICHT_AUFGABEN, ABNAHME } from "../inhalte/aurelia_q4.js";
 import { RASTER, KAI_Y } from "./aurelia_layout.js";
 
 const ORPHEON = "Orpheon, der Glockenhüter";
 const NEREA = "Hafenmeisterin Nerea";
 const IONE = "Marktaufseherin Ione";
 const TALOS = "Leuchtturmwärter Talos";
+const KASSIA = "Werftmeisterin Kassia";
+const TIMON = "Azubi Timon";
+const DARIA = "Bootsbauerin Daria";
 
 const muschelnFertig = (z = zustand) => MUSCHELN.every((m) => z.erledigt[m.id]);
 const gespraecheFertig = (z = zustand) => GESPRAECHE.every((g) => z.erledigt[g.id]);
 const perlenFertig = (z = zustand) => PERLEN.every((p) => z.erledigt[p.id]);
+const WERFT_STATIONEN = ["aurelia_q4_w1", "aurelia_q4_w2", "aurelia_q4_w3"];
+const werftFertig = (z = zustand) => WERFT_STATIONEN.every((k) => z.erledigt[k]);
 
 async function orpheon() {
   const B = bild("npc_orpheon");
@@ -39,11 +47,19 @@ async function orpheon() {
     erledigen("aurelia_intro");
     return;
   }
+  if (istErledigt("aurelia_q4")) {
+    for (const k of ["aurelia_q1_orpheon", "aurelia_q2_orpheon", "aurelia_q3_orpheon", "aurelia_q4_orpheon"]) erledigen(k);
+    await dialog(ORPHEON, [
+      "Das Festschiff liegt fertig im Wasser! Vier Töne sind zurück: Hafen, Markt, Leuchtturm und Werft.",
+      "Jetzt fehlt nur noch der Ton des Turms. Aber oben wartet etwas Großes … Ich höre es jede Nacht grollen. (Quest 5 und der Endkampf kommen bald.)",
+    ], B);
+    return;
+  }
   if (istErledigt("aurelia_q3")) {
     for (const k of ["aurelia_q1_orpheon", "aurelia_q2_orpheon", "aurelia_q3_orpheon"]) erledigen(k);
     await dialog(ORPHEON, [
       "Sieh nur, der Leuchtturm strahlt wieder über das Meer! Drei Töne sind zurück: Hafen, Markt und Leuchtturm.",
-      "Nur noch die Werft und der Turm fehlen. (Diese Quests kommen bald.)",
+      "Geh jetzt zur Werft im Westen, gleich am Kai. Werftmeisterin Kassia baut das Festschiff für das Glockenfest – aber auf der Werft versteht keiner mehr den anderen.",
     ], B);
     return;
   }
@@ -287,6 +303,109 @@ function perleAktion(p) {
   };
 }
 
+// ---------- Quest 4: Die Werft ----------
+
+async function kassia() {
+  const B = bild("npc_kassia");
+  if (!istErledigt("aurelia_q3")) {
+    await dialog(KASSIA, "Keine Zeit, keine Zeit! Das Festschiff muss bis zum Glockenfest fertig sein. Komm später wieder.", B);
+    return;
+  }
+  if (!istErledigt("aurelia_q4_start")) {
+    await dialog(KASSIA, [
+      "Du bist also die Person mit den guten Ohren! Ich bin Kassia, die Meisterin dieser Werft.",
+      "Wir bauen das Festschiff für das Glockenfest. Aber seit die Glocke schweigt, geht hier alles schief: Die Leute hören nicht richtig zu. Die Azubis holen das falsche Werkzeug, Termine werden vergessen …",
+      "Hilf uns! An der Werkbank hörst du, was hier den ganzen Tag gesprochen wird. Unser neuer Azubi Timon war gestern im Radio. Und Daria, unsere beste Bootsbauerin, hat dort von ihrer Ausbildung erzählt. Sie arbeitet unten am Steg.",
+      "Wenn du alles verstanden hast, mache ich mit dir die Abnahme – wie eine echte Prüfung: Jeder Text nur zweimal, und keiner flüstert dir etwas vor!",
+      "Ein Tipp: Lies immer zuerst die Aufgaben. Dann weißt du, worauf du achten musst. Und oft kommt das Wichtigste erst am Ende!",
+    ], B);
+    erledigen("aurelia_q4_start");
+    return;
+  }
+  if (istErledigt("aurelia_q4")) {
+    await dialog(KASSIA, "Das Festschiff schwimmt! Und meine Leute hören einander wieder zu. Wenn du je eine Ausbildung suchst – auf meiner Werft ist ein Platz für dich frei.", B);
+    return;
+  }
+  if (!werftFertig()) {
+    const offen = [];
+    if (!istErledigt("aurelia_q4_w1")) offen.push("an der Werkbank");
+    if (!istErledigt("aurelia_q4_w2")) offen.push("bei Timon");
+    if (!istErledigt("aurelia_q4_w3")) offen.push("bei Daria am Steg");
+    await dialog(KASSIA, `Hör zuerst noch ${offen.join(", ").replace(/, ([^,]*)$/, " und $1")} zu. Dann machen wir die Abnahme.`, B);
+    return;
+  }
+  const geschafft = await questStarten({
+    sprecher: KASSIA, bild: B,
+    frageText: "Zeit für die Abnahme! Vier kurze Gespräche aus der Werft. Wie in der Prüfung: Du hörst jedes Gespräch höchstens zweimal, und es gibt keinen Text zum Nachlesen. Bereit?",
+    ja: "Ja, ich bin bereit!",
+    spaeter: "Gut. Üb noch ein bisschen und komm dann zurück.",
+    folge: { id: "aurelia_q4_abnahme", titel: "Quest: Die Werft", untertitel: "Die Abnahme · Prüfungsmodus: jeder Text höchstens zweimal", aufgaben: ABNAHME },
+  });
+  if (!geschafft) return;
+  erledigen("aurelia_q4_abnahme");
+  erledigen("aurelia_q4");
+  await dialog(KASSIA, [
+    "Bestanden! So hört eine echte Fachkraft zu.",
+    "Alle Mann ans Wasser! … Das Festschiff gleitet von der Helling ins Hafenbecken. Die Leute jubeln, und über dem Wasser schwingt ein heller Ton.",
+    "Das ist der Ton der Werft. Er gehört dir.",
+  ], B);
+  await belohnung({ xp: 150, grund: "Quest abgeschlossen: Die Werft", gegenstaende: ["ton_werft"], fanfare: true });
+}
+
+/** Station der Werft: Einleitung beim ersten Mal, danach die Aufgaben (wiederholbar) */
+function werftStation({ id, sprecher, bildKey, vorher, einleitung, ja, titel, untertitel, aufgaben, danach }) {
+  return async () => {
+    const B = bildKey ? bild(bildKey) : undefined;
+    if (!istErledigt("aurelia_q4_start")) {
+      await dialog(sprecher, vorher, B);
+      return;
+    }
+    if (istErledigt(id)) {
+      const nochmal = await frage(sprecher, `${danach}\n\nMöchtest du noch einmal üben?`, ["Ja, noch einmal", "Nein"], B);
+      if (nochmal === 0) await aufgabenFolge({ id, titel, untertitel, aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher, bild: B, frageText: einleitung, ja, spaeter: "Gut, dann später.",
+      folge: { id, titel, untertitel, aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(id);
+    await dialog(sprecher, danach, B);
+    await belohnung({ xp: 25, grund: `${titel}: verstanden!`, fanfare: true });
+  };
+}
+
+const werkbank = werftStation({
+  id: "aurelia_q4_w1", sprecher: "Werkbank",
+  vorher: "Eine Werkbank voller Werkzeug. Daneben steht ein kleiner, etwas wackliger Holzhocker.",
+  einleitung: "An der Werkbank hörst du, was die Leute auf der Werft den ganzen Tag sagen. Fünf kurze Szenen – zu jeder Szene gibt es eine Aufgabe. Lies zuerst die Aufgabe, dann hör zu!",
+  ja: "Szenen anhören",
+  titel: "An der Werkbank", untertitel: "Gespräche am Arbeitsplatz · Eine Aufgabe pro Szene",
+  aufgaben: WERKBANK,
+  danach: "Jetzt weißt du, was auf der Werft los ist: Werkzeug, Lieferungen, Arbeitszeiten – und wer wann was tun soll.",
+});
+
+const timon = werftStation({
+  id: "aurelia_q4_w2", sprecher: TIMON, bildKey: "npc_timon",
+  vorher: "Hallo! Ich bin Timon, ich bin neu hier. Hast du schon mit Kassia gesprochen? Sie ist die Chefin.",
+  einleitung: "Hey! Ich war gestern im Radio, bei Radio Muschelwelle! Die haben mich über meine erste Woche hier interviewt. Willst du's hören? Lies zuerst die Sätze – dann weißt du, worauf du achten musst.",
+  ja: "Interview anhören",
+  titel: "Radio Muschelwelle: Interview", untertitel: "Interview · Richtig oder falsch?",
+  aufgaben: INTERVIEW_AUFGABEN,
+  danach: "Und? Klinge ich im Radio gut? Mein Hocker wackelt übrigens immer noch ein bisschen …",
+});
+
+const daria = werftStation({
+  id: "aurelia_q4_w3", sprecher: DARIA, bildKey: "npc_daria",
+  vorher: "Hallo! Ich bin Daria. Vorsicht, hier ist frische Farbe! Sprich zuerst mit Kassia, sie verteilt die Arbeit.",
+  einleitung: "Ach, du bist das! Ich habe im Radio von meiner Ausbildung erzählt – Kassia hat den Bericht aufgenommen. Hör ihn dir an! Es gibt sechs Aufgaben, sie stehen alle auf einem Blatt. Lies sie zuerst.",
+  ja: "Bericht anhören",
+  titel: "Radio Muschelwelle: Bericht", untertitel: "Bericht · Wähle bei jeder Aufgabe die richtige Lösung",
+  aufgaben: BERICHT_AUFGABEN,
+  danach: "Gut zugehört! Und wer weiß – vielleicht baust du ja auch mal Schiffe.",
+});
+
 /** Orte der späteren Quests – schon zu sehen, aber noch nicht spielbar */
 function spaeter(name, text) {
   return async () => dialog(name, text);
@@ -326,11 +445,12 @@ export default {
     hafen: [21, 24],
     markt: [22, 19],
     leuchtturm: [40, 18],
+    werft: [7, 28],
   },
   objekte: [
     { id: "portal_aurelia", art: "portal", name: "Portal ins Dorf", x: 1, y: 18, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
     { id: "orpheon", art: "npc", name: ORPHEON, bild: "npc_orpheon", x: 7, y: 17, aktion: orpheon,
-      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) || (z.erledigt.aurelia_q3 && !z.erledigt.aurelia_q3_orpheon) },
+      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) || (z.erledigt.aurelia_q3 && !z.erledigt.aurelia_q3_orpheon) || (z.erledigt.aurelia_q4 && !z.erledigt.aurelia_q4_orpheon) },
     { id: "nerea", art: "npc", name: NEREA, bild: "npc_nerea", x: 20, y: 26, aktion: nerea,
       marker: (z) => Boolean(z.erledigt.aurelia_intro) && (!z.erledigt.aurelia_q1_start || (muschelnFertig(z) && !z.erledigt.aurelia_q1)) },
     ...MUSCHELN.map((m, i) => ({
@@ -358,8 +478,14 @@ export default {
       leuchtet: (z) => Boolean(z.erledigt.aurelia_q3_start) && !z.erledigt[p.id],
       marker: (z) => Boolean(z.erledigt.aurelia_q3_start) && !z.erledigt[p.id],
     })),
-    { id: "werft_tafel", art: "objekt", name: "Werft", bild: "tafel", x: 9, y: 27,
-      aktion: spaeter("Werft", "„Werft von Aurelia – Auszubildende gesucht!“ Hier wartet bald Quest 4: Arbeitsanweisungen verstehen."), hinweis: "Die Tafel lesen" },
+    { id: "kassia", art: "npc", name: KASSIA, bild: "npc_kassia", x: 6, y: 26, aktion: kassia,
+      marker: (z) => Boolean(z.erledigt.aurelia_q3) && (!z.erledigt.aurelia_q4_start || (werftFertig(z) && !z.erledigt.aurelia_q4)) },
+    { id: "werkbank", art: "objekt", name: "Werkbank", bild: "werkbank", x: 9, y: 26, breite: 2, aktion: werkbank, hinweis: "An der Werkbank zuhören",
+      marker: (z) => Boolean(z.erledigt.aurelia_q4_start) && !z.erledigt.aurelia_q4_w1 },
+    { id: "timon", art: "npc", name: TIMON, bild: "npc_timon", x: 2, y: 26, aktion: timon,
+      marker: (z) => Boolean(z.erledigt.aurelia_q4_start) && !z.erledigt.aurelia_q4_w2 },
+    { id: "daria", art: "npc", name: DARIA, bild: "npc_daria", x: 4, y: 31, aktion: daria,
+      marker: (z) => Boolean(z.erledigt.aurelia_q4_start) && !z.erledigt.aurelia_q4_w3 },
     { id: "turm_tuer", art: "objekt", name: "Tor des Glockenturms", bild: "tafel", x: 23, y: 7,
       aktion: spaeter("Glockenturm", "Das Tor ist verschlossen. Ganz oben hängt die große Glocke – stumm. Und manchmal hörst du ein tiefes Grollen … (Quest 5 und der Endkampf kommen bald.)"),
       hinweis: "Das Tor untersuchen", leuchtet: (z) => Boolean(z.erledigt.aurelia_q1) },

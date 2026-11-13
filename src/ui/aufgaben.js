@@ -10,6 +10,8 @@
 //                   ablenker: zusätzliche rechte Seiten, die übrig bleiben (wie DSD Lesen Teil 2/5, Hören Teil 5)
 //                   beispiel: eine schon gelöste Zeile (Nummer 0 / Lösung Z) über den Aufgaben
 //   richtigfalsch { frage, aussagen: [[satz, true|false], ..], erklaerung? }
+//   block         { frage, aufgaben: [..], nummer?: 1 } – mehrere Aufgaben (auswahl, richtigfalsch, luecke …) auf
+//                   einem Blatt, z. B. zu einem Hörtext wie in DSD Hören Teil 3/4: erst lesen, dann hören, dann alles prüfen
 //   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte?, vorlage? }
 //                   vorlage: Text (oder Funktion des Spielstands), der beim ersten Schreiben schon im Feld steht
 //
@@ -367,7 +369,29 @@ function freitext(a) {
   };
 }
 
-const TYPEN = { auswahl, luecke, ordnen, zuordnen, richtigfalsch, freitext };
+function block(a) {
+  const start = a.nummer ?? 1;
+  const teile = a.aufgaben.map((teil) => ({ teil, r: TYPEN[teil.typ](teil) }));
+  const kaesten = teile.map(({ teil, r }, i) => el("div", { class: "block-teil" },
+    el("div", { class: "block-frage" }, el("b", {}, `${start + i}`), " ", teil.frage),
+    r.element));
+  return {
+    element: el("div", { class: "block" }, kaesten),
+    erstesFeld: teile[0]?.r.erstesFeld,
+    pruefen() {
+      const ergebnisse = teile.map(({ r }) => r.pruefen());
+      if (ergebnisse.some((e) => e.leer)) return { ok: false, leer: true, meldung: "Bitte bearbeite alle Aufgaben." };
+      const richtig = ergebnisse.filter((e) => e.ok).length;
+      kaesten.forEach((k, i) => { k.classList.remove("richtig", "falsch"); k.classList.add(ergebnisse[i].ok ? "richtig" : "falsch"); });
+      const ok = richtig === teile.length;
+      return { ok, meldung: ok ? "" : `${richtig} von ${teile.length} Aufgaben sind richtig.` };
+    },
+    loesungZeigen() { teile.forEach(({ r }) => r.loesungZeigen()); kaesten.forEach((k) => k.classList.remove("falsch")); },
+    sperren() { teile.forEach(({ r }) => r.sperren()); },
+  };
+}
+
+const TYPEN = { auswahl, luecke, ordnen, zuordnen, richtigfalsch, freitext, block };
 
 export function aufgabeErstellen(aufgabe) {
   const fn = TYPEN[aufgabe.typ];

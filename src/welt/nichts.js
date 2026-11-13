@@ -11,7 +11,7 @@ export const NICHTS_OFFEN = true;
 
 /**
  * Alle Figuren. typ: "figur" (Menschen), "boss" (Wächter), "drache", "tier".
- * reihe: 0 = vorne (Helden) … 3 = hinten (Drache).
+ * reihe: 0 = vorne (Helden), 1 = Dorf und Lythara, 4 = Aurelia, 2 = Wächter, 3 = hinten (Drache).
  */
 export const GALERIE = [
   { key: "held_neu", typ: "figur", reihe: 0, name: "Ankömmling", text: "So sieht die Heldin oder der Held aus, bevor der Heldenpass ausgefüllt ist." },
@@ -24,13 +24,16 @@ export const GALERIE = [
   { key: "npc_borin", typ: "figur", reihe: 1, name: "Schmied Borin", text: "Der Schmied des Dorfes. Quests: Wo ist Finn?, Borins Werkstatt." },
   { key: "npc_finn", typ: "figur", reihe: 1, name: "Finn", text: "Borins Lehrling, liebt Bücher. Nebenquest: Finns Geheimnis." },
   { key: "katze", typ: "tier", reihe: 1, name: "Mimi", text: "Wilmas Katze. Streift durchs Dorf und lässt sich streicheln." },
-  { key: "npc_orpheon", typ: "figur", reihe: 1, name: "Orpheon, der Glockenhüter", text: "Der Mentor in Aurelia. Empfängt die Heldin oder den Helden am Stadttor." },
-  { key: "npc_nerea", typ: "figur", reihe: 1, name: "Hafenmeisterin Nerea", text: "Leitet den Hafen von Aurelia. Quest 1: Die Stimmen des Hafens (Durchsagen)." },
-  { key: "npc_ione", typ: "figur", reihe: 1, name: "Marktaufseherin Ione", text: "Leitet den Markt auf der Agora von Aurelia. Quest 2: Gespräche am Markt (Ohrenprobe)." },
-  { key: "npc_daphne", typ: "figur", reihe: 1, name: "Händlerin Daphne", text: "Verkauft Obst und Gemüse auf der Agora von Aurelia. Quest 2: Am Obststand." },
-  { key: "npc_ilias", typ: "figur", reihe: 1, name: "Fischer Ilias", text: "Fischer und Fischhändler in Aurelia. Quest 2: Am Fischstand." },
-  { key: "npc_kleon", typ: "figur", reihe: 1, name: "Töpfer Kleon", text: "Töpfer auf der Agora von Aurelia. Quest 2: Am Töpferstand (Reklamation)." },
-  { key: "npc_talos", typ: "figur", reihe: 1, name: "Leuchtturmwärter Talos", text: "Hütet seit vierzig Jahren den Leuchtturm von Aurelia. Quest 3: Das Licht des Leuchtturms (Telefonnachrichten)." },
+  { key: "npc_orpheon", typ: "figur", reihe: 4, name: "Orpheon, der Glockenhüter", text: "Der Mentor in Aurelia. Empfängt die Heldin oder den Helden am Stadttor." },
+  { key: "npc_nerea", typ: "figur", reihe: 4, name: "Hafenmeisterin Nerea", text: "Leitet den Hafen von Aurelia. Quest 1: Die Stimmen des Hafens (Durchsagen)." },
+  { key: "npc_ione", typ: "figur", reihe: 4, name: "Marktaufseherin Ione", text: "Leitet den Markt auf der Agora von Aurelia. Quest 2: Gespräche am Markt (Ohrenprobe)." },
+  { key: "npc_daphne", typ: "figur", reihe: 4, name: "Händlerin Daphne", text: "Verkauft Obst und Gemüse auf der Agora von Aurelia. Quest 2: Am Obststand." },
+  { key: "npc_ilias", typ: "figur", reihe: 4, name: "Fischer Ilias", text: "Fischer und Fischhändler in Aurelia. Quest 2: Am Fischstand." },
+  { key: "npc_kleon", typ: "figur", reihe: 4, name: "Töpfer Kleon", text: "Töpfer auf der Agora von Aurelia. Quest 2: Am Töpferstand (Reklamation)." },
+  { key: "npc_talos", typ: "figur", reihe: 4, name: "Leuchtturmwärter Talos", text: "Hütet seit vierzig Jahren den Leuchtturm von Aurelia. Quest 3: Das Licht des Leuchtturms (Telefonnachrichten)." },
+  { key: "npc_kassia", typ: "figur", reihe: 4, name: "Werftmeisterin Kassia", text: "Leitet die Werft von Aurelia und baut das Festschiff. Quest 4: Die Werft (Abnahme im Prüfungsmodus)." },
+  { key: "npc_timon", typ: "figur", reihe: 4, name: "Azubi Timon", text: "Erstes Lehrjahr als Bootsbauer. Quest 4: Interview im Radio (richtig/falsch)." },
+  { key: "npc_daria", typ: "figur", reihe: 4, name: "Bootsbauerin Daria", text: "Drittes Lehrjahr auf der Werft. Quest 4: Bericht über ihre Ausbildung (A/B/C)." },
   { key: "npc_lyra", typ: "figur", reihe: 1, name: "Meisterin Lyra", text: "Die letzte Schülerin der Schreibmeister. Führt durch Lythara." },
   { key: "boss_torwaechter", typ: "boss", reihe: 2, name: "Der Torwächter der Quellen", text: "Boss von Quest 1 (Einleitung) in der Halle der Tausend Tore." },
   { key: "boss_kopist", typ: "boss", reihe: 2, name: "Der Kopist", text: "Wächter der Insel der Echos (Wiedergabe)." },
@@ -51,13 +54,13 @@ export const GALERIE = [
 // ---------- Anordnung (Raster 44 × 42) ----------
 
 const BREITE = 44, HOEHE = 42;
-const REIHEN_Y = [30, 23, 15, 4];
+const REIHEN_Y = [30, 23, 15, 4, 19];
 const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5 };
-const ABSTAND = { 0: 5, 1: 3.4, 2: 6, 3: 0 };
+const ABSTAND = { 0: 5, 1: 4.5, 2: 6, 3: 0, 4: 3.8 };
 
 function platzieren() {
   const objekte = [];
-  for (let r = 0; r < 4; r++) {
+  for (let r = 0; r < REIHEN_Y.length; r++) {
     const liste = GALERIE.filter((g) => g.reihe === r);
     liste.forEach((g, i) => {
       const gr = GROESSE[g.typ];

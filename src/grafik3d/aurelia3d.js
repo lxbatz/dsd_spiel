@@ -481,6 +481,17 @@ function hafenBauen(szene, raster, animationen) {
   werft.add(KASTEN(), "#7a5434", [3, -0.85, (KAI_Y + 3) * E], [0, 0, 0], [0.4, 0.3, 6]);
   for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) werft.add(ZYL(1, 1, 6), "#6a4a2e", [3 + sx * 2, -0.2, (KAI_Y + 1) * E + k * 2.5], [0, 0, sx * 0.2], [0.1, 2.2, 0.1]);
   const wg = new THREE.Group(); werft.in(wg); szene.add(wg);
+  // Nach Quest 4 ist das Festschiff fertig: Rumpf mit Planken, Mast und gestreiftem Segel
+  const festschiff = bootBauen(7, "#c8603a", true, "#f4ece0");
+  festschiff.position.set(3, -0.35, (KAI_Y + 2.6) * E);
+  festschiff.visible = false;
+  szene.add(festschiff);
+  animationen.push((zeit) => {
+    const fertig = Boolean(zustand.erledigt.aurelia_q4);
+    festschiff.visible = fertig;
+    wg.visible = !fertig;
+    if (fertig) { festschiff.position.y = -0.35 + Math.sin(zeit * 1.1) * 0.05; festschiff.rotation.z = Math.sin(zeit * 0.8) * 0.02; }
+  });
   animationen.push((zeit) => {
     boote.forEach((b, i) => {
       b.position.y = (i === boote.length - 1 ? -0.8 : -0.75) + Math.sin(zeit * 1.1 + i) * 0.06;
@@ -731,11 +742,37 @@ function klangperleBauen(animationen) {
   return g;
 }
 
+/** Werkbank der Werft: Holztisch mit Schraubstock, Werkzeug, Brettern und einem Holzhocker */
+function werkbankBauen() {
+  const g = new THREE.Group();
+  const t = new Teile();
+  const holz = "#9a6a3e", dunkel = "#6a4a2e", eisen = "#5a5a66";
+  t.add(KASTEN(), holz, [0, 0.95, 0], [0, 0, 0], [2.4, 0.12, 1.0]);
+  for (const sx of [-1.05, 1.05]) for (const sz of [-0.4, 0.4]) t.add(KASTEN(), dunkel, [sx, 0.45, sz], [0, 0, 0], [0.12, 0.9, 0.12]);
+  t.add(KASTEN(), dunkel, [0, 0.25, 0], [0, 0, 0], [2.1, 0.06, 0.8]);
+  // Schraubstock, Hammer, Säge, Hobel
+  t.add(KASTEN(), eisen, [-0.85, 1.12, 0.3], [0, 0, 0], [0.3, 0.2, 0.25], { art: "glanz" });
+  t.add(ZYL(1, 1, 8), dunkel, [-0.2, 1.04, 0.2], [0, 0, Math.PI / 2], [0.03, 0.4, 0.03]);
+  t.add(KASTEN(), eisen, [0.0, 1.04, 0.2], [0, 0, 0], [0.08, 0.06, 0.16], { art: "glanz" });
+  t.add(KASTEN(), "#c8c8d0", [0.45, 1.02, -0.15], [0, 0.3, 0], [0.6, 0.02, 0.16], { art: "glanz" });
+  t.add(KASTEN(), dunkel, [0.8, 1.06, -0.2], [0, 0.3, 0], [0.16, 0.1, 0.12]);
+  t.add(KASTEN(), "#b88a5a", [0.6, 1.07, 0.25], [0, -0.2, 0], [0.35, 0.1, 0.12]);
+  // Bretterstapel daneben und Timons Hocker
+  for (let i = 0; i < 5; i++) t.add(KASTEN(), i % 2 ? "#c89a6a" : "#b88a5a", [1.7, 0.08 + i * 0.1, 0.1], [0, 0.05 * i, 0], [0.4, 0.08, 1.6]);
+  t.add(ZYL(1, 1, 12), "#c89a6a", [-1.7, 0.55, 0.3], [0, 0, 0], [0.28, 0.06, 0.28]);
+  for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI * 2; t.add(ZYL(1, 1, 6), holz, [-1.7 + Math.cos(a) * 0.18, 0.27, 0.3 + Math.sin(a) * 0.18], [Math.sin(a) * 0.15, 0, -Math.cos(a) * 0.15], [0.035, 0.55, 0.035]); }
+  t.in(g);
+  g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
+  g.userData.setzeLeuchten = () => {};
+  return g;
+}
+
 function objektModell(o, animationen) {
   if (o.bild?.startsWith("stand_")) return { modell: antikerStandBauen(o.bild.slice(6), o.segel) };
   if (o.bild === "rufmuschel") return { modell: rufmuschelBauen(animationen) };
   if (o.bild === "brunnen_antik") return { modell: brunnenBauen(animationen) };
   if (o.bild === "tafel") return { modell: tafelBauen() };
+  if (o.bild === "werkbank") return { modell: werkbankBauen() };
   if (o.bild === "muschelfon") return { modell: muschelfonBauen(animationen) };
   if (o.bild === "klangperle") return { modell: klangperleBauen(animationen) };
   return null;

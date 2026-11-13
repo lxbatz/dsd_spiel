@@ -98,4 +98,9 @@ export const GEGENSTAENDE = {
     icon: "🗼",
     text: "Der dritte von fünf Tönen der großen Glocke von Aurelia. Du verstehst Nachrichten am Telefon: Wer ruft an, was will die Person, was muss man tun – und du schreibst dir Zeiten und Nummern auf.",
   },
+  ton_werft: {
+    name: "Der Ton der Werft",
+    icon: "⚓",
+    text: "Der vierte von fünf Tönen der großen Glocke von Aurelia. Du verstehst Gespräche am Arbeitsplatz, Interviews und Berichte – und du hörst bis zum Ende zu.",
+  },
 };

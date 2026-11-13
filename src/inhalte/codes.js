@@ -47,4 +47,6 @@ export const CODES = {
   "14aef49c95793a96244f6d7f808fd7a6c5f2a5e7d5ec142c7fb229bdd44deb7c": { sprung: "aurelia_q2_ende", grund: "Sprungcode" },
   "ac609de4c14d8835666f488cc85a5fbb88929a9ca9cb8f086093fd501112f58c": { sprung: "aurelia_q3", grund: "Sprungcode" },
   "0ac32648f20417b0e3604e0ce689d1fcd9c01ddc6991a9251c62ab96a1c58c1a": { sprung: "aurelia_q3_ende", grund: "Sprungcode" },
+  "31ed9e0f0c7323b24ac2c8223bfda842b0841f9df69910c929854f264c189207": { sprung: "aurelia_q4", grund: "Sprungcode" },
+  "49d4b232beb168cec753caa0eab13bc28eafbe12e479c072b2d0925779796ab0": { sprung: "aurelia_q4_ende", grund: "Sprungcode" },
 };

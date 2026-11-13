@@ -74,6 +74,18 @@ export const AUSSEHEN = {
     haut: "#c89470", haare: "#e4e0d8", frisur: "kurz", bart: "kurz", bartfarbe: "#e4e0d8",
     kleid: "#24406a", akzent: "#e0b040", hose: "#3a3a48", stiefel: "#2a2220", schal: "#c8503a",
   },
+  npc_kassia: {
+    haut: "#b87c52", haare: "#3a2a20", frisur: "kurz", wangen: false,
+    kleid: "#5a6a7a", akzent: "#d8a838", hose: "#3a4048", stiefel: "#3a2a1a", schuerze: "#8a5a2e", armeHaut: true,
+  },
+  npc_timon: {
+    haut: "#f0c8a0", haare: "#c8a050", frisur: "lockig",
+    kleid: "#2a5aa8", akzent: "#e8e0c8", hose: "#2a5aa8", stiefel: "#4a4a4a",
+  },
+  npc_daria: {
+    haut: "#e8b48a", haare: "#8a2a1a", frisur: "zopf",
+    kleid: "#c84a2a", akzent: "#f0e0c0", hose: "#3a4a5a", stiefel: "#3a2a1a", schuerze: "#6a5040", armeHaut: true,
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

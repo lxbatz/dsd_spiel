@@ -1,6 +1,8 @@
 // Hörtexte für Aufgaben: { sprecher, text, datei?, stimme?: { tonhoehe, tempo }, gong?: true, piep?: true }
 //   gong: vor dem Text erklingt ein Gong (Durchsagen)
 //   piep: vor dem Text erklingt ein Piepton wie beim Anrufbeantworter (Telefonnachrichten)
+//   pruefung: true – Prüfungsmodus wie im DSD: höchstens zweimal hören, kein Text zum Einblenden
+//   maxHoeren: Zahl – wie oft man höchstens hören darf (Prüfungsmodus: 2, DSD Hören Teil 5: 1)
 //   teile: [{ sprecher, text, stimme }] statt text – Gespräche mit mehreren Stimmen nacheinander
 // Ist eine Audiodatei angegeben (z. B. "Sound/hoeren/mimi_wilma.mp3"), wird sie abgespielt –
 // so können später eigene Aufnahmen eingesetzt werden. Sonst liest die Sprachausgabe
@@ -119,15 +121,25 @@ export function hoertextElement(h) {
     h.teile ? h.teile.map((t) => `${t.sprecher}: ${t.text}`).join("\n") : h.text);
   const zeigen = el("button", { type: "button", class: "knopf zweitrangig", hidden: true, onclick: () => { transkript.hidden = !transkript.hidden; zeigen.textContent = transkript.hidden ? "📄 Text zeigen" : "📄 Text verstecken"; } }, "📄 Text zeigen");
   const knopf = el("button", { type: "button", class: "knopf hoer-knopf" }, "🔊 Anhören");
+  const max = h.maxHoeren ?? (h.pruefung ? 2 : Infinity);
+  const malWort = (n) => (n === 1 ? "einmal" : n === 2 ? "zweimal" : `${n}-mal`);
   let spielt = false;
   const aktualisieren = () => {
     const n = gehoert.get(h) ?? 0;
-    zaehler.textContent = n ? `${n}× gehört` : "Hör gut zu!";
-    zeigen.hidden = n < 2;
-    knopf.textContent = spielt ? "⏹ Stopp" : n ? "🔊 Noch einmal hören" : "🔊 Anhören";
+    const fertig = n >= max && !spielt;
+    if (Number.isFinite(max)) {
+      zaehler.textContent = fertig ? `Du hast den Text ${malWort(max)} gehört.`
+        : n ? `${n}× gehört – noch ${malWort(max - n)}` : `Prüfungsmodus: Du hörst den Text nur ${malWort(max)}. Lies zuerst die Aufgaben!`;
+    } else {
+      zaehler.textContent = n ? `${n}× gehört` : "Hör gut zu!";
+    }
+    zeigen.hidden = n < 2 || Boolean(h.pruefung);
+    knopf.disabled = fertig;
+    knopf.textContent = spielt ? "⏹ Stopp" : fertig ? "✔ Gehört" : n ? "🔊 Noch einmal hören" : "🔊 Anhören";
   };
   knopf.addEventListener("click", () => {
     if (spielt) { hoerenStoppen(); return; }
+    if ((gehoert.get(h) ?? 0) >= max) return;
     spielt = true;
     leiser(true);
     const ok = abspielen(h, () => {
