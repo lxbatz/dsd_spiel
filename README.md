@@ -39,7 +39,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Quest 2 *Gespräche am Markt* (Alltagsgespräche mit zwei Stimmen): an den Ständen von Daphne (Obst), Ilias (Fisch) und Kleon (Töpferware) zuhören – Wer will was? Wie viel? Wann? Wie geht es aus? –, dann die Ohrenprobe bei Marktaufseherin Ione (Wo sind die Personen?) → *Der Ton des Markts*
    - Quest 3 *Das Licht des Leuchtturms* (Telefonnachrichten): Der Sturm hat die Klangperlen aus dem Muschelfon von Leuchtturmwärter Talos geweht. Drei Perlen finden, sechs Nachrichten verstehen (Sturmwarnung, Lampenwerkstatt, Fischer in Not, Besuch, Arzttermin, Schulklasse), dann Talos' Notizbuch: Telefonnotizen, was zuerst tun, wen zurückrufen → *Der Ton des Leuchtturms*, der Lichtstrahl dreht sich wieder
    - Quest 4 *Die Werft* (genau nach DSD Hören Teil 1, 3 und 4): an der Werkbank fünf Szenen am Arbeitsplatz (je eine Aufgabe), bei Azubi Timon ein Radiointerview (richtig/falsch), bei Bootsbauerin Daria ein Bericht über ihre Ausbildung (6 Aufgaben auf einem Blatt), dann die Abnahme bei Werftmeisterin Kassia im **Prüfungsmodus** (jeder Text höchstens zweimal, kein Text zum Einblenden) → *Der Ton der Werft*, das Festschiff läuft vom Stapel
-   - Der Glockenturm (Quest 5, Endkampf gegen den Drachenrichter) ist schon zu sehen und folgt
+   - Quest 5 *Der Glockenturm* (wie DSD Hören Teil 5): an zwei Stimmenmuscheln auf der Akropolis Meinungen zuordnen (8 Aussagen, 4 bleiben übrig; die zweite Muschel nur einmal hören), dann der **Endkampf gegen den Drachenrichter** mit kurzen Hörtexten aus allen fünf Prüfungsteilen → *Der Ton des Turms*, die große Glocke läutet, der Drache kniet nieder
+   - Finale: **Aurelia ist gerettet** → *Gold-Abzeichen*
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

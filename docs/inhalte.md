@@ -10,6 +10,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `aurelia_q1.js` | Aurelia Quest 1: Durchsagen an den Rufmuscheln, Reisende beraten (Hörtexte mit Gong) |
+| `aurelia_q5.js` | Aurelia Quest 5: Meinungen zuordnen (Teil 5, Übung und Generalprobe nur einmal hören), Endkampf gegen den Drachenrichter |
 | `aurelia_q4.js` | Aurelia Quest 4: Werft – Szenen am Arbeitsplatz, Interview (R/F), Bericht (Block mit 6 Aufgaben), Abnahme im Prüfungsmodus |
 | `aurelia_q3.js` | Aurelia Quest 3: Telefonnachrichten auf drei Klangperlen (mit Piepton), Talos' Notizbuch |
 | `aurelia_q2.js` | Aurelia Quest 2: Gespräche am Markt (drei Händler, Gespräche mit zwei Stimmen), Ohrenprobe bei Ione |
@@ -79,7 +80,8 @@ Mehrere richtige Lösungen mit `|` trennen: `{stammt|kommt}`. Beim Schreiben wir
   typ: "zuordnen",
   frage: "Finde das Gegenteil.",
   paare: [["groß", "klein"], ["kurz", "lang"]],
-  ablenker: ["dick", "alt"],          // optional: Antworten, die übrig bleiben (wie im DSD)
+  ablenker: ["dick", "alt"],          // optional: Antworten, die übrig bleiben (wie im DSD) – dann erscheinen die
+                                      // Antworten als Liste A, B, C …, und man wählt nur den Buchstaben
   beispiel: ["warm", "kalt"],         // optional: schon gelöste Beispielzeile (Nummer 0)
 }
 ```

@@ -33,7 +33,7 @@ function bauen() {
 
   // Akropolis mit Glockenturm und Tempelsäulen
   setze(22, 3, 25, 6, "G");
-  for (let x = 18; x <= 29; x += 3) { r[2][x] = "C"; r[8][x] = "C"; }
+  for (let x = 18; x <= 29; x += 3) { r[2][x] = "C"; if (x < 21 || x > 24) r[8][x] = "C"; }   // vorne offen: dort wacht der Drachenrichter
   for (const y of [4, 6]) { r[y][18] = "C"; r[y][29] = "C"; }
   // Agora: Säulenhallen (Stoa) im Norden und Süden, Wege frei lassen
   for (let x = 15; x <= 32; x += 3) { if (x < 22 || x > 25) { r[11][x] = "C"; r[22][x] = "C"; } }

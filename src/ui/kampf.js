@@ -3,6 +3,7 @@
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
+import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { hatEffekt, kampfErgebnis } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
@@ -99,12 +100,14 @@ export async function kampf(gegner, roheFragen) {
             herzAnzeige)),
         el("div", { class: "spott" }, `Runde ${runde}: „${zufall(gegner.spott)}“`),
         lesetextElement(a.lesetext),
+        hoertextElement(a.hoertext),
         el("div", { class: "frage" }, a.frage),
         r.element,
         feedback,
         leiste);
       fokus(r.erstesFeld);
     });
+    hoerenStoppen();
   }
 
   const sieg = lp <= 0;

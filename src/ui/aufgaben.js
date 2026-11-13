@@ -237,13 +237,20 @@ function ordnen(a) {
 
 function zuordnen(a) {
   const rechts = mischen([...a.paare.map((p) => p[1]), ...(a.ablenker ?? [])]);
+  // Mit Ablenkern wie im DSD: Aussagen als Liste A, B, C … – in den Feldern wählt man nur den Buchstaben
+  const mitListe = Boolean(a.ablenker?.length);
+  const buchstabe = (r) => "ABCDEFGHIJKL"[rechts.indexOf(r)];
   const selects = a.paare.map(() =>
-    el("select", {}, el("option", { value: "" }, "– wählen –"), rechts.map((r) => el("option", { value: r }, r))));
+    el("select", {}, el("option", { value: "" }, mitListe ? "–" : "– wählen –"),
+      rechts.map((r) => el("option", { value: r }, mitListe ? buchstabe(r) : r))));
+  const liste = mitListe ? el("ol", { class: "zuordnen-liste" },
+    a.beispiel ? el("li", { class: "zuordnen-beispiel" }, el("b", {}, "Z"), " ", a.beispiel[1]) : null,
+    rechts.map((r) => el("li", {}, el("b", {}, buchstabe(r)), " ", r))) : null;
   return {
-    element: el("table", { class: "zuordnen-tabelle" },
+    element: el("div", {}, liste, el("table", { class: "zuordnen-tabelle" + (mitListe ? " mit-liste" : "") },
       el("tbody", {},
-        a.beispiel ? el("tr", { class: "zuordnen-beispiel" }, el("td", { style: "width:45%" }, `Beispiel: ${a.beispiel[0]}`), el("td", {}, a.beispiel[1])) : null,
-        a.paare.map((p, i) => el("tr", {}, el("td", { style: "width:45%" }, p[0]), el("td", {}, selects[i]))))),
+        a.beispiel ? el("tr", { class: "zuordnen-beispiel" }, el("td", { style: "width:45%" }, `Beispiel: ${a.beispiel[0]}`), el("td", {}, mitListe ? "Z" : a.beispiel[1])) : null,
+        a.paare.map((p, i) => el("tr", {}, el("td", { style: "width:45%" }, p[0]), el("td", {}, selects[i])))))),
     erstesFeld: selects[0],
     pruefen() {
       if (selects.every((s) => !s.value)) return { ok: false, leer: true, meldung: "Bitte ordne zu." };

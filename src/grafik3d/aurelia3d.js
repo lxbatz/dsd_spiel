@@ -12,6 +12,7 @@ import { E } from "./welt.js";
 import { lichtpunkteBauen, voegelBauen } from "./effekte.js";
 import { HINDERNIS, BLOCKIERT, bloecke, STEGE, KAI_Y } from "../welt/aurelia_layout.js";
 import { zustand } from "../zustand.js";
+import { drachenrichterBauen } from "./drache.js";
 
 const MARMOR = "#f2ece0", KALK = "#f6f2e8", SANDSTEIN = "#d8c8a4", TERRAKOTTA = "#c0603a", MEERBLAU = "#1f7ab8";
 const PX = 32;
@@ -773,6 +774,13 @@ function objektModell(o, animationen) {
   if (o.bild === "brunnen_antik") return { modell: brunnenBauen(animationen) };
   if (o.bild === "tafel") return { modell: tafelBauen() };
   if (o.bild === "werkbank") return { modell: werkbankBauen() };
+  if (o.bild === "drachenrichter") {
+    // Der Drachenrichter wacht vor dem Glockenturm; besiegt kniet er nieder (Pose „kniend“)
+    const f = drachenrichterBauen();
+    f.gruppe.scale.setScalar(1.3);
+    f.gruppe.userData.setzeLeuchten = (an) => f.pose(an ? "kniend" : "stehend");
+    return { modell: f.gruppe, figur: f, boss: true, kopfY: 4.6, weit: 7.5, kameraY: 3.4, versatz: [0, -0.5] };
+  }
   if (o.bild === "muschelfon") return { modell: muschelfonBauen(animationen) };
   if (o.bild === "klangperle") return { modell: klangperleBauen(animationen) };
   return null;

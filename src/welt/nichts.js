@@ -45,7 +45,7 @@ export const GALERIE = [
     text: [
       "Nach den Konzeptzeichnungen in Grafik/Drachenrichter1.jpg und 2.jpg.",
       "Kopf aus Grundkörpern, Unterkiefer wie eine Baggerschaufel, dreieckige Augen, große S-förmige Ohren auf einem runden „Pflaster“, Rauch aus der Nase, Fledermausflügel, Schweif mit spitzem Kegel.",
-      "Noch keinem Ort zugeordnet: vielleicht der Drachen-Boss am Ende von Aurelia.",
+      "Endgegner von Aurelia: Er wacht vor dem Glockenturm und kniet nieder, wenn man ihn besiegt hat.",
     ],
     posen: [["stehend", "Stehend, Flügel ausgebreitet"], ["gefaltet", "Flügel angelegt"], ["kniend", "Kniend (besiegt)"]],
   },

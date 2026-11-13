@@ -5,7 +5,8 @@
 // Quest 3: Das Licht des Leuchtturms (Telefonnachrichten) bei Leuchtturmwärter Talos.
 // Quest 4: Die Werft (Gespräche am Arbeitsplatz, Interview, Bericht – genau nach DSD Hören Teil 1, 3, 4)
 //          bei Werftmeisterin Kassia, Azubi Timon und Bootsbauerin Daria; Abnahme im Prüfungsmodus.
-// Quest 5 und der Drachenrichter folgen; ihre Orte sind schon da.
+// Quest 5: Der Glockenturm (Meinungen zuordnen wie DSD Hören Teil 5) an zwei Stimmenmuscheln,
+//          dann der Endkampf gegen den Drachenrichter vor dem Turm. Danach ist Aurelia gerettet.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -17,6 +18,8 @@ import { MUSCHELN, REISENDE } from "../inhalte/aurelia_q1.js";
 import { GESPRAECHE, OHRENPROBE } from "../inhalte/aurelia_q2.js";
 import { PERLEN, NOTIZBUCH } from "../inhalte/aurelia_q3.js";
 import { WERKBANK, INTERVIEW_AUFGABEN, BERICHT_AUFGABEN, ABNAHME } from "../inhalte/aurelia_q4.js";
+import { STEIN_WEST, STEIN_OST, DRACHENRICHTER } from "../inhalte/aurelia_q5.js";
+import { kampf } from "../ui/kampf.js";
 import { RASTER, KAI_Y } from "./aurelia_layout.js";
 
 const ORPHEON = "Orpheon, der Glockenhüter";
@@ -32,6 +35,11 @@ const gespraecheFertig = (z = zustand) => GESPRAECHE.every((g) => z.erledigt[g.i
 const perlenFertig = (z = zustand) => PERLEN.every((p) => z.erledigt[p.id]);
 const WERFT_STATIONEN = ["aurelia_q4_w1", "aurelia_q4_w2", "aurelia_q4_w3"];
 const werftFertig = (z = zustand) => WERFT_STATIONEN.every((k) => z.erledigt[k]);
+const STIMMEN = [
+  { id: "aurelia_q5_s1", name: "Stimmenmuschel des Westens", aufgaben: STEIN_WEST, untertitel: "Meinungen zuordnen · Übung" },
+  { id: "aurelia_q5_s2", name: "Stimmenmuschel des Ostens", aufgaben: STEIN_OST, untertitel: "Generalprobe · nur einmal hören" },
+];
+const stimmenFertig = (z = zustand) => STIMMEN.every((s) => z.erledigt[s.id]);
 
 async function orpheon() {
   const B = bild("npc_orpheon");
@@ -47,12 +55,29 @@ async function orpheon() {
     erledigen("aurelia_intro");
     return;
   }
+  if (istErledigt("aurelia_finale")) {
+    await dialog(ORPHEON, [
+      `${name}, hörst du die Glocke? Ganz Aurelia singt wieder! Die Menschen hören einander zu – und der Drachenrichter wacht wieder über die Stadt, statt sie zu bestrafen.`,
+      "Du bist hier immer willkommen. Das Portal bringt dich zurück ins Dorf, wenn du weiterziehen willst.",
+    ], B);
+    return;
+  }
+  if (istErledigt("aurelia_q5_start")) {
+    await dialog(ORPHEON, stimmenFertig()
+      ? "Du hast die Stimmen der Stadt verstanden. Jetzt geh zum Glockenturm und stell dich dem Drachenrichter!"
+      : "Hör dir zuerst die beiden Stimmenmuscheln auf der Akropolis an – links und rechts vor dem Glockenturm. Dann bist du bereit für den Drachenrichter.", B);
+    return;
+  }
   if (istErledigt("aurelia_q4")) {
     for (const k of ["aurelia_q1_orpheon", "aurelia_q2_orpheon", "aurelia_q3_orpheon", "aurelia_q4_orpheon"]) erledigen(k);
     await dialog(ORPHEON, [
       "Das Festschiff liegt fertig im Wasser! Vier Töne sind zurück: Hafen, Markt, Leuchtturm und Werft.",
-      "Jetzt fehlt nur noch der Ton des Turms. Aber oben wartet etwas Großes … Ich höre es jede Nacht grollen. (Quest 5 und der Endkampf kommen bald.)",
+      "Jetzt muss ich dir die Wahrheit sagen. Oben am Glockenturm wacht der Drachenrichter. Seit tausend Jahren hört er den Menschen von Aurelia zu.",
+      "Morgrath hat ihm eingeflüstert, dass niemand mehr zuhört. Da wurde er zornig und hat die Glocke zum Schweigen gebracht. Mit Gewalt besiegt ihn niemand – nur mit guten Ohren.",
+      "Bereite dich vor: Auf der Akropolis stehen zwei Stimmenmuscheln. Darin sind die Meinungen der Menschen gefangen. Wer sie versteht, versteht auch den Drachen.",
+      "Ein Tipp: Bei Meinungen kommt es nicht auf einzelne Wörter an, sondern darauf, was jemand insgesamt denkt. Und an der zweiten Muschel hörst du alles nur einmal – wie in der Prüfung!",
     ], B);
+    erledigen("aurelia_q5_start");
     return;
   }
   if (istErledigt("aurelia_q3")) {
@@ -406,10 +431,67 @@ const daria = werftStation({
   danach: "Gut zugehört! Und wer weiß – vielleicht baust du ja auch mal Schiffe.",
 });
 
-/** Orte der späteren Quests – schon zu sehen, aber noch nicht spielbar */
-function spaeter(name, text) {
-  return async () => dialog(name, text);
+// ---------- Quest 5: Der Glockenturm ----------
+
+function stimmenAktion(st) {
+  return async () => {
+    if (!istErledigt("aurelia_q5_start")) {
+      await dialog(st.name, "Eine große Muschel auf einer Marmorsäule. Darin flüstern viele Stimmen durcheinander. Sprich zuerst mit Orpheon am Stadttor.");
+      return;
+    }
+    if (istErledigt(st.id)) {
+      const nochmal = await frage(st.name, "Diese Stimmen hast du schon verstanden. Möchtest du noch einmal üben?", ["Ja, noch einmal", "Nein"]);
+      if (nochmal === 0) await aufgabenFolge({ id: st.id, titel: st.name, untertitel: st.untertitel, aufgaben: st.aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher: st.name,
+      frageText: st.id === "aurelia_q5_s2"
+        ? "Die Stimmen werden still … und warten. Diesmal sprechen sie nur EINMAL – wie in der Prüfung. Lies zuerst alle Aussagen in Ruhe. Bereit?"
+        : "Die Muschel flüstert: Fünf Menschen sagen ihre Meinung zu einer Frage. Ordne jeder Person die passende Aussage zu. Lies zuerst die Aussagen!",
+      ja: "Ja, ich höre zu",
+      spaeter: "Die Stimmen flüstern weiter.",
+      folge: { id: st.id, titel: st.name, untertitel: st.untertitel, aufgaben: st.aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(st.id);
+    await belohnung({ xp: 25, grund: `${st.name}: Meinungen verstanden!`, fanfare: true });
+  };
 }
+
+async function drachenrichter(welt) {
+  const B = bild("boss_drachenrichter");
+  const D = DRACHENRICHTER.name;
+  if (!istErledigt("aurelia_q5_start")) {
+    await dialog(D, "Ein riesiger Drache liegt vor dem Glockenturm, die Flügel um den Körper gelegt. Er öffnet ein Auge … und schließt es wieder. Ein tiefes Grollen. Vielleicht weiß Orpheon mehr.", B);
+    return;
+  }
+  if (istErledigt("aurelia_q5_boss")) {
+    await dialog(D, "„Du hast gut zugehört, kleiner Mensch. Ich werde wieder über Aurelia wachen – und zuhören, statt zu richten.“", B);
+    return;
+  }
+  if (!stimmenFertig()) {
+    await dialog(D, "„Du willst mich herausfordern? Erst hörst du den Stimmen der Stadt zu! Die Muscheln stehen links und rechts von mir.“", B);
+    return;
+  }
+  const bereit = await frage(D, "„Bist du bereit? Ich spreche – du hörst. Ohne Text zum Nachlesen!“", ["Ja, ich bin bereit!", "Noch nicht."], B);
+  if (bereit !== 0) return;
+  const sieg = await kampf({ ...DRACHENRICHTER, bild: B, quest: "aurelia_q5_boss" }, DRACHENRICHTER.fragen);
+  if (!sieg) return;
+  erledigen("aurelia_q5_boss");
+  welt.aktualisieren();
+  await belohnung({ xp: 200, grund: "Bosskampf gewonnen: Der Drachenrichter", gegenstaende: ["ton_turm"] });
+  erledigen("aurelia_q5");
+  welt.aktualisieren();
+  await dialog(ORPHEON, [
+    "Hoch oben im Turm beginnt die große Glocke zu schwingen – erst leise, dann immer lauter. DONG … DONG … DONG …",
+    "Alle fünf Töne klingen zusammen: Hafen, Markt, Leuchtturm, Werft und Turm. Die ganze Stadt bleibt stehen und hört zu.",
+    `Orpheon kommt die Treppe herauf, Tränen in den Augen: „Du hast es geschafft, ${zustand.held?.name ?? "mein Freund"}! Aurelia ist gerettet!“`,
+  ], bild("npc_orpheon"));
+  erledigen("aurelia_finale");
+  await belohnung({ xp: 250, grund: "Aurelia ist gerettet!", gegenstaende: ["gold_abzeichen"], fanfare: true });
+}
+
 
 async function heimweg(welt) {
   const antwort = await frage("Portal", "Das Portal schimmert golden. Möchtest du ins Dorf der Ankömmlinge zurückkehren?", ["Ja, ins Dorf", "Nein, ich bleibe"]);
@@ -446,11 +528,12 @@ export default {
     markt: [22, 19],
     leuchtturm: [40, 18],
     werft: [7, 28],
+    turm: [23, 12],
   },
   objekte: [
     { id: "portal_aurelia", art: "portal", name: "Portal ins Dorf", x: 1, y: 18, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
     { id: "orpheon", art: "npc", name: ORPHEON, bild: "npc_orpheon", x: 7, y: 17, aktion: orpheon,
-      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) || (z.erledigt.aurelia_q3 && !z.erledigt.aurelia_q3_orpheon) || (z.erledigt.aurelia_q4 && !z.erledigt.aurelia_q4_orpheon) },
+      marker: (z) => !z.erledigt.aurelia_intro || (z.erledigt.aurelia_q1 && !z.erledigt.aurelia_q1_orpheon) || (z.erledigt.aurelia_q2 && !z.erledigt.aurelia_q2_orpheon) || (z.erledigt.aurelia_q3 && !z.erledigt.aurelia_q3_orpheon) || (z.erledigt.aurelia_q4 && !z.erledigt.aurelia_q5_start) },
     { id: "nerea", art: "npc", name: NEREA, bild: "npc_nerea", x: 20, y: 26, aktion: nerea,
       marker: (z) => Boolean(z.erledigt.aurelia_intro) && (!z.erledigt.aurelia_q1_start || (muschelnFertig(z) && !z.erledigt.aurelia_q1)) },
     ...MUSCHELN.map((m, i) => ({
@@ -486,8 +569,15 @@ export default {
       marker: (z) => Boolean(z.erledigt.aurelia_q4_start) && !z.erledigt.aurelia_q4_w2 },
     { id: "daria", art: "npc", name: DARIA, bild: "npc_daria", x: 4, y: 31, aktion: daria,
       marker: (z) => Boolean(z.erledigt.aurelia_q4_start) && !z.erledigt.aurelia_q4_w3 },
-    { id: "turm_tuer", art: "objekt", name: "Tor des Glockenturms", bild: "tafel", x: 23, y: 7,
-      aktion: spaeter("Glockenturm", "Das Tor ist verschlossen. Ganz oben hängt die große Glocke – stumm. Und manchmal hörst du ein tiefes Grollen … (Quest 5 und der Endkampf kommen bald.)"),
-      hinweis: "Das Tor untersuchen", leuchtet: (z) => Boolean(z.erledigt.aurelia_q1) },
+    ...STIMMEN.map((st, i) => ({
+      id: st.id, art: "objekt", name: st.name, bild: "rufmuschel", x: i ? 28 : 19, y: 7,
+      aktion: stimmenAktion(st), hinweis: `${st.name} anhören`,
+      leuchtet: (z) => Boolean(z.erledigt[st.id]),
+      marker: (z) => Boolean(z.erledigt.aurelia_q5_start) && !z.erledigt[st.id],
+    })),
+    { id: "drachenrichter", art: "npc", name: "Der Drachenrichter", bild: "drachenrichter", x: 22, y: 7, breite: 4, hoehe: 2,
+      aktion: drachenrichter, hinweis: "Den Drachenrichter ansprechen",
+      leuchtet: (z) => Boolean(z.erledigt.aurelia_q5_boss),
+      marker: (z) => stimmenFertig(z) && !z.erledigt.aurelia_q5_boss },
   ],
 };

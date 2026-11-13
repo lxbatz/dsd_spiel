@@ -103,4 +103,14 @@ export const GEGENSTAENDE = {
     icon: "⚓",
     text: "Der vierte von fünf Tönen der großen Glocke von Aurelia. Du verstehst Gespräche am Arbeitsplatz, Interviews und Berichte – und du hörst bis zum Ende zu.",
   },
+  ton_turm: {
+    name: "Der Ton des Turms",
+    icon: "🔔",
+    text: "Der fünfte und letzte Ton der großen Glocke. Du verstehst, was Menschen meinen – auch wenn du es nur einmal hörst.",
+  },
+  gold_abzeichen: {
+    name: "Gold-Abzeichen",
+    icon: "🥇",
+    text: "Du hast das Reich Aurelia gerettet. Du verstehst Durchsagen, Gespräche, Nachrichten, Interviews, Berichte und Meinungen – so wie in der DSD-Prüfung.",
+  },
 };

@@ -44,7 +44,10 @@ function hauptziele(z) {
   if (!e("aurelia_q3")) return liste;
   const werft = ["aurelia_q4_w1", "aurelia_q4_w2", "aurelia_q4_w3"].filter(e).length;
   liste.push({ text: `Die Werft: Hör an der Werkbank, bei Timon und bei Daria zu (${werft}/3) und besteh die Abnahme bei Werftmeisterin Kassia.`, erledigt: e("aurelia_q4") });
-  if (e("aurelia_q4")) liste.push({ text: "Aurelia, Quest 5: Der Glockenturm (kommt bald)", erledigt: false });
+  if (!e("aurelia_q4")) return liste;
+  const stimmen = ["aurelia_q5_s1", "aurelia_q5_s2"].filter(e).length;
+  liste.push({ text: `Der Glockenturm: Hör die Stimmenmuscheln auf der Akropolis an (${stimmen}/2) und besiege den Drachenrichter.`, erledigt: e("aurelia_q5_boss") });
+  if (e("aurelia_finale")) liste.push({ text: "Aurelia ist gerettet! Die große Glocke klingt wieder.", erledigt: true });
   return liste;
 }
 

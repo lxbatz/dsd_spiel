@@ -47,6 +47,11 @@ const SCHRITTE = [
   ["aurelia_q4_abnahme", 0],
   ["aurelia_q4", 150, "ton_werft"],
   ["aurelia_q4_orpheon", 0],
+  ["aurelia_q5_start", 0],
+  ["aurelia_q5_s1", 25], ["aurelia_q5_s2", 25],
+  ["aurelia_q5_boss", 200, "ton_turm"],
+  ["aurelia_q5", 0],
+  ["aurelia_finale", 250, "gold_abzeichen"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -92,6 +97,9 @@ export const SPRUNGPUNKTE = [
   { id: "aurelia_q3_ende", name: "Aurelia: Perlen gefunden, Talos' Notizbuch", bis: "aurelia_q3_p3", karte: "aurelia", spawn: "leuchtturm" },
   { id: "aurelia_q4", name: "Aurelia: Werft, Kassia, Timon und Daria (Quest 4)", bis: "aurelia_q3_orpheon", karte: "aurelia", spawn: "werft" },
   { id: "aurelia_q4_ende", name: "Aurelia: Werft, Abnahme im Prüfungsmodus", bis: "aurelia_q4_w3", karte: "aurelia", spawn: "werft" },
+  { id: "aurelia_q5", name: "Aurelia: Glockenturm, Stimmenmuscheln (Quest 5)", bis: "aurelia_q5_start", karte: "aurelia", spawn: "turm" },
+  { id: "aurelia_drache", name: "Aurelia: vor dem Drachenrichter (Endkampf)", bis: "aurelia_q5_s2", karte: "aurelia", spawn: "turm" },
+  { id: "aurelia_ende", name: "Aurelia gerettet (Ende von Aurelia)", bis: "aurelia_finale", karte: "aurelia", spawn: "turm" },
 ];
 
 const TESTHELD = {

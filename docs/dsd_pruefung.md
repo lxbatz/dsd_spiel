@@ -188,4 +188,7 @@ Grundsätze der Bewertung:
   - Teil 3: Interview, richtig/falsch
   - Teil 4: Bericht mit 6 Aufgaben auf einem Blatt (Typ `block`)
   - Abnahme im Prüfungsmodus (`pruefung: true`, höchstens zweimal hören)
-- Quest 5 (geplant): Meinungen zuordnen, nur einmal hören (wie Teil 5, `maxHoeren: 1`, `zuordnen` mit `ablenker`)
+- **Quest 5 Glockenturm**, nach Teil 5:
+  - Meinungen zuordnen mit Beispiel Z und 8 Aussagen, von denen 4 übrig bleiben. Die Aussagen stehen als Liste A–H da, wie auf dem Prüfungsblatt.
+  - Die zweite Muschel ist eine Generalprobe: nur einmal hören.
+  - Der Endkampf gegen den Drachenrichter mischt kurze Hörtexte aus allen Teilen.
