@@ -192,3 +192,12 @@ Grundsätze der Bewertung:
   - Meinungen zuordnen mit Beispiel Z und 8 Aussagen, von denen 4 übrig bleiben. Die Aussagen stehen als Liste A–H da, wie auf dem Prüfungsblatt.
   - Die zweite Muschel ist eine Generalprobe: nur einmal hören.
   - Der Endkampf gegen den Drachenrichter mischt kurze Hörtexte aus allen Teilen.
+
+**Scriptoria (Lesen):**
+- Quest 1 Briefbaum: wie Teil 1. Ein Brief mit 4 Lücken und einer Wortliste mit Beispiel (0), einige Wörter bleiben übrig, dazu die Betreffzeile (A/B/C). Alles steht in einem `block`.
+- Quest 2 Lesekreis: wie Teil 2. Situationen werden Berichtabschnitten zugeordnet (`zuordnen` mit `beispiel` und `ablenker`), vier bleiben übrig.
+- Geplant:
+  - Teil 3 (Regeln/Aushang, R/F) am Nachtpfad
+  - Teil 4 (Infotext, A/B/C) im Lehrlingshaus
+  - Teil 5 (Überschriften zuordnen) an den Wegweisern
+  - Bibliothekar der Schatten als Endgegner

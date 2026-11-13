@@ -48,6 +48,12 @@ function hauptziele(z) {
   const stimmen = ["aurelia_q5_s1", "aurelia_q5_s2"].filter(e).length;
   liste.push({ text: `Der Glockenturm: Hör die Stimmenmuscheln auf der Akropolis an (${stimmen}/2) und besiege den Drachenrichter.`, erledigt: e("aurelia_q5_boss") });
   if (e("aurelia_finale")) liste.push({ text: "Aurelia ist gerettet! Die große Glocke klingt wieder.", erledigt: true });
+  if (!e("aurelia_finale")) return liste;
+  // Scriptoria – Reich des Lesens
+  liste.push({ text: "Reise durch das Portal im Dorf nach Scriptoria und sprich mit Lirien am Großen Lesebaum.", erledigt: e("scriptoria_intro") });
+  liste.push({ text: "Die verlorenen Wörter: Repariere mit Bote Fennick die Briefe am Briefbaum (Westen).", erledigt: e("scriptoria_q1") });
+  if (e("scriptoria_q1")) liste.push({ text: "Der Lesekreis: Ordne mit Mara die Berichte im Gästebuch (Nordwesten).", erledigt: e("scriptoria_q2") });
+  if (e("scriptoria_q2")) liste.push({ text: "Scriptoria, Quest 3: Der Aushang am Nachtpfad (kommt bald)", erledigt: false });
   return liste;
 }
 

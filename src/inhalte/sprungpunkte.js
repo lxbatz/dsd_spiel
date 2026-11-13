@@ -52,6 +52,11 @@ const SCHRITTE = [
   ["aurelia_q5_boss", 200, "ton_turm"],
   ["aurelia_q5", 0],
   ["aurelia_finale", 250, "gold_abzeichen"],
+  ["scriptoria_intro", 0],
+  ["scriptoria_q1_start", 0],
+  ["scriptoria_q1", 150, "seite_briefe"],
+  ["scriptoria_q2_start", 0],
+  ["scriptoria_q2", 150, "seite_berichte"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -100,6 +105,9 @@ export const SPRUNGPUNKTE = [
   { id: "aurelia_q5", name: "Aurelia: Glockenturm, Stimmenmuscheln (Quest 5)", bis: "aurelia_q5_start", karte: "aurelia", spawn: "turm" },
   { id: "aurelia_drache", name: "Aurelia: vor dem Drachenrichter (Endkampf)", bis: "aurelia_q5_s2", karte: "aurelia", spawn: "turm" },
   { id: "aurelia_ende", name: "Aurelia gerettet (Ende von Aurelia)", bis: "aurelia_finale", karte: "aurelia", spawn: "turm" },
+  { id: "scriptoria", name: "Scriptoria: Ankunft im Bücherwald (Lirien)", bis: "aurelia_finale", karte: "scriptoria", spawn: "eingang" },
+  { id: "scriptoria_q1", name: "Scriptoria: Briefbaum, die verlorenen Wörter (Quest 1)", bis: "scriptoria_q1_start", karte: "scriptoria", spawn: "west" },
+  { id: "scriptoria_q2", name: "Scriptoria: Lesekreis bei Mara (Quest 2)", bis: "scriptoria_q1", karte: "scriptoria", spawn: "nordwest" },
 ];
 
 const TESTHELD = {

@@ -28,6 +28,9 @@ export const PORTRAITS = {
   npc_kassia: { hintergrund: "#5a7a9a", augen: "#3a2a1a", ausdruck: "ruhig", szene: "meer", ohrringe: true, licht: { farbe: "#fff0c0", seite: -1 } },
   npc_timon: { hintergrund: "#4a8ac8", augen: "#3a6a9a", ausdruck: "neugierig", szene: "meer", licht: { farbe: "#ffe8b0", seite: 1 } },
   npc_daria: { hintergrund: "#9a5a3a", augen: "#3a7a5a", ausdruck: "froh", szene: "meer", spange: true, licht: { farbe: "#ffd8a0", seite: 1 } },
+  npc_lirien: { hintergrund: "#1e3a32", augen: "#4aa88a", ausdruck: "weise", szene: "wald", amulett: true, licht: { farbe: "#a0ffd0", seite: -1 } },
+  npc_fennick: { hintergrund: "#3a4a2a", augen: "#6a4a2a", ausdruck: "froh", szene: "wald", licht: { farbe: "#ffe0a0", seite: 1 } },
+  npc_mara: { hintergrund: "#3a2a4a", augen: "#3a2a1a", ausdruck: "froh", szene: "bibliothek", brille: true, licht: { farbe: "#ffd890", seite: -1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)

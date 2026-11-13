@@ -52,4 +52,7 @@ export const CODES = {
   "cdab261c224275ef7233c44670f6e3b44045a16dd0ae481ce6c04384fb27f66f": { sprung: "aurelia_q5", grund: "Sprungcode" },
   "7c12a897f48b2938fcc36d176eaecbf4fe115a0e5cce196b3b8de058d71684b2": { sprung: "aurelia_drache", grund: "Sprungcode" },
   "68f9bb3e6fe36924a1dafe49605fe6f5a45a3eccfd245d90ed5aa09b304bf130": { sprung: "aurelia_ende", grund: "Sprungcode" },
+  "84c27b3fe07b9212b93a4ece4ecf98638ab9f4b57186bb3766c3953275159050": { sprung: "scriptoria", grund: "Sprungcode" },
+  "9a8eb7abd4611e87a7d05bb951a30d97ca02c6555bf1854c3d30890bc3c3b5d0": { sprung: "scriptoria_q1", grund: "Sprungcode" },
+  "a79ab8de764a9d6d5865e9d7cc11e5c5b91a85c9c2595e3c0017b01693daa2a4": { sprung: "scriptoria_q2", grund: "Sprungcode" },
 };

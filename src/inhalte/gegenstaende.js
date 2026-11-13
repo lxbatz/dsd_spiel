@@ -108,6 +108,16 @@ export const GEGENSTAENDE = {
     icon: "🔔",
     text: "Der fünfte und letzte Ton der großen Glocke. Du verstehst, was Menschen meinen – auch wenn du es nur einmal hörst.",
   },
+  seite_briefe: {
+    name: "Leuchtende Seite der Briefe",
+    icon: "📜",
+    text: "Eine Seite aus dem Großen Buch von Scriptoria. Du kannst Lücken in Briefen ergänzen und den passenden Betreff finden.",
+  },
+  seite_berichte: {
+    name: "Leuchtende Seite der Berichte",
+    icon: "📜",
+    text: "Eine Seite aus dem Großen Buch von Scriptoria. Du findest in kurzen Berichten genau die Information, die du suchst.",
+  },
   gold_abzeichen: {
     name: "Gold-Abzeichen",
     icon: "🥇",

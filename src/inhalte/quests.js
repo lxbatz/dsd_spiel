@@ -60,6 +60,8 @@ export const QUESTS = [
   { id: "aurelia_q5_s1", titel: "Stimmenmuschel des Westens", ort: "Aurelia: Glockenturm", fertigkeit: "hoeren", thema: "Meinungen zuordnen, 4 Aussagen bleiben übrig (wie DSD Hören Teil 5)" },
   { id: "aurelia_q5_s2", titel: "Stimmenmuschel des Ostens", ort: "Aurelia: Glockenturm", fertigkeit: "hoeren", thema: "Meinungen zuordnen, nur einmal hören (Generalprobe)" },
   { id: "aurelia_q5_boss", titel: "Der Drachenrichter", ort: "Aurelia: Glockenturm", fertigkeit: "hoeren", thema: "Endkampf: kurze Hörtexte aus allen fünf Teilen", kampf: true },
+  { id: "scriptoria_q1", titel: "Die verlorenen Wörter", ort: "Scriptoria", fertigkeit: "lesen", thema: "Briefe mit Wortliste ergänzen, Betreff wählen (wie DSD Lesen Teil 1)" },
+  { id: "scriptoria_q2", titel: "Der Lesekreis", ort: "Scriptoria", fertigkeit: "lesen", thema: "Situationen Berichtabschnitten zuordnen, 4 bleiben übrig (wie DSD Lesen Teil 2)" },
   { id: "dorf_finn", titel: "Finns Geheimnis", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Einen persönlichen Brief verstehen, Rat geben" },
   { id: "dorf_markt", titel: "Am Marktstand", ort: "Dorf: Nebenquests", fertigkeit: "sprechen", thema: "Verkaufsgespräche, Preise, Höflichkeit" },
   { id: "dorf_mimi_start", titel: "Mimi: Wilmas Nachricht", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Eine Nachricht verstehen (Details)" },

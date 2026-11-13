@@ -30,3 +30,5 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit FluidSynth und dem Klangsatz „FluidR3 GM“ (MIT-Lizenz, Frank Wen) erzeugt; die Stille am Ende wurde abgeschnitten, damit die Musik ohne Lücke in Schleife läuft.
 
 Welche Datei wo läuft, steht in `src/musik.js`.
+
+- `scriptoria`: Platzhalter `castle_03.mp3`, bis die eigene Musik für Scriptoria da ist (in `src/musik.js` eintragen).

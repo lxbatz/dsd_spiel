@@ -41,6 +41,13 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Quest 4 *Die Werft* (genau nach DSD Hören Teil 1, 3 und 4): an der Werkbank fünf Szenen am Arbeitsplatz (je eine Aufgabe), bei Azubi Timon ein Radiointerview (richtig/falsch), bei Bootsbauerin Daria ein Bericht über ihre Ausbildung (6 Aufgaben auf einem Blatt), dann die Abnahme bei Werftmeisterin Kassia im **Prüfungsmodus** (jeder Text höchstens zweimal, kein Text zum Einblenden) → *Der Ton der Werft*, das Festschiff läuft vom Stapel
    - Quest 5 *Der Glockenturm* (wie DSD Hören Teil 5): an zwei Stimmenmuscheln auf der Akropolis Meinungen zuordnen (8 Aussagen, 4 bleiben übrig; die zweite Muschel nur einmal hören), dann der **Endkampf gegen den Drachenrichter** mit kurzen Hörtexten aus allen fünf Prüfungsteilen → *Der Ton des Turms*, die große Glocke läutet, der Drache kniet nieder
    - Finale: **Aurelia ist gerettet** → *Gold-Abzeichen*
+6. **Scriptoria – das Reich der Tausend Bücher** (Reich des Lesens, nur 3D; über das Portal im Dorf, nachdem Aurelia gerettet ist) – *im Aufbau*
+   - Ein verwunschener Bücherwald bei Nacht: riesige silbergraue Bäume, Bücherregale zwischen den Wurzeln, leuchtende Pilze, Glühwürmchen, der Große Lesebaum mit Laternen
+   - Der Schwarze Nebel versperrt die Pfade zwischen den Lichtungen und weicht nach jeder gelösten Lese-Quest zurück
+   - Mentorin: Lirien, Hüterin der Bücher
+   - Quest 1 *Die verlorenen Wörter* (wie DSD Lesen Teil 1): drei Briefe mit Lücken und Wortliste ergänzen, Betreffzeile wählen
+   - Quest 2 *Der Lesekreis* (wie DSD Lesen Teil 2): Situationen den Berichten im Gästebuch zuordnen, vier Abschnitte bleiben übrig
+   - Folgen: Aushang am Nachtpfad (Teil 3), Lehrlingshaus (Teil 4), Wegweiser (Teil 5), Endgegner: der Bibliothekar der Schatten
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

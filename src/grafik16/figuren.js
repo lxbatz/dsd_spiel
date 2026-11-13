@@ -86,6 +86,18 @@ export const AUSSEHEN = {
     haut: "#e8b48a", haare: "#8a2a1a", frisur: "zopf",
     kleid: "#c84a2a", akzent: "#f0e0c0", hose: "#3a4a5a", stiefel: "#3a2a1a", schuerze: "#6a5040", armeHaut: true,
   },
+  npc_lirien: {
+    haut: "#f0d8c0", haare: "#e8e4f4", frisur: "lang", langhaar: true,
+    kleid: "#2a5a4a", akzent: "#d8c070", hose: "#1e3a32", stiefel: "#3a2a1a", robe: true, extra: "buch",
+  },
+  npc_fennick: {
+    haut: "#e0b088", haare: "#7a4a2a", frisur: "kapuze", kapuze: "#5a6a3a",
+    kleid: "#7a6a4a", akzent: "#c89a4a", hose: "#4a3a2a", stiefel: "#3a2a1a",
+  },
+  npc_mara: {
+    haut: "#a87050", haare: "#1a1a1a", frisur: "dutt", wangen: true,
+    kleid: "#6a3a6a", akzent: "#e8d8b0", hose: "#4a2a4a", stiefel: "#3a2a1a", robe: true, extra: "buch",
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",
