@@ -12,6 +12,10 @@ export const STUFEN = [
   { xp: 1400, titel: "Veteran von Eldoria" },
   { xp: 1900, titel: "Meister der Worte" },
   { xp: 2500, titel: "Held von Eldoria" },
+  // Ab hier: Aurelia und später (Quest 5 + Drachenrichter sollen den Hauptweg auf mindestens 3000 XP bringen)
+  { xp: 2750, titel: "Bewahrer der Töne" },
+  { xp: 3000, titel: "Großmeister der Stimmen" },
+  { xp: 3600, titel: "Legende von Eldoria" },
 ];
 
 export function stufeVon(xp) {

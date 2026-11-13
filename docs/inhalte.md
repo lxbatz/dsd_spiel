@@ -166,9 +166,31 @@ Vorsicht bei Angaben, die die Grammatik ändern (z. B. „aus Polen“, aber „
 | Eigener Text am Pult einer Insel | 25 |
 | Wächter einer Insel besiegt | 150 |
 | Ganzer Forumsbeitrag im Buch der Stimmen | 200 |
+| Nebenquest im Dorf abgeschlossen | 50 |
+| Aurelia: Station einer Quest (Rufmuschel 20, Stand/Perle/Werft 25) | 20–25 |
+| Aurelia: Quest abgeschlossen (Ton der Glocke) | 150 |
 | Lehrercodes | je nach Code (Teamarbeit 20, mündlicher Beitrag 10 …) |
 
-Die Stufen stehen in `src/zustand.js` (`STUFEN`).
+## Stufen
+
+Die Stufen stehen in `src/spielstand.js` (`STUFEN`). Das Lehrerzimmer nutzt dieselbe Liste.
+
+| Stufe | ab XP | Titel | ungefähr erreicht |
+|---|---|---|---|
+| 1 | 0 | Ankömmling | Start |
+| 2 | 100 | Wanderer | Dorf |
+| 3 | 250 | Lehrling der Worte | Dorf |
+| 4 | 450 | Pfadfinder | Halle der Tausend Tore |
+| 5 | 700 | Sprachwächter | Halle / erste Insel |
+| 6 | 1000 | Hüter der Schrift | Inseln der Stimmen |
+| 7 | 1400 | Veteran von Eldoria | Inseln der Stimmen |
+| 8 | 1900 | Meister der Worte | Ende Lythara / Aurelia |
+| 9 | 2500 | Held von Eldoria | Aurelia, Quest 4 |
+| 10 | 2750 | Bewahrer der Töne | Aurelia, Quest 5 (mit Nebenquests früher) |
+| 11 | 3000 | Großmeister der Stimmen | Sieg über den Drachenrichter |
+| 12 | 3600 | Legende von Eldoria | mit Nebenquests und Lehrercodes, später im nächsten Reich |
+
+Neue Stufen einfach hinten an `STUFEN` anhängen. Bei neuen Reichen die Schwellen so wählen, dass der Hauptweg weiter Stufen bringt.
 
 ## Neue Orte in der 3D-Version
 
