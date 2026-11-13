@@ -12,10 +12,24 @@ export const STUFEN = [
   { xp: 1400, titel: "Veteran von Eldoria" },
   { xp: 1900, titel: "Meister der Worte" },
   { xp: 2500, titel: "Held von Eldoria" },
-  // Ab hier: Aurelia und später (Quest 5 + Drachenrichter sollen den Hauptweg auf mindestens 3000 XP bringen)
+  // Ab hier: Aurelia und die kommenden Reiche. Die Abstände wachsen langsam (ca. 1100–1300 XP pro Reich).
+  // Quest 5 + Drachenrichter sollen den Hauptweg in Aurelia auf mindestens 3000 XP bringen.
   { xp: 2750, titel: "Bewahrer der Töne" },
-  { xp: 3000, titel: "Großmeister der Stimmen" },
-  { xp: 3600, titel: "Legende von Eldoria" },
+  { xp: 3000, titel: "Stimme von Aurelia" },
+  { xp: 3300, titel: "Wächter der Glocken" },
+  { xp: 3650, titel: "Kenner der Schriften" },
+  { xp: 4000, titel: "Hüter des Wissens" },
+  { xp: 4400, titel: "Ritter der Sprache" },
+  { xp: 4800, titel: "Bote der Reiche" },
+  { xp: 5250, titel: "Meister der Rede" },
+  { xp: 5700, titel: "Wortschmied" },
+  { xp: 6200, titel: "Stimme der Weisen" },
+  { xp: 6700, titel: "Siegelträger" },
+  { xp: 7250, titel: "Erbe der Schreibmeister" },
+  { xp: 7800, titel: "Ratgeber von Eldoria" },
+  { xp: 8400, titel: "Sternenleser" },
+  { xp: 9000, titel: "Retter der Stimmen" },
+  { xp: 9700, titel: "Legende von Eldoria" },
 ];
 
 export function stufeVon(xp) {

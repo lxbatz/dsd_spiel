@@ -187,8 +187,23 @@ Die Stufen stehen in `src/spielstand.js` (`STUFEN`). Das Lehrerzimmer nutzt dies
 | 8 | 1900 | Meister der Worte | Ende Lythara / Aurelia |
 | 9 | 2500 | Held von Eldoria | Aurelia, Quest 4 |
 | 10 | 2750 | Bewahrer der Töne | Aurelia, Quest 5 (mit Nebenquests früher) |
-| 11 | 3000 | Großmeister der Stimmen | Sieg über den Drachenrichter |
-| 12 | 3600 | Legende von Eldoria | mit Nebenquests und Lehrercodes, später im nächsten Reich |
+| 11 | 3000 | Stimme von Aurelia | Sieg über den Drachenrichter |
+| 12 | 3300 | Wächter der Glocken | ab hier: kommende Reiche, Nebenquests, Lehrercodes |
+| 13 | 3650 | Kenner der Schriften | |
+| 14 | 4000 | Hüter des Wissens | |
+| 15 | 4400 | Ritter der Sprache | |
+| 16 | 4800 | Bote der Reiche | |
+| 17 | 5250 | Meister der Rede | |
+| 18 | 5700 | Wortschmied | |
+| 19 | 6200 | Stimme der Weisen | |
+| 20 | 6700 | Siegelträger | |
+| 21 | 7250 | Erbe der Schreibmeister | |
+| 22 | 7800 | Ratgeber von Eldoria | |
+| 23 | 8400 | Sternenleser | |
+| 24 | 9000 | Retter der Stimmen | |
+| 25 | 9700 | Legende von Eldoria | Ende des Spiels |
+
+Pro Reich gibt es bisher etwa 1100–1300 XP. Wenn die nächsten Reiche fertig sind, kann man die Schwellen ab Stufe 12 noch anpassen. Die XP der Spielerinnen und Spieler bleiben dabei gleich, nur die angezeigte Stufe ändert sich.
 
 Neue Stufen einfach hinten an `STUFEN` anhängen. Bei neuen Reichen die Schwellen so wählen, dass der Hauptweg weiter Stufen bringt.
 
