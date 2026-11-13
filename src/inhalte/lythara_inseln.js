@@ -12,8 +12,24 @@
 // „Sollten alle Auszubildenden ein Praktikum im Ausland machen?“
 //
 // Jede Insel: drei Echo-Kristalle (Übungen), ein Pult (freier Text) und ein Wächter (Bosskampf).
+//
+// Abgeglichen mit dem Modellsatz und der Handreichung zur Schriftlichen Kommunikation (docs/dsd_pruefung.md):
+// Wiedergabe mit eigenen Worten (nur „er sagt, dass“ + Originalsatz = wenig, Abschreiben/Zitate = nichts),
+// Erfahrungen ausführlich (auch die eigene Situation im Präsens), Meinung begründet (auch „unentschieden“ zählt),
+// komplexe Strukturen lohnen sich, Reihenfolge der Teilaufgaben ist in der Prüfung frei.
 
 const TEXT = "nachricht_reisender";
+
+// Prüfmuster für den Zauberspiegel (nur Hinweise, keine Bewertung)
+/** Typische Sätze aus Jonas' Text, die man nicht abschreiben soll */
+const ABGESCHRIEBEN = "^(?![\\s\\S]*(ich kannte niemanden|der dialekt war neu für mich|die arbeit in der großen küche war sehr anstrengend|hatte ich nette kollegen und neue freunde|wie man in einem internationalen team arbeitet|man wird selbstständiger, lernt eine andere kultur|hat später bessere chancen im beruf))";
+/** Lange wörtliche Zitate (kurze Namen in Anführungszeichen wie „Startklar“ sind erlaubt) */
+const KEIN_ZITAT = "^(?![\\s\\S]*[„\"»][^“\"«\\n]{30,}[“\"«])";
+/** Meinung, auch unentschieden */
+const MEINUNG = "meiner meinung|der meinung|ich finde|finde ich|ich denke|ich glaube|bin ich (da)?(für|gegen)|ich bin (da)?(für|gegen)|unentschieden|einerseits|bin mir nicht sicher";
+/** Komplexe Strukturen auf B1 (Handreichung): Nebensätze, Relativsätze, Konjunktiv II, zu-Infinitiv, Passiv … */
+const STRUKTUREN = "\\b(obwohl|wenn|nachdem|bevor|während|damit|ob|seitdem|sodass)\\b|,\\s*(der|die|das|dem|den|deren|dessen|in dem|in der|mit dem|mit der)\\s|\\b(würde|würden|hätte|hätten|wäre|wären|könnte|könnten)\\b|\\b(um|ohne)\\b[^.!?]*\\bzu\\s+\\w+en\\b|\\b(wird|werden|wurde|wurden|worden)\\b[^.!?]*\\b\\w{3,}(t|en)\\s*[.!?,]";
+
 export const FRAGE = "Sollten alle Auszubildenden ein Praktikum im Ausland machen?";
 
 // ---------------------------------------------------------------------------
@@ -74,7 +90,7 @@ const Q2 = {
           typ: "luecke",
           frage: "Jonas schreibt „ich“. Du schreibst „er“. Ergänze die Verben.",
           text: "Jonas: „Ich mache eine Ausbildung.“ → Jonas {macht} eine Ausbildung.\nJonas: „Ich bin 17.“ → Er {ist} 17 Jahre alt.\nJonas: „Ich habe ein Praktikum gemacht.“ → Er {hat} ein Praktikum gemacht.",
-          erklaerung: "ich mache → er macht · ich bin → er ist · ich habe → er hat",
+          erklaerung: "ich mache → er macht · ich bin → er ist · ich habe → er hat. Achtung: Das ist nur der erste Schritt! Wer in der Prüfung nur Jonas' Sätze in die er-Form setzt, bekommt wenig Punkte. Besser: mit eigenen Worten zusammenfassen.",
         },
       ],
     },
@@ -87,12 +103,24 @@ const Q2 = {
           typ: "auswahl", lesetext: TEXT,
           frage: "Welche Wiedergabe des zweiten Abschnitts ist am besten?",
           optionen: [
-            "Jonas berichtet, dass der Anfang schwer für ihn war: Er kannte dort niemanden und die Arbeit war hart. Später hat er Freunde gefunden und viel gelernt.",
+            "Jonas berichtet, dass ihm der Start in Wien schwergefallen ist, weil alles fremd und die Arbeit hart war. Mit der Zeit hat er aber Anschluss gefunden und viel gelernt.",
             "Am Anfang war es nicht leicht. Ich kannte niemanden und die Arbeit in der großen Küche war sehr anstrengend.",
             "Jonas hatte in Wien nur Probleme und hat nichts gelernt.",
           ],
           richtig: 0,
           erklaerung: "Die zweite Antwort ist abgeschrieben (ich-Form!). Die dritte ist falsch: Jonas hat viel gelernt.",
+        },
+        {
+          typ: "zuordnen", lesetext: TEXT,
+          frage: "Vier Mitschüler haben Jonas' Erlebnisse wiedergegeben. Wie gut ist das? Ordne zu. (Eine Bewertung bleibt übrig.)",
+          paare: [
+            ["„Am Anfang war es nicht leicht. Ich kannte niemanden.“", "abgeschrieben – zählt nicht"],
+            ["„Jonas sagt, dass es am Anfang nicht leicht war und dass er niemanden kannte.“", "nur in die er-Form gesetzt – zählt wenig"],
+            ["„Laut Jonas war der Start in Wien schwierig, weil ihm alles fremd war.“", "mit eigenen Worten zusammengefasst – sehr gut"],
+            ["„Jonas war in Wien.“", "zu knapp – man erkennt Jonas' Aussage nicht"],
+          ],
+          ablenker: ["falsch – das steht nicht im Text"],
+          erklaerung: "So bewertet die Prüfung die Wiedergabe: Eigene Worte und Zusammenfassen bringen die meisten Punkte. Abschreiben und Zitate zählen nicht, ein einziger knapper Satz reicht nicht.",
         },
         {
           typ: "richtigfalsch", lesetext: TEXT,
@@ -187,13 +215,15 @@ const Q2 = {
       { such: "anfang|schwer|schwierig|niemand|anstreng|stress|kollegen|freunde|gelernt", ok: "Du beschreibst, was Jonas erlebt hat.", fehlt: "Erzähle kurz, was Jonas in Wien erlebt hat." },
       { such: "meinung|meint|findet|denkt|sollten|sollte", ok: "Du gibst Jonas' Meinung wieder.", fehlt: "Gib Jonas' Meinung wieder: Jonas ist der Meinung, dass …" },
       { such: "fordert|bittet|möchte wissen|will wissen|fragt|wünscht", ok: "Du nennst Jonas' Bitte an die Leser.", fehlt: "Was möchte Jonas von den Lesern? Er bittet die Leser, …" },
-      { such: "^(?![\\s\\S]*(ich kannte niemanden|der dialekt war neu für mich|man wird selbstständiger, lernt eine andere kultur))", ok: "Du schreibst nicht einfach ab.", fehlt: "Du hast Sätze von Jonas abgeschrieben. Benutze eigene Worte!" },
+      { such: ABGESCHRIEBEN, ok: "Du schreibst nicht einfach ab.", fehlt: "Du hast Sätze von Jonas abgeschrieben. Benutze eigene Worte!" },
+      { such: KEIN_ZITAT, ok: "Du benutzt keine langen Zitate.", fehlt: "Wörtliche Rede („…“) zählt in der Prüfung nicht als eigene Leistung. Gib Jonas' Aussagen mit eigenen Worten wieder." },
     ],
     checkliste: [
       "Ich schreibe über Jonas in der 3. Person (er).",
       "Ich nenne nur die wichtigen Informationen.",
       "Meine Wiedergabe ist richtig: Alles steht so auch in Jonas' Text.",
-      "Ich benutze eigene Wörter und schreibe nicht ab.",
+      "Ich benutze eigene Wörter, schreibe nicht ab und zitiere nicht.",
+      "Man erkennt Jonas' wichtigste Aussagen: Erlebnisse, Meinung, Bitte an die Leser.",
     ],
   },
   waechter: {
@@ -285,6 +315,17 @@ const Q2 = {
         erklaerung: "Der erste Satz ist von Jonas abgeschrieben (ich-Form).",
       },
       {
+        typ: "auswahl",
+        frage: "„Welche Wiedergabe bringt in der Prüfung die meisten Punkte?“",
+        optionen: [
+          "Laut Jonas lohnt sich ein Auslandspraktikum, weil man unabhängiger wird und später bessere Chancen hat.",
+          "Jonas sagt, dass alle Auszubildenden ein Praktikum im Ausland machen sollten.",
+          "Jonas: „Alle Auszubildenden sollten ein Praktikum im Ausland machen!“",
+        ],
+        richtig: 0,
+        erklaerung: "Zusammenfassen mit eigenen Worten ist am besten. Nur „Er sagt, dass …“ + Originalsatz zählt wenig, ein Zitat gar nicht.",
+      },
+      {
         typ: "ordnen",
         frage: "„Bau den Satz, wenn du kannst!“",
         teile: ["Der Beitrag", "stammt", "von", "Jonas,", "der", "Koch", "wird."],
@@ -308,7 +349,7 @@ const Q3 = {
   lyra: [
     "Willkommen auf der Insel der Erinnerungen. Hier geht es um DICH.",
     "Nach der Wiedergabe erzählst du von deinen eigenen Erfahrungen zum Thema: Arbeit, Praktikum, Ausbildung, Ausland.",
-    "Du hast noch kein Praktikum gemacht? Kein Problem! Du kannst auch von Freunden oder deiner Familie erzählen.",
+    "Du hast noch kein Praktikum gemacht? Kein Problem! Du kannst auch von Freunden oder deiner Familie erzählen – oder beschreiben, wie es bei dir und in deiner Klasse ist.",
     "Wichtig ist: Dein Bericht passt zum Thema, er hat Details und die Sätze sind gut verbunden. Der Wächter hier hat alles vergessen – zeig ihm, wie man erzählt!",
   ],
   stationen: [
@@ -383,7 +424,18 @@ const Q3 = {
             "Ich schreibe nur: „Dazu habe ich keine Erfahrungen.“",
           ],
           richtig: 0,
-          erklaerung: "Du kannst auch über Erfahrungen von anderen berichten – oder darüber, was du dir vorstellst.",
+          erklaerung: "Du kannst auch über Erfahrungen von anderen berichten – oder beschreiben, wie es bei dir und deinen Mitschülern ist.",
+        },
+        {
+          typ: "auswahl",
+          frage: "In der Prüfung steht zum Beispiel: „Wie lernen Sie und Ihre Mitschüler für Prüfungen? Berichten Sie ausführlich.“ Welche Antwort passt am besten?",
+          optionen: [
+            "In meiner Klasse lernen die meisten am Abend vor der Prüfung. Ich mache das anders: Ich lerne schon eine Woche vorher jeden Tag eine halbe Stunde. Meistens lerne ich mit meiner Freundin Sara, weil wir uns gegenseitig abfragen können. Letztes Jahr habe ich so meine Mathe-Prüfung gut bestanden.",
+            "Ich lerne für Prüfungen.",
+            "Ich finde, man sollte früh lernen, weil man dann weniger Stress hat.",
+          ],
+          richtig: 0,
+          erklaerung: "Berichten heißt: konkret und ausführlich erzählen, wie es bei dir (und deinen Mitschülern) ist oder war – im Präsens oder im Perfekt. Ein einziger Satz bringt 0 Punkte. Die dritte Antwort ist eine Meinung, kein Bericht.",
         },
       ],
     },
@@ -440,7 +492,7 @@ const Q3 = {
       { such: "erfahrung|erlebt|berichten|erzählen", ok: "Du leitest zu deinen Erfahrungen über.", fehlt: "Beginne mit einer Überleitung: Jetzt möchte ich von meinen Erfahrungen berichten." },
       { such: "jonas|genauso|auch so|anders als|wie bei", ok: "Du verbindest deinen Bericht mit Jonas' Text.", fehlt: "Vergleiche mit Jonas: Genauso wie Jonas … / Anders als Jonas …" },
       { such: "letzte[nms]?|vor (einem|zwei|drei|einer)|im (sommer|winter|frühling|herbst)|gestern|früher|\\b(19|20)\\d\\d\\b", ok: "Du sagst, wann es war.", fehlt: "Sag, wann es war: letzten Sommer, letztes Jahr, vor zwei Monaten …" },
-      { such: "\\b(habe|hat|haben|bin|ist|sind|war|waren)\\b[\\s\\S]*\\b(ge\\w+t|ge\\w+en|\\w+iert)\\b", ok: "Du erzählst in der Vergangenheit (Perfekt).", fehlt: "Erzähle im Perfekt: Ich habe … gearbeitet. Ich bin … gefahren." },
+      { such: "\\b(habe|hat|haben|bin|ist|sind|war|waren)\\b[\\s\\S]*\\b(ge\\w+t|ge\\w+en|\\w+iert)\\b|normalerweise|meistens|jeden (tag|morgen|abend)|bei uns|in meiner (klasse|schule|firma)", ok: "Du erzählst konkret, was war oder wie es bei dir ist.", fehlt: "Erzähle konkret: Was hast du erlebt (Perfekt: Ich habe … gearbeitet) oder wie ist es bei dir (Präsens: Bei uns … meistens …)?" },
       { such: "zuerst|am anfang|dann|danach|außerdem|schließlich|später|zum schluss", ok: "Du verknüpfst deine Sätze.", fehlt: "Verknüpfe deine Sätze: zuerst, am Anfang, dann, danach, schließlich …" },
       { such: "gefallen|spaß|schwer|schwierig|stress|nervös|toll|interessant|gelernt", ok: "Du sagst, wie es war.", fehlt: "Sag auch, wie es war: Es hat mir gefallen, weil … / Am Anfang war es schwer …" },
     ],
@@ -448,6 +500,7 @@ const Q3 = {
       "Meine Erfahrung passt zum Thema.",
       "Ich erzähle mit Details: wer, wann, wo, was, wie.",
       "Ich verbinde meine Sätze mit Wörtern wie „zuerst“, „dann“, „danach“.",
+      "Mein Bericht ist ausführlich – nicht nur ein Satz.",
       "Ich benutze das Perfekt richtig (haben oder sein + Partizip).",
     ],
   },
@@ -552,7 +605,8 @@ const Q4 = {
     "Dies ist die Insel der Waage. Hier wiegst du Argumente ab.",
     `Die Frage lautet: „${FRAGE}“`,
     "Du sagst deine Meinung deutlich, nennst Argumente und begründest sie mit Erklärungen und Beispielen.",
-    "Hüte dich vor dem Zauderer, dem Wächter der Insel. Er kann sich nie entscheiden – und will, dass du es auch nicht kannst.",
+    "Übrigens: Du darfst auch unentschieden sein – aber dann musst du sagen, warum. Eine Meinung ohne Gründe zählt in der Prüfung fast nichts.",
+    "Hüte dich vor dem Zauderer, dem Wächter der Insel. Er sagt nie, was er denkt – und nie, warum.",
   ],
   stationen: [
     {
@@ -566,10 +620,11 @@ const Q4 = {
           aussagen: [
             ["Ich finde, ein Praktikum im Ausland ist für alle Azubis eine große Chance.", true],
             ["Das Thema ist sehr interessant.", false],
-            ["Es gibt Gründe dafür und dagegen. Ich weiß es nicht.", false],
+            ["Vielleicht. Mal sehen.", false],
+            ["Ich bin unentschieden: Einerseits lernt man viel, andererseits ist es sehr teuer.", true],
             ["Meiner Meinung nach sollte niemand ins Ausland gehen müssen.", true],
           ],
-          erklaerung: "Sag immer, ob du dafür oder dagegen bist. „Das ist interessant“ ist keine Meinung.",
+          erklaerung: "Sag klar, ob du dafür, dagegen oder unentschieden bist – und warum. „Das ist interessant“ oder „Mal sehen“ ist keine Meinung.",
         },
         {
           typ: "zuordnen",
@@ -683,14 +738,15 @@ const Q4 = {
     minWoerter: 70,
     stichpunkte: "Redemittel: Nach meinen Erfahrungen bin ich der Meinung, dass … · Meiner Meinung nach … · Zuerst … , weil … · Zum Beispiel … · Außerdem … · Ein weiterer Punkt ist … · Zwar …, aber … · Aus diesen Gründen … ★ Prüfungstipp: Eine Meinung ohne Begründung bringt höchstens 1 von 3 Punkten. Welche Meinung du hast, ist egal – wichtig sind die Gründe.",
     muster: [
-      { such: "meiner meinung|der meinung|ich finde|finde ich|ich denke|ich glaube|bin ich (da)?(für|gegen)|ich bin (da)?(für|gegen)", ok: "Du sagst deine Meinung.", fehlt: "Sag deine Meinung deutlich: Meiner Meinung nach … / Ich bin der Meinung, dass …" },
+      { such: MEINUNG, ok: "Du sagst deine Meinung.", fehlt: "Sag deine Meinung deutlich: Meiner Meinung nach … / Ich bin der Meinung, dass … / Ich bin unentschieden, weil …" },
       { such: "weil|denn|deshalb|deswegen|darum|da\\s", ok: "Du begründest deine Meinung.", fehlt: "Begründe deine Meinung: …, weil … / …, denn …" },
       { such: "zum beispiel|z\\. ?b\\.|beispielsweise|zum anderen", ok: "Du nennst ein Beispiel.", fehlt: "Nenne ein Beispiel: Zum Beispiel …" },
       { such: "zuerst|erstens|außerdem|ein weiterer|zweitens|schließlich|auch", ok: "Du verknüpfst deine Argumente.", fehlt: "Verknüpfe deine Argumente: zuerst, außerdem, ein weiterer Punkt ist, schließlich …" },
       { such: "praktikum|ausland|azubi|ausbildung", ok: "Du bleibst beim Thema.", fehlt: "Schreib über das Thema: Praktikum im Ausland." },
+      { such: STRUKTUREN, ok: "Du wagst längere Sätze – das gibt Punkte.", fehlt: "Tipp: Wag auch einen längeren Satz: obwohl …, wenn …, …, der/die …, würde …, um … zu … Das gibt Punkte, auch mit kleinen Fehlern." },
     ],
     checkliste: [
-      "Meine Meinung ist deutlich: Ich bin dafür oder dagegen.",
+      "Meine Meinung ist deutlich: dafür, dagegen oder unentschieden – und ich sage, warum.",
       "Ich nenne mindestens zwei Argumente.",
       "Meine Begründungen sind echt (nicht nur „weil es gut ist“).",
       "Ich erkläre meine Argumente oder gebe Beispiele.",
@@ -702,7 +758,7 @@ const Q4 = {
     bild: "boss_zauderer",
     lp: 100,
     schaden: 20,
-    einleitung: "Kämpfen? Hm … vielleicht. Oder doch nicht? Ich weiß es nicht … Es gibt Gründe dafür und dagegen … Ich bin der Zauderer, und ich entscheide mich NIE!",
+    einleitung: "Kämpfen? Hm … vielleicht. Oder doch nicht? Warum? Darum! … Ich bin der Zauderer. Ich sage nie, was ich denke – und schon gar nicht, warum!",
     spott: [
       "Vielleicht … vielleicht auch nicht …",
       "Es kommt darauf an …",
@@ -711,7 +767,7 @@ const Q4 = {
     ],
     sieg: [
       "Die Waage in der Hand des Zauderers kommt endlich zur Ruhe.",
-      "„Du … hast eine klare Meinung. Und gute Gründe. Nimm die Rolle des Fürsprechers.“",
+      "„Du … sagst klar, was du denkst. Und du hast gute Gründe. Nimm die Rolle des Fürsprechers.“",
     ],
     niederlage: [
       "„Siehst du? Man kann sich eben nicht entscheiden …“",
@@ -723,6 +779,17 @@ const Q4 = {
         frage: "„Welcher Satz ist eine klare Meinung?“",
         optionen: ["Ich bin dafür, dass jeder Azubi ins Ausland geht.", "Das Thema ist interessant.", "Vielleicht, vielleicht auch nicht."],
         richtig: 0,
+      },
+      {
+        typ: "auswahl",
+        frage: "„Ha! Wer unentschieden ist, hat verloren! … Oder?“",
+        optionen: [
+          "Nein. Auch „Ich bin unentschieden“ ist eine Meinung – wenn ich sage, warum.",
+          "Ja. Man muss immer dafür oder dagegen sein.",
+          "Ja. Dann schreibt man lieber gar nichts.",
+        ],
+        richtig: 0,
+        erklaerung: "In der Prüfung zählt auch eine unentschiedene Meinung. Wichtig sind die Gründe: Einerseits …, andererseits …",
       },
       {
         typ: "auswahl",
@@ -820,7 +887,7 @@ const Q5 = {
             "Ich habe keine Meinung.",
           ],
           richtig: 0,
-          erklaerung: "Im Schluss wiederholst du deine Meinung kurz. Ein neues Argument passt hier nicht mehr.",
+          erklaerung: "Im Schluss wiederholst du deine Meinung kurz. Ein neues Argument passt hier nicht mehr. Und „Ich habe keine Meinung“ ohne Grund ist kein guter Schluss.",
         },
         {
           typ: "ordnen",
@@ -879,6 +946,7 @@ const Q5 = {
             ["Bewerbung bei einer Firma", "Mit freundlichen Grüßen"],
             ["Nachricht an deine beste Freundin", "Hab dich lieb! / Liebe Grüße"],
           ],
+          ablenker: ["Hochachtungsvoll"],
         },
         {
           typ: "auswahl",
@@ -1014,21 +1082,28 @@ export const BUCH = {
   vorlage: entwurf,
   frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine fünf Texte aus der Halle und von den Inseln stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
   minWoerter: 180,
-  stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. In der echten Prüfung hast du dafür 75 Minuten Zeit. Niemand zählt dort die Wörter – wichtig ist, dass du alle Punkte ausführlich bearbeitest. Trau dich auch an längere Sätze (weil, obwohl, Relativsätze, würde …): Das gibt Punkte, auch wenn noch Fehler drin sind.",
+  stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. Diese Reihenfolge ist ein guter Plan – in der Prüfung darfst du die drei Punkte (Wiedergabe, Erfahrungen, Meinung) aber auch anders ordnen. In der echten Prüfung hast du dafür 75 Minuten Zeit. Niemand zählt dort die Wörter – wichtig ist, dass du alle Punkte ausführlich bearbeitest. Trau dich auch an längere Sätze (weil, obwohl, Relativsätze, würde …): Das gibt Punkte, auch wenn noch Fehler drin sind.",
   muster: [
     { such: "^\\s*[^\\n]{3,80}\\n", ok: "Überschrift", fehlt: "Schreib eine Überschrift in die erste Zeile." },
     { such: "hallo|liebe", ok: "Anrede", fehlt: "Sprich die Leser am Anfang an: Hallo zusammen, …" },
+    { such: "geht es um|handelt von|thema", ok: "Thema genannt", fehlt: "Nenne in der Einleitung das Thema: In dem Beitrag geht es um …" },
     { such: "gelesen|forum|startklar|beitrag", ok: "Einleitung mit Quelle", fehlt: "Nenne in der Einleitung die Quelle: Ich habe im Forum … gelesen." },
-    { such: "jonas[\\s\\S]*(berichtet|erzählt|schreibt|meint|ist der meinung|findet)", ok: "Wiedergabe von Jonas' Text", fehlt: "Gib wieder, was Jonas schreibt: Jonas berichtet, dass …" },
-    { such: "erfahrung|erlebt|letzte[nms]? (jahr|sommer|woche|monat)", ok: "Eigene Erfahrungen", fehlt: "Erzähle von deinen Erfahrungen." },
-    { such: "meiner meinung|der meinung|ich finde|finde ich|bin ich (da)?(für|gegen)|ich bin (da)?(für|gegen)", ok: "Deine Meinung", fehlt: "Sag deine Meinung deutlich." },
+    { such: "jonas[\\s\\S]*(berichtet|erzählt|schreibt|meint|ist der meinung|findet|laut|nach meinung)|laut jonas", ok: "Wiedergabe von Jonas' Text", fehlt: "Gib wieder, was Jonas schreibt: Jonas berichtet, dass … / Laut Jonas …" },
+    { such: ABGESCHRIEBEN, ok: "Nicht abgeschrieben", fehlt: "Du hast Sätze von Jonas abgeschrieben. Benutze eigene Worte!" },
+    { such: KEIN_ZITAT, ok: "Keine langen Zitate", fehlt: "Wörtliche Rede („…“) zählt nicht als eigene Leistung. Gib Jonas' Aussagen mit eigenen Worten wieder." },
+    { such: "erfahrung|erlebt|letzte[nms]? (jahr|sommer|woche|monat)|bei uns|in meiner (klasse|schule|firma)", ok: "Eigene Erfahrungen", fehlt: "Erzähle ausführlich von deinen Erfahrungen." },
+    { such: MEINUNG, ok: "Deine Meinung", fehlt: "Sag deine Meinung deutlich (dafür, dagegen oder unentschieden)." },
     { such: "weil|denn|deshalb", ok: "Begründungen", fehlt: "Begründe deine Meinung: weil … / denn …" },
+    { such: STRUKTUREN, ok: "Längere Satzstrukturen", fehlt: "Tipp: Wag auch längere Sätze (obwohl, wenn, Relativsatz, würde, um … zu …). Das gibt Punkte, auch mit kleinen Fehlern." },
     { such: "grüße|gruß|bis bald", ok: "Schluss mit Gruß", fehlt: "Beende deinen Beitrag mit einem Gruß und deinem Namen." },
   ],
+  // Selbstcheck nach den Kriterien der Prüfung (Handreichung Schriftliche Kommunikation)
   checkliste: [
-    "Mein Beitrag hat alle fünf Teile.",
-    "Die Teile sind mit Überleitungen verbunden.",
-    "Ich habe meinen Text noch einmal gelesen und Fehler verbessert.",
-    "Ich habe Jonas' Text nicht abgeschrieben.",
+    "Textsorte: Überschrift, Anrede, Thema und Quelle stehen am Anfang.",
+    "Wiedergabe: Man erkennt Jonas' wichtigste Aussagen – mit meinen eigenen Worten, ohne Abschreiben und ohne Zitate.",
+    "Erfahrungen: Ich berichte ausführlich und mit Details.",
+    "Meinung: Man versteht meine Meinung, und ich begründe sie.",
+    "Zusammenhang: Die Teile sind mit Überleitungen verbunden.",
+    "Sprache: Ich habe meinen Text noch einmal gelesen und Fehler verbessert.",
   ],
 };

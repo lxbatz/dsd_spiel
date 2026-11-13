@@ -118,7 +118,10 @@ export const TORE = {
           ["Bewerbung bei einer Firma", "Sehr geehrte Damen und Herren,"],
           ["E-Mail an eine Freundin", "Liebe Anna,"],
           ["Brief an deinen Lehrer", "Sehr geehrter Herr Kaya,"],
+          ["Artikel im Schüler-Blog deiner Berufsschule", "Liebe Mitschülerinnen und Mitschüler,"],
         ],
+        ablenker: ["Hochachtungsvoll,"],
+        erklaerung: "In der Prüfung schreibst du oft einen Beitrag für ein Forum oder einen Schüler-Blog. Dann sprichst du die Leser freundlich und informell an.",
       },
       {
         typ: "auswahl",
@@ -161,7 +164,7 @@ export const EINLEITUNG = {
   lesetext: TEXT,
   frage: "Schreibe jetzt deine eigene Einleitung für einen Forumsbeitrag zu Jonas' Text: eine Überschrift (erste Zeile), eine Anrede und 3–4 Sätze.",
   minWoerter: 35,
-  stichpunkte: "Redemittel: Hallo zusammen, … · Ich habe im Forum von „Startklar“ einen Beitrag von Jonas gelesen. · In dem Beitrag geht es um … · Das Thema interessiert mich, weil … · Habt ihr …? Dann lest weiter!",
+  stichpunkte: "Redemittel: Hallo zusammen, … · Ich habe im Forum von „Startklar“ einen Beitrag von Jonas gelesen. · In dem Beitrag geht es um … · Das Thema interessiert mich, weil … · Habt ihr …? Dann lest weiter! ★ Prüfungstipp: Am Anfang zeigst du, was für ein Text das ist und worauf er sich bezieht – mit Überschrift oder Anrede, Thema und Quelle. Fehlt das ganz, gibt es in der Prüfung einen Punkt Abzug.",
   muster: [
     { such: "^\\s*[^\\n]{3,80}\\n", ok: "Du hast eine Überschrift (erste Zeile).", fehlt: "Schreibe in die erste Zeile eine Überschrift." },
     { such: "hallo|liebe|hi\\b", ok: "Du sprichst die Leser an.", fehlt: "Sprich die Leser an: Hallo zusammen, …" },

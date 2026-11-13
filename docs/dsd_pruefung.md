@@ -155,3 +155,26 @@ Grundsätze der Bewertung:
    - Feedback im Spiel orientiert sich an den Kriterien der Handreichung: Textsorteneinbettung, Wiedergabe mit eigenen Worten, ausführliche Erfahrungen, **begründete** Meinung.
    - Komplexe Strukturen dürfen gelobt werden, auch wenn sie noch Fehler haben.
    - Die Wortzahl im Spiel ist nur eine Mindestgrenze gegen leere Texte. In der Prüfung zählt niemand Wörter.
+
+---
+
+## Stand: Abgleich der Inhalte mit diesem Dokument
+
+**Lythara (Schreiben)**, abgeglichen mit der Handreichung:
+- **Wiedergabe:**
+  - Übung zu den Qualitätsstufen: abgeschrieben, nur in er-Form, eigene Worte, zu knapp. Der Zuordnen-Typ hat dafür einen Ablenker.
+  - Der Zauberspiegel warnt bei abgeschriebenen Sätzen und langen Zitaten.
+  - Die Musterlösung ist jetzt eine echte Zusammenfassung.
+- **Erfahrungen:**
+  - Der Bericht darf auch die eigene Situation im Präsens beschreiben („bei uns, meistens …“).
+  - Neue Übung: ausführlicher Bericht vs. ein Satz vs. Meinung.
+- **Meinung:**
+  - „Unentschieden“ gilt als Meinung, wenn sie begründet ist. Das steht in Übungen, im Bosskampf, in Lyras Erklärung und im Zauberspiegel.
+  - Der Zauderer steht jetzt für „keine Gründe“, nicht mehr für „keine Seite“.
+- **Strukturen:** Der Zauberspiegel lobt längere Sätze (obwohl/wenn, Relativsatz, würde, um … zu, Passiv).
+- **Textsorte:**
+  - Prüfungstipp zum Punktabzug, wenn die Einbettung fehlt.
+  - Anrede für den Schüler-Blog ergänzt.
+- **Buch der Stimmen:**
+  - Der Selbstcheck folgt den Kriterien der Prüfung.
+  - Hinweis: Die Reihenfolge der Teilaufgaben ist frei.
