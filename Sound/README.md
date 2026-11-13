@@ -31,4 +31,4 @@ Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit Flui
 
 Welche Datei wo läuft, steht in `src/musik.js`.
 
-- `scriptoria`: Platzhalter `castle_03.mp3`, bis die eigene Musik für Scriptoria da ist (in `src/musik.js` eintragen).
+- `forest_02` – Scriptoria, der Bücherwald (aus `forest_02.mid`, mit FluidR3_GM umgewandelt)

@@ -14,7 +14,7 @@ export const MUSIK = {
   halle: "Sound/castle_01.mp3",
   inseln: "Sound/plains_01.mp3",
   aurelia: "Sound/aurelia.mp3",
-  scriptoria: "Sound/castle_03.mp3",   // Platzhalter, bis die eigene Musik für Scriptoria da ist
+  scriptoria: "Sound/forest_02.mp3",
   kampf: "Sound/battle_02.mp3",
 };
 
