@@ -6,7 +6,9 @@
 //   luecke        { frage, text: "Ich {heiße} Mira.", auswahl?: true, ablenker?: [..], erklaerung? }
 //                   In {..} steht die Lösung, Alternativen mit | trennen: {heiße|bin}
 //   ordnen        { frage, teile: [..in richtiger Reihenfolge..], loesungen?: ["alternativer Satz"], erklaerung? }
-//   zuordnen      { frage, paare: [[links, rechts], ..], erklaerung? }
+//   zuordnen      { frage, paare: [[links, rechts], ..], ablenker?: [..], beispiel?: [links, rechts], erklaerung? }
+//                   ablenker: zusätzliche rechte Seiten, die übrig bleiben (wie DSD Lesen Teil 2/5, Hören Teil 5)
+//                   beispiel: eine schon gelöste Zeile (Nummer 0 / Lösung Z) über den Aufgaben
 //   richtigfalsch { frage, aussagen: [[satz, true|false], ..], erklaerung? }
 //   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte?, vorlage? }
 //                   vorlage: Text (oder Funktion des Spielstands), der beim ersten Schreiben schon im Feld steht
@@ -232,12 +234,14 @@ function ordnen(a) {
 }
 
 function zuordnen(a) {
-  const rechts = mischen(a.paare.map((p) => p[1]));
+  const rechts = mischen([...a.paare.map((p) => p[1]), ...(a.ablenker ?? [])]);
   const selects = a.paare.map(() =>
     el("select", {}, el("option", { value: "" }, "– wählen –"), rechts.map((r) => el("option", { value: r }, r))));
   return {
     element: el("table", { class: "zuordnen-tabelle" },
-      el("tbody", {}, a.paare.map((p, i) => el("tr", {}, el("td", { style: "width:45%" }, p[0]), el("td", {}, selects[i]))))),
+      el("tbody", {},
+        a.beispiel ? el("tr", { class: "zuordnen-beispiel" }, el("td", { style: "width:45%" }, `Beispiel: ${a.beispiel[0]}`), el("td", {}, a.beispiel[1])) : null,
+        a.paare.map((p, i) => el("tr", {}, el("td", { style: "width:45%" }, p[0]), el("td", {}, selects[i]))))),
     erstesFeld: selects[0],
     pruefen() {
       if (selects.every((s) => !s.value)) return { ok: false, leer: true, meldung: "Bitte ordne zu." };

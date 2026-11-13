@@ -157,6 +157,7 @@ button { font: inherit; cursor: pointer; }
 .zuordnen-tabelle { width: 100%; border-collapse: collapse; }
 .zuordnen-tabelle td { padding: 6px 4px; border-bottom: 1px solid var(--pergament-2); }
 .zuordnen-tabelle select { font: inherit; padding: 4px; width: 100%; background: #fffaf0; }
+.zuordnen-beispiel td { font-style: italic; opacity: 0.75; }
 .zuordnen-tabelle select.richtig { outline: 2px solid var(--gruen); }
 .zuordnen-tabelle select.falsch { outline: 2px solid var(--rot); }
 .rf-zeile { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--pergament-2); }

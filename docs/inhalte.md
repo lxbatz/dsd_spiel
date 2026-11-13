@@ -78,6 +78,8 @@ Mehrere richtige Lösungen mit `|` trennen: `{stammt|kommt}`. Beim Schreiben wir
   typ: "zuordnen",
   frage: "Finde das Gegenteil.",
   paare: [["groß", "klein"], ["kurz", "lang"]],
+  ablenker: ["dick", "alt"],          // optional: Antworten, die übrig bleiben (wie im DSD)
+  beispiel: ["warm", "kalt"],         // optional: schon gelöste Beispielzeile (Nummer 0)
 }
 ```
 

@@ -180,7 +180,7 @@ const Q2 = {
     lesetext: TEXT,
     frage: "Schreibe jetzt deine Wiedergabe von Jonas' Beitrag (4–6 Sätze). Stell Jonas vor, erzähle kurz, was er erlebt hat, und gib seine Meinung und seine Bitte an die Leser wieder.",
     minWoerter: 50,
-    stichpunkte: "Redemittel: Nun möchte ich den Beitrag kurz zusammenfassen. · Der Text stammt von Jonas, einem … · Er berichtet, dass … · Am Anfang … Später … · Jonas ist der Meinung, dass … · Zum Schluss bittet er die Leser, …",
+    stichpunkte: "Redemittel: Nun möchte ich den Beitrag kurz zusammenfassen. · Der Text stammt von Jonas, einem … · Er berichtet, dass … · Am Anfang … Später … · Jonas ist der Meinung, dass … · Zum Schluss bittet er die Leser, … ★ Prüfungstipp: Fasse mit eigenen Worten zusammen. Nur „Er sagt, dass …“ vor Jonas' Originalsatz zählt in der Prüfung wenig, abgeschriebene Sätze zählen gar nicht.",
     muster: [
       { such: "zusammenfass|wiedergeb|stammt von|geschrieben", ok: "Du kündigst die Wiedergabe an.", fehlt: "Kündige die Wiedergabe an: Nun möchte ich den Beitrag kurz zusammenfassen." },
       { such: "jonas[\\s\\S]*(17|koch|ausbildung|azubi|auszubildend)", ok: "Du stellst Jonas vor.", fehlt: "Stell Jonas vor: Name, Alter, Ausbildung." },
@@ -435,7 +435,7 @@ const Q3 = {
     id: "lythara_q3_text",
     frage: "Schreibe jetzt deinen Erfahrungsbericht (5–7 Sätze). Beginne mit einer Überleitung. Erzähle dann von deinen Erfahrungen (oder von den Erfahrungen einer Person, die du kennst) mit Praktikum, Arbeit oder Ausland.",
     minWoerter: 60,
-    stichpunkte: "Redemittel: Jetzt möchte ich von meinen eigenen Erfahrungen berichten. · Genauso wie Jonas … / Anders als Jonas … · Letztes Jahr / Letzten Sommer habe ich … · Am Anfang … Dann … Danach … Schließlich … · Es hat mir (nicht) gefallen, weil …",
+    stichpunkte: "Redemittel: Jetzt möchte ich von meinen eigenen Erfahrungen berichten. · Genauso wie Jonas … / Anders als Jonas … · Letztes Jahr / Letzten Sommer habe ich … · Am Anfang … Dann … Danach … Schließlich … · Es hat mir (nicht) gefallen, weil … ★ Prüfungstipp: Ein einziger Satz reicht nicht. Erzähle ausführlich mit Details: Wo? Wann? Was hast du gemacht? Wie war es?",
     muster: [
       { such: "erfahrung|erlebt|berichten|erzählen", ok: "Du leitest zu deinen Erfahrungen über.", fehlt: "Beginne mit einer Überleitung: Jetzt möchte ich von meinen Erfahrungen berichten." },
       { such: "jonas|genauso|auch so|anders als|wie bei", ok: "Du verbindest deinen Bericht mit Jonas' Text.", fehlt: "Vergleiche mit Jonas: Genauso wie Jonas … / Anders als Jonas …" },
@@ -681,7 +681,7 @@ const Q4 = {
     id: "lythara_q4_text",
     frage: `Schreibe jetzt deine Meinung zur Frage: „${FRAGE}“ (6–8 Sätze). Sag deine Meinung deutlich, nenne mindestens zwei Argumente und begründe sie mit Erklärungen oder Beispielen.`,
     minWoerter: 70,
-    stichpunkte: "Redemittel: Nach meinen Erfahrungen bin ich der Meinung, dass … · Meiner Meinung nach … · Zuerst … , weil … · Zum Beispiel … · Außerdem … · Ein weiterer Punkt ist … · Zwar …, aber … · Aus diesen Gründen …",
+    stichpunkte: "Redemittel: Nach meinen Erfahrungen bin ich der Meinung, dass … · Meiner Meinung nach … · Zuerst … , weil … · Zum Beispiel … · Außerdem … · Ein weiterer Punkt ist … · Zwar …, aber … · Aus diesen Gründen … ★ Prüfungstipp: Eine Meinung ohne Begründung bringt höchstens 1 von 3 Punkten. Welche Meinung du hast, ist egal – wichtig sind die Gründe.",
     muster: [
       { such: "meiner meinung|der meinung|ich finde|finde ich|ich denke|ich glaube|bin ich (da)?(für|gegen)|ich bin (da)?(für|gegen)", ok: "Du sagst deine Meinung.", fehlt: "Sag deine Meinung deutlich: Meiner Meinung nach … / Ich bin der Meinung, dass …" },
       { such: "weil|denn|deshalb|deswegen|darum|da\\s", ok: "Du begründest deine Meinung.", fehlt: "Begründe deine Meinung: …, weil … / …, denn …" },
@@ -1014,7 +1014,7 @@ export const BUCH = {
   vorlage: entwurf,
   frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine fünf Texte aus der Halle und von den Inseln stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
   minWoerter: 180,
-  stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. In der echten Prüfung hast du dafür 75 Minuten Zeit.",
+  stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. In der echten Prüfung hast du dafür 75 Minuten Zeit. Niemand zählt dort die Wörter – wichtig ist, dass du alle Punkte ausführlich bearbeitest. Trau dich auch an längere Sätze (weil, obwohl, Relativsätze, würde …): Das gibt Punkte, auch wenn noch Fehler drin sind.",
   muster: [
     { such: "^\\s*[^\\n]{3,80}\\n", ok: "Überschrift", fehlt: "Schreib eine Überschrift in die erste Zeile." },
     { such: "hallo|liebe", ok: "Anrede", fehlt: "Sprich die Leser am Anfang an: Hallo zusammen, …" },
