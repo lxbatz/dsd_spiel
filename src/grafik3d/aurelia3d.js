@@ -98,15 +98,40 @@ function schildTextur(text, farbe = "#3a2a1a") {
 // ---------- Himmel, Meer, Umland ----------
 
 function himmelBauen(szene, mitte) {
-  const himmel = new THREE.Mesh(new THREE.SphereGeometry(600, 32, 16), new THREE.ShaderMaterial({
+  // unheil = 1: blutroter Himmel, die Sonne halb von einer Mondsichel verdeckt (solange der Drachenrichter wacht)
+  const material = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { oben: { value: new THREE.Color("#2f7fd8") }, horizont: { value: new THREE.Color("#cfe8f8") }, sonne: { value: new THREE.Vector3(0.45, 0.42, 0.78).normalize() } },
-    vertexShader: "varying vec3 p; void main(){ p = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
-    fragmentShader: `uniform vec3 oben; uniform vec3 horizont; uniform vec3 sonne; varying vec3 p;
-      void main(){ float t = clamp(p.y * 2.2, 0.0, 1.0); vec3 c = mix(horizont, oben, pow(t, 0.7));
-        float s = max(dot(p, sonne), 0.0); c += vec3(1.0, 0.92, 0.75) * (pow(s, 800.0) * 1.5 + pow(s, 30.0) * 0.25);
+    uniforms: {
+      oben: { value: new THREE.Color("#2f7fd8") }, horizont: { value: new THREE.Color("#cfe8f8") },
+      rotOben: { value: new THREE.Color("#3a060c") }, rotHorizont: { value: new THREE.Color("#d8482a") },
+      sonne: { value: new THREE.Vector3(0.45, 0.16, 0.78).normalize() },
+      unheil: { value: 0 },
+    },
+    vertexShader: "varying vec3 roh; void main(){ roh = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+    fragmentShader: `uniform vec3 oben; uniform vec3 horizont; uniform vec3 rotOben; uniform vec3 rotHorizont; uniform vec3 sonne; uniform float unheil; varying vec3 roh;
+      void main(){
+        vec3 p = normalize(roh);
+        float t = clamp(p.y * 2.2, 0.0, 1.0);
+        vec3 klar = mix(horizont, oben, pow(t, 0.7));
+        vec3 rot = mix(rotHorizont, rotOben, pow(t, 0.55));
+        vec3 c = mix(klar, rot, unheil);
+        float s = max(dot(p, sonne), 0.0);
+        // Normale Sonne: kleiner, heller Punkt mit Schein
+        vec3 sonnenschein = vec3(1.0, 0.92, 0.75) * (pow(s, 800.0) * 1.5 + pow(s, 30.0) * 0.25);
+        // Finsternis: große Sonnenscheibe, eine dunkle Mondscheibe schiebt sich halb davor
+        float w = acos(clamp(dot(p, sonne), -1.0, 1.0));
+        vec3 seite = normalize(cross(sonne, vec3(0.0, 1.0, 0.0)));
+        vec3 mond = normalize(sonne + seite * 0.085 + vec3(0.0, 0.03, 0.0));
+        float wm = acos(clamp(dot(p, mond), -1.0, 1.0));
+        float scheibe = 1.0 - smoothstep(0.088, 0.094, w);
+        float mondScheibe = 1.0 - smoothstep(0.086, 0.092, wm);
+        vec3 finster = vec3(1.0, 0.62, 0.3) * pow(s, 25.0) * 0.8 + vec3(0.9, 0.2, 0.08) * pow(s, 6.0) * 0.35;
+        finster += vec3(1.0, 0.82, 0.55) * 1.6 * scheibe;
+        finster = mix(finster, vec3(0.05, 0.01, 0.01), mondScheibe);
+        c = mix(c + sonnenschein, mix(c, vec3(0.0), mondScheibe) + finster * (1.0 - mondScheibe * 0.98), unheil);
         gl_FragColor = vec4(c, 1.0); }`,
-  }));
+  });
+  const himmel = new THREE.Mesh(new THREE.SphereGeometry(600, 48, 24), material);
   himmel.position.copy(mitte);
   szene.add(himmel);
   // Wolken
@@ -121,13 +146,15 @@ function himmelBauen(szene, mitte) {
     w.position.set(mitte.x + Math.cos(a) * 200, 70 + hash(i, 1, 44) * 30, mitte.z + Math.sin(a) * 200);
     szene.add(w);
   }
+  return { material, wolken: weiss };
 }
 
 function meerBauen(szene, mitte, B, T, animationen) {
   // Weites Meer (bis zum Horizont), Textur wandert langsam
   const tex = textur(wasserTextur(), { wiederholen: true });
   tex.repeat.set(60, 60);
-  const fern = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: tex, color: "#5ab0e8", roughness: 0.25, metalness: 0.1 }));
+  const fernMat = new THREE.MeshStandardMaterial({ map: tex, color: "#5ab0e8", roughness: 0.25, metalness: 0.1 });
+  const fern = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400).rotateX(-Math.PI / 2), fernMat);
   fern.position.set(mitte.x, -0.75, mitte.z + 300);
   szene.add(fern);
   // Nahes Wasser mit Wellen
@@ -159,6 +186,7 @@ function meerBauen(szene, mitte, B, T, animationen) {
     insel.position.set(mitte.x - 260 + i * 140 + hash(i, 3, 51) * 40, -1, mitte.z + 260 + hash(i, 4, 51) * 120);
     szene.add(insel);
   }
+  return { fern: fernMat, nah: nah.material };
 }
 
 function umlandBauen(szene, B, T) {
@@ -795,8 +823,9 @@ export function aureliaBauen(szene, raster, kontext) {
   szene.background = new THREE.Color("#bcdcf4");
   szene.fog = new THREE.Fog("#cfe4f2", 90, 420);
 
-  himmelBauen(szene, mitte);
-  szene.add(new THREE.HemisphereLight("#d8ecff", "#c8b490", 1.25));
+  const himmel = himmelBauen(szene, mitte);
+  const hemi = new THREE.HemisphereLight("#d8ecff", "#c8b490", 1.25);
+  szene.add(hemi);
   const sonne = new THREE.DirectionalLight("#fff0d8", 2.8);
   sonne.castShadow = qualitaet.schatten;
   sonne.shadow.mapSize.set(qualitaet.schattenGroesse, qualitaet.schattenGroesse);
@@ -812,7 +841,7 @@ export function aureliaBauen(szene, raster, kontext) {
   boden.receiveShadow = true;
   szene.add(boden);
 
-  meerBauen(szene, mitte, B, T, animationen);
+  const meer = meerBauen(szene, mitte, B, T, animationen);
   umlandBauen(szene, B, T);
   stadtBauen(szene, raster, animationen);
   hafenBauen(szene, raster, animationen);
@@ -821,7 +850,43 @@ export function aureliaBauen(szene, raster, kontext) {
   voegelBauen(szene, new THREE.Vector3(mitte.x, 10, KAI_Y * E + 10), Math.round(8 * qualitaet.partikel), animationen);
   const glitzer = [];
   for (let x = 0; x < raster[0].length; x += 3) glitzer.push([x * E, (KAI_Y + 4) * E + (x % 4) * 3]);
-  lichtpunkteBauen(szene, glitzer, { farbe: "#ffffff", groesse: 0.3, hoehe: [-0.5, -0.4], streuung: 6, funkeln: true, anzahl: Math.round(140 * qualitaet.partikel) }, animationen);
+  const glitzerGruppe = new THREE.Group();
+  szene.add(glitzerGruppe);
+  lichtpunkteBauen(glitzerGruppe, glitzer, { farbe: "#ffffff", groesse: 0.3, hoehe: [-0.5, -0.4], streuung: 6, funkeln: true, anzahl: Math.round(140 * qualitaet.partikel) }, animationen);
+
+  // --- Unheil: Solange der Drachenrichter vor dem Turm wacht, ist der Himmel rot, die Sonne halb verfinstert
+  //     und das Meer schwarz. Nach dem Sieg (aurelia_finale) kehrt Aurelia langsam zu Blau und Gold zurück.
+  const sollFrei = () => (zustand.erledigt.aurelia_finale ? 1 : 0);
+  let frei = sollFrei(), zuletzt = -1;
+  const F = (a) => new THREE.Color(a);
+  const farben = {
+    bg: [F("#5a1a18"), F("#bcdcf4")], nebel: [F("#4a1612"), F("#cfe4f2")],
+    hemiOben: [F("#a8504a"), F("#d8ecff")], hemiUnten: [F("#3a1a14"), F("#c8b490")],
+    sonne: [F("#ff7a50"), F("#fff0d8")],
+    fern: [F("#0c0a10"), F("#5ab0e8")], nah: [F("#100c12"), F("#4aa8e0")],
+    wolke: [F("#4a2a2a"), F("#ffffff")], wolkeGlut: [F("#8a2a1a"), F("#d8e8f8")],
+  };
+  const mische = (ziel, [a, b], t) => ziel.copy(a).lerp(b, t);
+  animationen.push((zeit, dt = 0.016) => {
+    frei += Math.sign(sollFrei() - frei) * Math.min(Math.abs(sollFrei() - frei), dt / 6);
+    if (Math.abs(frei - zuletzt) < 1e-4) return;
+    zuletzt = frei;
+    himmel.material.uniforms.unheil.value = 1 - frei;
+    mische(szene.background, farben.bg, frei);
+    mische(szene.fog.color, farben.nebel, frei);
+    szene.fog.near = 60 + frei * 30; szene.fog.far = 260 + frei * 160;
+    mische(hemi.color, farben.hemiOben, frei);
+    mische(hemi.groundColor, farben.hemiUnten, frei);
+    hemi.intensity = 0.8 + frei * 0.45;
+    mische(sonne.color, farben.sonne, frei);
+    sonne.intensity = 1.4 + frei * 1.4;
+    mische(meer.fern.color, farben.fern, frei);
+    mische(meer.nah.color, farben.nah, frei);
+    meer.fern.roughness = meer.nah.roughness = 0.08 + frei * 0.12;
+    mische(himmel.wolken.color, farben.wolke, frei);
+    mische(himmel.wolken.emissive, farben.wolkeGlut, frei);
+    glitzerGruppe.visible = frei > 0.5;
+  });
 
   const versatz = new THREE.Vector3(30, 50, 40);
   return {

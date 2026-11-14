@@ -7,7 +7,7 @@ import { Teile, KUGEL, KUGEL_K, ZYL, KASTEN, KEGEL } from "./figuren.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { hash } from "../grafik16/pinsel.js";
 import { E } from "./welt.js";
-import { lichtpunkteBauen } from "./effekte.js";
+import { lichtpunkteBauen, schmetterlingeBauen, voegelBauen } from "./effekte.js";
 import { HINDERNIS, BLOCKIERT, bloecke, LICHTUNGEN } from "../welt/scriptoria_layout.js";
 import { zustand } from "../zustand.js";
 import { bibliothekarBauen } from "./werwolf.js";
@@ -24,17 +24,19 @@ function leinwand(w, h) {
 
 // ---------- Texturen ----------
 
-function bodenTextur(raster) {
+function bodenTextur(raster, tag = false) {
   const W = raster[0].length * PX, H = raster.length * PX;
   const [c, g] = leinwand(W, H);
   raster.forEach((zeile, ty) => [...zeile].forEach((z, tx) => {
     const x = tx * PX, y = ty * PX;
     const wald = z === "#";
-    g.fillStyle = wald ? "#0d1a10" : "#1d3322";
+    g.fillStyle = tag ? (wald ? "#285a22" : "#3f8a2e") : wald ? "#0d1a10" : "#1d3322";
     g.fillRect(x, y, PX, PX);
     for (let i = 0; i < 10; i++) {
       const v = hash(tx, ty, i);
-      g.fillStyle = wald ? (v > 0.5 ? "rgba(30,60,35,0.6)" : "rgba(5,10,6,0.6)") : (v > 0.6 ? "rgba(70,110,60,0.5)" : v > 0.3 ? "rgba(40,70,40,0.5)" : "rgba(90,80,50,0.35)");
+      g.fillStyle = tag
+        ? (wald ? (v > 0.5 ? "rgba(70,140,50,0.6)" : "rgba(20,60,20,0.5)") : (v > 0.6 ? "rgba(110,180,70,0.5)" : v > 0.3 ? "rgba(50,120,35,0.5)" : "rgba(170,150,80,0.35)"))
+        : wald ? (v > 0.5 ? "rgba(30,60,35,0.6)" : "rgba(5,10,6,0.6)") : (v > 0.6 ? "rgba(70,110,60,0.5)" : v > 0.3 ? "rgba(40,70,40,0.5)" : "rgba(90,80,50,0.35)");
       g.fillRect(x + hash(tx, i, 1) * PX, y + hash(ty, i, 2) * PX, 3, 3);
     }
   }));
@@ -314,8 +316,9 @@ export function scriptoriaBauen(szene, raster, kontext) {
   szene.fog = new THREE.Fog("#0c1a16", 18, 70);
 
   // Licht: kühles Mondlicht durch das Blätterdach, schwaches Grün von unten
-  szene.add(new THREE.HemisphereLight("#7a9ac8", "#1a3020", 1.7));
-  szene.add(new THREE.AmbientLight("#2a3a4a", 0.6));
+  const hemi = new THREE.HemisphereLight("#7a9ac8", "#1a3020", 1.7);
+  const umgebung = new THREE.AmbientLight("#2a3a4a", 0.6);
+  szene.add(hemi, umgebung);
   const mond = new THREE.DirectionalLight("#b8d0ff", 1.8);
   mond.castShadow = qualitaet.schatten;
   mond.shadow.mapSize.set(qualitaet.schattenGroesse, qualitaet.schattenGroesse);
@@ -330,8 +333,14 @@ export function scriptoriaBauen(szene, raster, kontext) {
   boden.position.set(B / 2, 0, T / 2);
   boden.receiveShadow = true;
   szene.add(boden);
+  const tagBodenMat = new THREE.MeshStandardMaterial({ map: textur(bodenTextur(raster, true)), roughness: 1, transparent: true, opacity: 0 });
+  const tagBoden = new THREE.Mesh(boden.geometry, tagBodenMat);
+  tagBoden.position.set(B / 2, 0.01, T / 2);
+  tagBoden.receiveShadow = true;
+  szene.add(tagBoden);
   // Dunkler Boden rund um die Karte
-  const aussen = new THREE.Mesh(new THREE.PlaneGeometry(B + 160, T + 160).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: "#0a140c", roughness: 1 }));
+  const aussenMat = new THREE.MeshStandardMaterial({ color: "#0a140c", roughness: 1 });
+  const aussen = new THREE.Mesh(new THREE.PlaneGeometry(B + 160, T + 160).rotateX(-Math.PI / 2), aussenMat);
   aussen.position.set(B / 2, -0.02, T / 2);
   szene.add(aussen);
 
@@ -455,7 +464,9 @@ export function scriptoriaBauen(szene, raster, kontext) {
   // Glühwürmchen über allen Lichtungen
   const orte = [];
   for (const [x0, y0, x1, y1] of Object.values(LICHTUNGEN)) for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x += 2) orte.push([(x + 0.5) * E, (y + 0.5) * E]);
-  lichtpunkteBauen(szene, orte, { farbe: "#d8ff6a", groesse: 0.22, hoehe: [0.4, 4.5], streuung: 1.8, anzahl: Math.round(260 * qualitaet.partikel) }, animationen);
+  const nacht = new THREE.Group(), tag = new THREE.Group();
+  szene.add(nacht, tag);
+  lichtpunkteBauen(nacht, orte, { farbe: "#d8ff6a", groesse: 0.22, hoehe: [0.4, 4.5], streuung: 1.8, anzahl: Math.round(260 * qualitaet.partikel) }, animationen);
   // Langsam ziehende dunkle Nebelschwaden am Waldrand
   const schwaden = [];
   for (let i = 0; i < 26; i++) {
@@ -474,6 +485,68 @@ export function scriptoriaBauen(szene, raster, kontext) {
       s.position.set(u.x + Math.sin(zeit * 0.1 + u.p) * 3, 1.5 + Math.sin(zeit * 0.3 + u.p) * 0.5, u.z + Math.cos(zeit * 0.08 + u.p) * 3);
       s.material.opacity = zustand.erledigt.scriptoria_finale ? 0 : 0.45 * (1 - geloest / 6);
     });
+  });
+
+  // --- Tagesanbruch: Nach der Rückverwandlung von Ambros (scriptoria_finale) geht die Sonne auf.
+  //     Der Wald wird hell und sattgrün, Lichtstrahlen fallen durch das Blätterdach,
+  //     statt Glühwürmchen fliegen Schmetterlinge.
+  const blumenRaster = raster.map((z, ty) => [...z].map((c, tx) => (c === "_" && hash(tx, ty, 150) < 0.06 ? "F" : ".")).join(""));
+  schmetterlingeBauen(tag, blumenRaster, Math.round(16 * qualitaet.partikel) || 5, animationen);
+  voegelBauen(tag, new THREE.Vector3(B / 2, 18, T / 2), 6, animationen);
+  const strahlen = [];
+  const strahlTex = textur(lichtTextur("rgba(255,240,200,1)"));
+  for (const [x0, y0, x1, y1] of Object.values(LICHTUNGEN)) {
+    for (let k = 0; k < 2; k++) {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(3 + hash(x0, k, 160) * 3, 26),
+        new THREE.MeshBasicMaterial({ map: strahlTex, color: "#fff0c0", transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+      m.position.set((x0 + (x1 - x0) * hash(x0, y0, 161 + k)) * E, 12, (y0 + (y1 - y0) * hash(y0, x1, 163 + k)) * E);
+      m.rotation.set(0, hash(x0, k, 165) * Math.PI, -0.35);
+      tag.add(m); strahlen.push(m);
+    }
+  }
+  const F = (a) => new THREE.Color(a);
+  const farben = {
+    bg: [F("#04070a"), F("#a8d8f0")], nebel: [F("#0c1a16"), F("#cfe8c8")],
+    hemiOben: [F("#7a9ac8"), F("#fff2d0")], hemiUnten: [F("#1a3020"), F("#5a9a3a")],
+    umgebung: [F("#2a3a4a"), F("#fff0d8")], sonne: [F("#b8d0ff"), F("#ffd890")],
+    laub: [F(LAUB), F("#ffffff")], busch: [F("#1a3220"), F("#ffffff")], aussen: [F("#0a140c"), F("#3a7a2a")],
+  };
+  // Instanzfarben von Blätterdach und Büschen: nachts dunkel, am Tag sattgrün
+  const instanzFarben = (mesh, tagFarbe, seed) => {
+    const nachtF = [], tagF = [];
+    for (let i = 0; i < mesh.count; i++) {
+      const c = new THREE.Color(); mesh.getColorAt(i, c); nachtF.push(c);
+      tagF.push(F(i % 7 === 0 ? "#8ab83a" : tagFarbe).multiplyScalar(0.7 + hash(i, seed, 170) * 0.5));
+    }
+    return (t) => { for (let i = 0; i < mesh.count; i++) mesh.setColorAt(i, col.copy(nachtF[i]).lerp(tagF[i], t)); mesh.instanceColor.needsUpdate = true; };
+  };
+  const dachFaerben = instanzFarben(dach, "#3f9a3a", 1), buschFaerben = instanzFarben(buschMesh, "#4aa840", 2);
+  const mische = (ziel, [a, b], t) => ziel.copy(a).lerp(b, t);
+  const sollTag = () => (zustand.erledigt.scriptoria_finale ? 1 : 0);
+  let morgen = sollTag(), zuletzt = -1;
+  animationen.push((zeit, dt = 0.016) => {
+    morgen += Math.sign(sollTag() - morgen) * Math.min(Math.abs(sollTag() - morgen), dt / 8);
+    strahlen.forEach((m, i) => { m.material.opacity = morgen * (0.16 + Math.sin(zeit * 0.6 + i) * 0.05); });
+    if (Math.abs(morgen - zuletzt) < 1e-4) return;
+    zuletzt = morgen;
+    mische(szene.background, farben.bg, morgen);
+    mische(szene.fog.color, farben.nebel, morgen);
+    szene.fog.near = 18 + morgen * 20; szene.fog.far = 70 + morgen * 50;
+    mische(hemi.color, farben.hemiOben, morgen);
+    mische(hemi.groundColor, farben.hemiUnten, morgen);
+    hemi.intensity = 1.7 + morgen * 0.3;
+    mische(umgebung.color, farben.umgebung, morgen);
+    mische(mond.color, farben.sonne, morgen);
+    mond.intensity = 1.8 + morgen * 1.6;
+    mische(dach.material.color, farben.laub, morgen);
+    mische(buschMesh.material.color, farben.busch, morgen);
+    dachFaerben(morgen); buschFaerben(morgen);
+    mische(aussenMat.color, farben.aussen, morgen);
+    tagBodenMat.opacity = morgen;
+    tagBoden.visible = morgen > 0.001;
+    nacht.visible = morgen < 0.5;
+    tag.visible = morgen > 0.01;
+    lampe.intensity = 40 * (1 - morgen * 0.7);
   });
 
   const versatz = new THREE.Vector3(-18, 50, 26);

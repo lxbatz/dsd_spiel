@@ -14,6 +14,7 @@ export const MUSIK = {
   halle: "Sound/castle_01.mp3",
   inseln: "Sound/plains_01.mp3",
   aurelia: "Sound/aurelia.mp3",
+  aurelia_frei: "Sound/beach_01.mp3",
   scriptoria: "Sound/forest_02.mp3",
   vocantia: "Sound/vocantia_snow_02.mp3",
   vocantia_fruehling: "Sound/vocantia_town_02.mp3",

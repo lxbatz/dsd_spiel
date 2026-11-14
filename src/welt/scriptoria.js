@@ -56,7 +56,7 @@ async function lirien() {
   }
   if (istErledigt("scriptoria_finale")) {
     await dialog(LIRIEN, [
-      `${name}, sieh dich um! Der Schwarze Nebel ist fort. Die Pilze leuchten heller als je zuvor, und unten in der Tiefe brennen wieder die Lampen der großen Bibliothek.`,
+      `${name}, sieh dich um! Der Schwarze Nebel ist fort, und über Scriptoria scheint wieder die Sonne. Unten in der Tiefe brennen die Lampen der großen Bibliothek.`,
       "Und Ambros … unser alter Freund ist zurück. Du hast nicht nur Bücher gerettet, sondern auch einen Menschen. Danke!",
     ], B);
     return;
@@ -399,6 +399,7 @@ async function bibliothekar(welt) {
   await dialog(LIRIEN, [
     "Das steinerne Tor schwingt auf. Warmes Licht fällt aus der Tiefe – Tausende Bücher, Regale bis zur Decke, Lampen, die wieder brennen.",
     "Die fünf leuchtenden Seiten fliegen aus deiner Tasche und setzen sich in das Große Buch von Scriptoria. Der Schwarze Nebel ist fort.",
+    "Und dann geschieht etwas, das es in Scriptoria seit Jahren nicht gab: Die Sonne geht auf. Goldenes Licht fällt durch das Blätterdach, das Moos leuchtet grün, und die ersten Schmetterlinge tanzen über die Lichtungen.",
     `Lirien legt dir eine grüne Brosche in die Hand: „Für dich, ${zustand.held?.name ?? "Leserin oder Leser"}. Scriptoria ist gerettet!“`,
   ], bild("npc_lirien"));
   await belohnung({ xp: 250, grund: "Scriptoria ist gerettet!", gegenstaende: ["smaragd_abzeichen"], fanfare: true });

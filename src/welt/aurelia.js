@@ -8,6 +8,7 @@
 // Quest 5: Der Glockenturm (Meinungen zuordnen wie DSD Hören Teil 5) an zwei Stimmenmuscheln,
 //          dann der Endkampf gegen den Drachenrichter vor dem Turm. Danach ist Aurelia gerettet.
 
+import { musik } from "../musik.js";
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
 import { questStarten } from "./quest.js";
@@ -49,6 +50,7 @@ async function orpheon() {
       `Sei gegrüßt, ${name}! Willkommen in Aurelia, der Stadt der Glocken. Ich bin Orpheon, der Glockenhüter.`,
       "Früher hörte man hier überall Musik: Die Glocken läuteten, die Händler riefen, die Seeleute sangen. Aurelia ist das Reich des Hörens.",
       "Doch Morgrath hat die große Glocke oben auf dem Turm zum Schweigen gebracht. Seitdem hören die Menschen nicht mehr richtig zu. Sie verstehen Durchsagen, Nachrichten und Gespräche nicht mehr.",
+      "Sieh nur zum Himmel: Er ist rot, und ein dunkler Mond verdeckt die halbe Sonne. Das Meer ist schwarz geworden. Und vor dem Glockenturm liegt der Drachenrichter und lässt niemanden hinauf.",
       "Jeder Teil der Stadt hat einen eigenen Ton: der Hafen, der Markt, der Leuchtturm, die Werft und der Turm. Bring die Töne zurück, dann klingt die Glocke wieder.",
       "Beginne am Hafen im Süden. Hafenmeisterin Nerea braucht dringend jemanden, der gut zuhören kann!",
     ], B);
@@ -489,6 +491,12 @@ async function drachenrichter(welt) {
     `Orpheon kommt die Treppe herauf, Tränen in den Augen: „Du hast es geschafft, ${zustand.held?.name ?? "mein Freund"}! Aurelia ist gerettet!“`,
   ], bild("npc_orpheon"));
   erledigen("aurelia_finale");
+  welt.aktualisieren();
+  musik("aurelia_frei");
+  await dialog(ORPHEON, [
+    "Der Mond gibt die Sonne frei. Das rote Licht verblasst, und der Himmel wird wieder blau.",
+    "Unten im Hafen glitzert das Meer – nicht mehr schwarz, sondern blau wie früher.",
+  ], bild("npc_orpheon"));
   await belohnung({ xp: 250, grund: "Aurelia ist gerettet!", gegenstaende: ["gold_abzeichen"], fanfare: true });
 }
 
@@ -517,7 +525,7 @@ const MUSCHEL_ORTE = [[11, KAI_Y - 2], [25, KAI_Y - 2], [35, KAI_Y - 2]];
 export default {
   id: "aurelia",
   name: "Aurelia – Die Hafenstadt der Glocken",
-  musik: "aurelia",
+  get musik() { return zustand.erledigt.aurelia_finale ? "aurelia_frei" : "aurelia"; },
   nur3d: true,
   nur3dZiel: ["dorf", "vonLythara"],
   raster: RASTER,

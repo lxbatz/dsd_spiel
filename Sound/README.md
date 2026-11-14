@@ -34,3 +34,4 @@ Welche Datei wo läuft, steht in `src/musik.js`.
 - `forest_02` – Scriptoria, der Bücherwald (aus `forest_02.mid`, mit FluidR3_GM umgewandelt)
 - `vocantia_snow_02` – Vocantia im ewigen Winter (aus `vocantia_snow_02.mid`, mit FluidR3_GM umgewandelt)
 - `vocantia_town_02` – Vocantia nach dem Auftauen (aus `vocantia_town_02.mid`, mit FluidR3_GM umgewandelt)
+- `beach_01` – Aurelia nach dem Sieg über den Drachenrichter (aus `beach_01.mid`, mit FluidR3_GM umgewandelt)
