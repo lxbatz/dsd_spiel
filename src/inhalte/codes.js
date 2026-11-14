@@ -1,4 +1,5 @@
-// Lehrercodes: Die Lehrkraft verteilt Codes für Leistungen im Unterricht
+  // Sprechsiegel (50 XP), erzeugt am 15.11.2026
+  "f66854bb6537e1bb6dc14f50b5905c34fd2c572e6112bcf316f9f282b1f6a80c": { xp: 50, grund: "Sprechsiegel", gegenstand: "sprechsiegel" },// Lehrercodes: Die Lehrkraft verteilt Codes für Leistungen im Unterricht
 // (Teamarbeit, mündliche Beiträge, korrigierte Texte, ...).
 //
 // Hier stehen nur die SHA-256-Prüfsummen der Codes, nicht die Codes selbst.
