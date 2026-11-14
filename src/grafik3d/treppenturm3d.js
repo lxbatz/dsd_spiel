@@ -18,7 +18,7 @@ const IX0 = X0 * E, IX1 = (X1 + 1) * E;                               // Innenw�
 
 /** Aussehen je Etage (vom dunklen Keller bis zum hellen Observatorium) */
 const THEMA = {
-  keller: { boden: "grob", wand: "#4a4440", fuge: "#2a2622", decke: "#3a322a", licht: "#ff9a50", staerke: 18, teppich: null },
+  keller: { boden: "grob", wand: "#4a4440", fuge: "#2a2622", decke: "#3a322a", licht: "#ff9a50", staerke: 26, teppich: null },
   gesinde: { boden: "dielen", wand: "#b8a88a", fuge: "#8a7a60", decke: "#5a3e26", licht: "#ffb878", staerke: 26, teppich: "#7a6a4a" },
   waffen: { boden: "platten", wand: "#8a8480", fuge: "#5a5450", decke: "#4a3a2a", licht: "#ffc890", staerke: 30, teppich: "#7a2228" },
   bankett: { boden: "schach", wand: "#c8b494", fuge: "#9a8668", decke: "#6a4426", licht: "#ffd8a0", staerke: 34, teppich: "#a01a2e" },
@@ -485,7 +485,7 @@ export function treppenturmBauen(szene, raster, kontext) {
     l.position.set((IX0 + IX1) / 2, h + 5.5, zm);
     szene.add(l);
     // Fackeln an den Seitenwänden (unten), Wandleuchter in Gold (oben)
-    for (const s of [-1, 1]) for (const zz of [za + 3, zb - 3]) {
+    for (const s of [-1, 1]) for (const zz of (id === "keller" ? [za + 2.5, zm, zb - 2.5] : [za + 3, zb - 3])) {
       const x = s < 0 ? IX0 + 0.25 : IX1 - 0.25;
       if (id === "observatorium") continue;
       deko.add(KASTEN(), e.nr >= 3 ? GOLD : EISEN, [x, h + 3.2, zz], [0, 0, 0], [0.3, 0.1, 0.3], e.nr >= 3 ? { art: "glanz" } : {});
@@ -517,6 +517,15 @@ export function treppenturmBauen(szene, raster, kontext) {
       }
     }
     if (id === "keller") {
+      // Zusätzliche Fackeln an der Südwand und ein zweites warmes Licht
+      for (const fx of [IX0 + 5, IX1 - 5]) {
+        deko.add(KASTEN(), EISEN, [fx, h + 3.2, zb - 0.25], [0, 0, 0], [0.3, 0.1, 0.3]);
+        deko.add(ZYL(1, 0.6, 8), HOLZ_D, [fx, h + 3.5, zb - 0.4], [-0.3, 0, 0], [0.1, 0.6, 0.1]);
+        flamme(fx, h + 3.95, zb - 0.55, 0.95, "#ff9a40");
+      }
+      const l2 = new THREE.PointLight("#ffa060", 14, 20, 1.4);
+      l2.position.set((IX0 + IX1) / 2, h + 4.5, zb - 4);
+      szene.add(l2);
       // Gewölbebögen und Ketten an der Wand
       for (const zz of [za + 4, za + 10, za + 16]) deko.add(RING(0.08, Math.PI), "#4a423a", [(IX0 + IX1) / 2, h + 3.2, zz], [0, 0, 0], [(IX1 - IX0) / 2, 4.0, 3]);
       for (let k = 0; k < 6; k++) deko.add(RING(0.3), EISEN, [IX1 - 0.2, h + 4.5 - k * 0.22, za + 8], [k % 2 ? Math.PI / 2 : 0, 0, 0], [0.12, 0.16, 0.12], { art: "glanz" });
@@ -634,7 +643,7 @@ export function treppenturmBauen(szene, raster, kontext) {
   // --- Licht folgt der Höhe: unten warm und dunkel, oben hell und kühl ---
   const F = (a) => new THREE.Color(a);
   const stufenFarben = [
-    { bg: F("#0c0a10"), nebel: F("#0e0a08"), hemi: F("#a89078"), boden: F("#2a2018"), i: 0.75, sonne: 0.35, weit: 44 },
+    { bg: F("#0c0a10"), nebel: F("#140e0a"), hemi: F("#b89a80"), boden: F("#2a2018"), i: 0.95, sonne: 0.45, weit: 50 },
     { bg: F("#1a1814"), nebel: F("#2a2218"), hemi: F("#e8d0b0"), boden: F("#4a3a28"), i: 1.15, sonne: 0.8, weit: 54 },
     { bg: F("#2a2a2c"), nebel: F("#3a3632"), hemi: F("#f0dcc0"), boden: F("#4a4038"), i: 1.35, sonne: 1.0, weit: 60 },
     { bg: F("#3a2e24"), nebel: F("#4a3a2c"), hemi: F("#ffe8c8"), boden: F("#5a3a28"), i: 1.55, sonne: 1.2, weit: 66 },
