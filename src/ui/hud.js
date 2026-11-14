@@ -14,7 +14,7 @@ import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
-import { istStumm, stummSchalten, beimStummschalten, spieleJingle } from "../musik.js";
+import { istStumm, stummSchalten, spieleJingle } from "../musik.js";
 
 const hud = document.getElementById("hud");
 
@@ -205,8 +205,13 @@ function menueAnzeigen() {
   const codeFeld = el("textarea", { class: "code-feld", placeholder: "Alten Spielstand-Code hier einfügen …" });
   const steuerung = einstellungen.steuerung?.() ?? "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc";
 
+  const tonKnopf = knopf(tonText(), () => { stummSchalten(); tonKnopf.textContent = tonText(); }, "knopf zweitrangig");
   zeigen(
     el("h2", {}, "☰ Menü"),
+    el("div", { class: "knopfleiste menue-schnell", style: "justify-content:flex-start" },
+      tonKnopf,
+      knopf("🔑 Lehrercode einlösen", () => codeAnzeigen({ zurueck: menueAnzeigen }), "knopf zweitrangig"),
+      knopf("🎬 Credits", creditsAnzeigen, "knopf zweitrangig")),
     el("h3", {}, "Steuerung"),
     el("p", {}, steuerung),
     el("h3", {}, "Spielstand"),
@@ -240,13 +245,7 @@ function menueAnzeigen() {
   );
 }
 
-function tonKnopfAktualisieren() {
-  const k = document.getElementById("ton-knopf");
-  k.textContent = istStumm() ? "🔇" : "🔊";
-  k.title = istStumm() ? "Musik einschalten (M)" : "Musik ausschalten (M)";
-}
-beimStummschalten(tonKnopfAktualisieren);
-tonKnopfAktualisieren();
+const tonText = () => (istStumm() ? "🔇 Musik einschalten (M)" : "🔊 Musik ausschalten (M)");
 
 // ---------- Credits ----------
 
@@ -262,19 +261,17 @@ function creditsAnzeigen() {
     el("h2", {}, "🎬 Credits"),
     el("div", { class: "untertitel" }, "Die Chroniken von Eldoria"),
     el("dl", { class: "credits" }, CREDITS.flatMap(([rolle, name]) => [el("dt", {}, rolle), el("dd", {}, name)])),
-    el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen)),
+    el("div", { class: "knopfleiste" }, knopf("Zurück zum Menü", menueAnzeigen, "knopf zweitrangig"), knopf("Schließen", schliessen)),
   );
 }
 
 const AKTIONEN = {
-  credits: creditsAnzeigen,
   ziele: aufgabenAnzeigen,
   inventar: inventarAnzeigen,
   heldenpass: heldenpassAnzeigen,
-  code: codeAnzeigen,
   menue: menueAnzeigen,
 };
-const OHNE_FENSTER = { ton: () => stummSchalten() };
+const OHNE_FENSTER = {};
 
 let hudGesperrt = () => false;
 /** Die Spielszene meldet hier, wann gerade eine Interaktion läuft. */
@@ -293,7 +290,7 @@ document.addEventListener("keydown", (ev) => {
   if (hud.hidden) return;
   const tag = ev.target?.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-  if (ev.key.toLowerCase() === "m") return stummSchalten();
+  if (ev.key.toLowerCase() === "m") { stummSchalten(); return toast(istStumm() ? "🔇 Musik aus" : "🔊 Musik an"); }
   if (ev.key === "Escape") {
     if (istOffen() && !hudGesperrt()) schliessen();
     else if (!istOffen()) menueAnzeigen();

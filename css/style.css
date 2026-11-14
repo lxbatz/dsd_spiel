@@ -250,8 +250,6 @@ input.code-eingabe { font: inherit; font-size: 20px; letter-spacing: 2px; text-t
   .hud-knoepfe button { padding: 4px 7px; font-size: 12px; }
 }
 
-/* Der Tonknopf bleibt auch bei offenem Fenster bedienbar */
-#ton-knopf { position: relative; z-index: 11; }
 .titel-version { font-weight: bold; color: var(--gold-dunkel); }
 .titel-steuerung { text-align: center; font-size: 13px; color: var(--tinte-2); margin-top: 16px; }
 
