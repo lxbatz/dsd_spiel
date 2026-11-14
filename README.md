@@ -47,7 +47,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Mentorin: Lirien, Hüterin der Bücher
    - Quest 1 *Die verlorenen Wörter* (wie DSD Lesen Teil 1): drei Briefe mit Lücken und Wortliste ergänzen, Betreffzeile wählen
    - Quest 2 *Der Lesekreis* (wie DSD Lesen Teil 2): Situationen den Berichten im Gästebuch zuordnen, vier Abschnitte bleiben übrig
-   - Folgen: Aushang am Nachtpfad (Teil 3), Lehrlingshaus (Teil 4), Wegweiser (Teil 5), Endgegner: der Bibliothekar der Schatten
+   - Quest 3 *Der Nachtpfad* (wie DSD Lesen Teil 3): zwei Aushänge (Regeln für Besucher, Hinweise für Lehrlinge im Archiv) richtig/falsch, dann Vesnas Laternenprobe zu Signalwörtern (unter, nur, auch wenn, nicht)
+   - Folgen: Lehrlingshaus (Teil 4), Wegweiser (Teil 5), Endgegner: der Bibliothekar der Schatten
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

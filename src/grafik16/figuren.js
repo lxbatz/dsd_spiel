@@ -98,6 +98,10 @@ export const AUSSEHEN = {
     haut: "#a87050", haare: "#1a1a1a", frisur: "dutt", wangen: true,
     kleid: "#6a3a6a", akzent: "#e8d8b0", hose: "#4a2a4a", stiefel: "#3a2a1a", robe: true, extra: "buch",
   },
+  npc_vesna: {
+    haut: "#d8a880", haare: "#2a3a5a", frisur: "kapuze", kapuze: "#2a2a4a",
+    kleid: "#3a3a5a", akzent: "#e8b840", hose: "#2a2a3a", stiefel: "#2a1a14", robe: true, extra: "wanderstab",
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

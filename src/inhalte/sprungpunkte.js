@@ -57,6 +57,10 @@ const SCHRITTE = [
   ["scriptoria_q1", 150, "seite_briefe"],
   ["scriptoria_q2_start", 0],
   ["scriptoria_q2", 150, "seite_berichte"],
+  ["scriptoria_q3_start", 0],
+  ["scriptoria_q3_a1", 25], ["scriptoria_q3_a2", 25],
+  ["scriptoria_q3_probe", 0],
+  ["scriptoria_q3", 150, "seite_regeln"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -108,6 +112,8 @@ export const SPRUNGPUNKTE = [
   { id: "scriptoria", name: "Scriptoria: Ankunft im Bücherwald (Lirien)", bis: "aurelia_finale", karte: "scriptoria", spawn: "eingang" },
   { id: "scriptoria_q1", name: "Scriptoria: Briefbaum, die verlorenen Wörter (Quest 1)", bis: "scriptoria_q1_start", karte: "scriptoria", spawn: "west" },
   { id: "scriptoria_q2", name: "Scriptoria: Lesekreis bei Mara (Quest 2)", bis: "scriptoria_q1", karte: "scriptoria", spawn: "nordwest" },
+  { id: "scriptoria_q3", name: "Scriptoria: Nachtpfad bei Vesna (Quest 3)", bis: "scriptoria_q2", karte: "scriptoria", spawn: "ost" },
+  { id: "scriptoria_q3_ende", name: "Scriptoria: Aushänge gelesen, Laternenprobe", bis: "scriptoria_q3_a2", karte: "scriptoria", spawn: "ost" },
 ];
 
 const TESTHELD = {

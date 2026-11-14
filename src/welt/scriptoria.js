@@ -3,7 +3,8 @@
 // und versperrt die Pfade. Jede gelöste Lese-Quest drängt ihn ein Stück zurück.
 // Quest 1: Die verlorenen Wörter (Lesen Teil 1) bei Bote Fennick am Briefbaum.
 // Quest 2: Der Lesekreis (Lesen Teil 2) bei Mara.
-// Quests 3–5 und der Bibliothekar der Schatten folgen; ihre Orte sind schon da.
+// Quest 3: Der Nachtpfad (Lesen Teil 3) bei Laternenwärterin Vesna: zwei Aushänge, dann die Laternenprobe.
+// Quests 4–5 und der Bibliothekar der Schatten folgen; ihre Orte sind schon da.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -12,11 +13,14 @@ import { belohnung } from "../ui/belohnung.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { BRIEFE, LESEKREIS } from "../inhalte/scriptoria_q1_q2.js";
+import { AUSHAENGE, LATERNENPROBE } from "../inhalte/scriptoria_q3.js";
 import { RASTER, PFADE } from "./scriptoria_layout.js";
 
 const LIRIEN = "Lirien, Hüterin der Bücher";
 const FENNICK = "Bote Fennick";
 const MARA = "Mara vom Lesekreis";
+const VESNA = "Laternenwärterin Vesna";
+const aushaengeGelesen = (z = zustand) => AUSHAENGE.every((a) => z.erledigt[a.id]);
 
 /** Welche Quest den Nebel auf einem Pfad vertreibt (Index wie in PFADE[].nebel) */
 const NEBEL_WEICHT = ["scriptoria_q1", "scriptoria_q2", "scriptoria_q3", "scriptoria_q4", "scriptoria_q5"];
@@ -36,10 +40,17 @@ async function lirien() {
     erledigen("scriptoria_intro");
     return;
   }
+  if (istErledigt("scriptoria_q3")) {
+    await dialog(LIRIEN, [
+      "Drei Seiten leuchten! Der Nachtpfad ist wieder sicher, und der Nebel vor dem Lehrlingshaus im Nordosten weicht.",
+      "Beim Lehrlingshaus und an den Wegweisern im Norden warten noch Aufgaben. (Diese Quests kommen bald.)",
+    ], B);
+    return;
+  }
   if (istErledigt("scriptoria_q2")) {
     await dialog(LIRIEN, [
-      "Spürst du es? Der Nebel im Osten wird dünner. Zwei Seiten des Großen Buches leuchten wieder.",
-      "Hinter dem Nachtpfad im Osten, beim Lehrlingshaus und an den Wegweisern im Norden warten noch Aufgaben. (Diese Quests kommen bald.)",
+      "Spürst du es? Der Nebel im Osten ist verschwunden. Zwei Seiten des Großen Buches leuchten wieder.",
+      "Geh nach Osten zum Nachtpfad. Laternenwärterin Vesna passt dort auf die Besucher auf – aber seit der Nebel die Aushänge verwischt hat, liest niemand mehr die Regeln.",
     ], B);
     return;
   }
@@ -137,6 +148,75 @@ async function mara(welt) {
   await belohnung({ xp: 150, grund: "Quest abgeschlossen: Der Lesekreis", gegenstaende: ["seite_berichte"], fanfare: true });
 }
 
+// ---------- Quest 3: Der Nachtpfad ----------
+
+async function vesna(welt) {
+  const B = bild("npc_vesna");
+  if (!istErledigt("scriptoria_q2")) {
+    await dialog(VESNA, "Psst. Hier beginnt der Nachtpfad. Ohne Laterne geht hier niemand weiter.", B);
+    return;
+  }
+  if (!istErledigt("scriptoria_q3_start")) {
+    await dialog(VESNA, [
+      "Ah, ein Licht im Nebel! Ich bin Vesna, die Laternenwärterin. Ich passe auf, dass niemand auf dem Nachtpfad verloren geht.",
+      "Gestern haben sich wieder drei Besucher verlaufen, und ein Lehrling hat im Archiv Tee über ein altes Buch geschüttet. Warum? Niemand liest die Aushänge genau!",
+      "Hier am Pfad hängen die Regeln für Besucher, und dort hinten die Tafel mit den Hinweisen für die Lehrlinge im Archiv. Lies beide und sag mir, was stimmt und was nicht.",
+      "Aber Vorsicht: Die Sätze stehen nie genau so im Text. Achte auf kleine Wörter wie „unter“, „nur“, „auch“ und „nicht“ – sie ändern alles!",
+    ], B);
+    erledigen("scriptoria_q3_start");
+    return;
+  }
+  if (istErledigt("scriptoria_q3")) {
+    await dialog(VESNA, "Der Pfad ist sicher, und meine Laternen leuchten. Danke – du liest so genau wie eine Eule sieht!", B);
+    return;
+  }
+  if (!aushaengeGelesen()) {
+    const offen = AUSHAENGE.filter((a) => !istErledigt(a.id)).map((a) => a.name);
+    await dialog(VESNA, `Lies zuerst noch: ${offen.join(" und ")}.`, B);
+    return;
+  }
+  const geschafft = await questStarten({
+    sprecher: VESNA, bild: B,
+    frageText: "Du hast beide Aushänge gelesen. Jetzt die Laternenprobe: Ich prüfe, ob du die kleinen Wörter wirklich verstanden hast. Bereit?",
+    ja: "Ja, Laternenprobe!",
+    spaeter: "Gut. Die Laterne wartet auf dich.",
+    folge: { id: "scriptoria_q3_probe", titel: "Der Nachtpfad", untertitel: "Die Laternenprobe · Signalwörter genau lesen", aufgaben: LATERNENPROBE },
+  });
+  if (!geschafft) return;
+  erledigen("scriptoria_q3_probe");
+  erledigen("scriptoria_q3");
+  welt.aktualisieren();
+  await dialog(VESNA, [
+    "Bestanden! Hier, nimm diese Laterne – sie leuchtet nur für Menschen, die genau lesen.",
+    "Schau: Zwischen den Regeln leuchtet eine Seite auf. Und der Nebel vor dem Lehrlingshaus im Nordosten zieht sich zurück!",
+  ], B);
+  await belohnung({ xp: 150, grund: "Quest abgeschlossen: Der Nachtpfad", gegenstaende: ["seite_regeln"], fanfare: true });
+}
+
+function aushangAktion(a) {
+  return async () => {
+    if (!istErledigt("scriptoria_q3_start")) {
+      await dialog(a.name, "Die Schrift ist vom Nebel verwischt. Vielleicht kann dir die Laternenwärterin helfen.");
+      return;
+    }
+    if (istErledigt(a.id)) {
+      const nochmal = await frage(a.name, "Diesen Aushang hast du schon genau gelesen. Möchtest du noch einmal üben?", ["Ja, noch einmal", "Nein"]);
+      if (nochmal === 0) await aufgabenFolge({ id: a.id, titel: a.name, untertitel: "Regeln lesen · Richtig oder falsch?", aufgaben: a.aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher: a.name,
+      frageText: "Vesnas Laterne macht die verwischte Schrift wieder lesbar. Möchtest du den Aushang jetzt genau lesen?",
+      ja: "Ja, genau lesen",
+      spaeter: "Der Aushang wartet.",
+      folge: { id: a.id, titel: a.name, untertitel: "Regeln lesen · Richtig oder falsch? · wie DSD Lesen Teil 3", aufgaben: a.aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(a.id);
+    await belohnung({ xp: 25, grund: `${a.name}: genau gelesen!`, fanfare: true });
+  };
+}
+
 // ---------- Nebel, Platzhalter, Portal ----------
 
 function nebelAktion(i) {
@@ -166,6 +246,7 @@ export default {
     mitte: [22, 25],
     west: [7, 27],
     nordwest: [7, 9],
+    ost: [36, 26],
   },
   objekte: [
     { id: "portal_scriptoria", art: "portal", name: "Portal ins Dorf", x: 21, y: 42, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
@@ -179,8 +260,13 @@ export default {
     { id: "mara", art: "npc", name: MARA, bild: "npc_mara", x: 9, y: 13, aktion: mara,
       marker: (z) => Boolean(z.erledigt.scriptoria_q1) && !z.erledigt.scriptoria_q2 },
     { id: "lesekreis", art: "objekt", name: "Gästebuch des Lesekreises", bild: "lesepult", x: 6, y: 13, aktion: mara, hinweis: "Das Gästebuch lesen" },
-    { id: "aushang_nachtpfad", art: "objekt", name: "Aushang am Nachtpfad", bild: "aushang", x: 37, y: 27,
-      aktion: spaeter("Aushang", "Ein großer Aushang mit Regeln für Besucher. Der Nebel hat die Schrift verwischt. (Quest 3 kommt bald.)"), hinweis: "Den Aushang lesen" },
+    { id: "vesna", art: "npc", name: VESNA, bild: "npc_vesna", x: 35, y: 25, aktion: vesna,
+      marker: (z) => Boolean(z.erledigt.scriptoria_q2) && (!z.erledigt.scriptoria_q3_start || (aushaengeGelesen(z) && !z.erledigt.scriptoria_q3)) },
+    ...AUSHAENGE.map((a, i) => ({
+      id: a.id, art: "objekt", name: a.name, bild: "aushang", x: i ? 38 : 37, y: i ? 30 : 27,
+      aktion: aushangAktion(a), hinweis: `${a.name} lesen`,
+      marker: (z) => Boolean(z.erledigt.scriptoria_q3_start) && !z.erledigt[a.id],
+    })),
     { id: "lehrlingshaus", art: "objekt", name: "Lehrlingshaus", bild: "aushang", x: 37, y: 8,
       aktion: spaeter("Lehrlingshaus", "Hier wohnen die Lehrlinge der Bibliothek. (Quest 4 kommt bald.)"), hinweis: "Das Lehrlingshaus ansehen" },
     { id: "wegweiser", art: "objekt", name: "Wegweiser", bild: "aushang", x: 22, y: 9,

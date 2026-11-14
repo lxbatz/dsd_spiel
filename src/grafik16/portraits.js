@@ -31,6 +31,7 @@ export const PORTRAITS = {
   npc_lirien: { hintergrund: "#1e3a32", augen: "#4aa88a", ausdruck: "weise", szene: "wald", amulett: true, licht: { farbe: "#a0ffd0", seite: -1 } },
   npc_fennick: { hintergrund: "#3a4a2a", augen: "#6a4a2a", ausdruck: "froh", szene: "wald", licht: { farbe: "#ffe0a0", seite: 1 } },
   npc_mara: { hintergrund: "#3a2a4a", augen: "#3a2a1a", ausdruck: "froh", szene: "bibliothek", brille: true, licht: { farbe: "#ffd890", seite: -1 } },
+  npc_vesna: { hintergrund: "#1a1a3a", augen: "#e8b840", ausdruck: "ruhig", szene: "nacht", licht: { farbe: "#ffc860", seite: 1 } },
   npc_lyra: { hintergrund: "#4a3a7a", augen: "#8a5ab0", ausdruck: "neugierig", brille: true, szene: "bibliothek", feder: true, licht: { farbe: "#ffd890", seite: -1 } },
   boss_torwaechter: { hintergrund: "#1e1a30", szene: "runen", waechter: {} },
   // Wächter der Inseln der Stimmen (gleiche Gestalt, andere Farben)

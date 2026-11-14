@@ -37,6 +37,7 @@ export const GALERIE = [
   { key: "npc_lirien", typ: "figur", reihe: 4, name: "Lirien, Hüterin der Bücher", text: "Mentorin in Scriptoria, dem Reich des Lesens. Wohnt am Großen Lesebaum." },
   { key: "npc_fennick", typ: "figur", reihe: 4, name: "Bote Fennick", text: "Bringt die Briefe zwischen den Bäumen von Scriptoria. Quest 1: Die verlorenen Wörter." },
   { key: "npc_mara", typ: "figur", reihe: 4, name: "Mara vom Lesekreis", text: "Leitet den Lesekreis im Bücherwald. Quest 2: Der Lesekreis." },
+  { key: "npc_vesna", typ: "figur", reihe: 4, name: "Laternenwärterin Vesna", text: "Passt auf dem Nachtpfad in Scriptoria auf die Besucher auf. Quest 3: Der Nachtpfad." },
   { key: "npc_lyra", typ: "figur", reihe: 1, name: "Meisterin Lyra", text: "Die letzte Schülerin der Schreibmeister. Führt durch Lythara." },
   { key: "boss_torwaechter", typ: "boss", reihe: 2, name: "Der Torwächter der Quellen", text: "Boss von Quest 1 (Einleitung) in der Halle der Tausend Tore." },
   { key: "boss_kopist", typ: "boss", reihe: 2, name: "Der Kopist", text: "Wächter der Insel der Echos (Wiedergabe)." },
@@ -59,7 +60,7 @@ export const GALERIE = [
 const BREITE = 44, HOEHE = 42;
 const REIHEN_Y = [30, 23, 15, 4, 19];
 const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5 };
-const ABSTAND = { 0: 5, 1: 4.5, 2: 6, 3: 0, 4: 3.1 };
+const ABSTAND = { 0: 5, 1: 4.5, 2: 6, 3: 0, 4: 2.9 };
 
 function platzieren() {
   const objekte = [];

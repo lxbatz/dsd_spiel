@@ -53,7 +53,10 @@ function hauptziele(z) {
   liste.push({ text: "Reise durch das Portal im Dorf nach Scriptoria und sprich mit Lirien am Großen Lesebaum.", erledigt: e("scriptoria_intro") });
   liste.push({ text: "Die verlorenen Wörter: Repariere mit Bote Fennick die Briefe am Briefbaum (Westen).", erledigt: e("scriptoria_q1") });
   if (e("scriptoria_q1")) liste.push({ text: "Der Lesekreis: Ordne mit Mara die Berichte im Gästebuch (Nordwesten).", erledigt: e("scriptoria_q2") });
-  if (e("scriptoria_q2")) liste.push({ text: "Scriptoria, Quest 3: Der Aushang am Nachtpfad (kommt bald)", erledigt: false });
+  if (!e("scriptoria_q2")) return liste;
+  const aushaenge = ["scriptoria_q3_a1", "scriptoria_q3_a2"].filter(e).length;
+  liste.push({ text: `Der Nachtpfad: Lies die Aushänge im Osten (${aushaenge}/2) und besteh Vesnas Laternenprobe.`, erledigt: e("scriptoria_q3") });
+  if (e("scriptoria_q3")) liste.push({ text: "Scriptoria, Quest 4: Das Lehrlingshaus (kommt bald)", erledigt: false });
   return liste;
 }
 
