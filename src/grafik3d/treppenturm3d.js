@@ -5,7 +5,7 @@
 // Tore, Pult, Siegel und Torwächter kommen aus halle3d.js.
 
 import * as THREE from "../../vendor/three.module.min.js";
-import { Teile, KUGEL, KUGEL_K, ZYL, KAPSEL, RING, KASTEN, KEGEL } from "./figuren.js";
+import { Teile, KUGEL, KUGEL_K, ZYL, KAPSEL, RING, KASTEN, KEGEL, DREH, V } from "./figuren.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { hash } from "../grafik16/pinsel.js";
 import { E } from "./welt.js";
@@ -23,7 +23,7 @@ const THEMA = {
   waffen: { boden: "platten", wand: "#8a8480", fuge: "#5a5450", decke: "#4a3a2a", licht: "#ffc890", staerke: 30, teppich: "#7a2228" },
   bankett: { boden: "schach", wand: "#c8b494", fuge: "#9a8668", decke: "#6a4426", licht: "#ffd8a0", staerke: 34, teppich: "#a01a2e" },
   gemaecher: { boden: "parkett", wand: "#ece0c8", fuge: "#c8b48a", decke: "#f4ecdc", licht: "#fff0d0", staerke: 36, teppich: "#2a3a8a" },
-  observatorium: { boden: "marmor", wand: "#f2eee6", fuge: "#cfc8bc", decke: "#1a1c3a", licht: "#d8e4ff", staerke: 36, teppich: null },
+  observatorium: { boden: "marmor", wand: "#e8e4dc", fuge: "#c4bdb0", decke: "#1a1c3a", licht: "#d8e4ff", staerke: 18, teppich: null },
 };
 
 function leinwand(w, h) {
@@ -166,6 +166,46 @@ function texturen() {
   _tex = { licht: textur(lichtTextur("rgba(255,255,255,1)")), sterne: textur(sternTextur()) };
   return _tex;
 }
+
+/** Wandteppich: die Burg (der Turm der Tausend Treppen) von außen als Pixelbild, mit Bordüre und Fransen */
+function wandteppichTextur() {
+  const W = 48, H = 40;
+  const [c, g] = leinwand(W, H);
+  const px = (x, y, w, h, f) => { g.fillStyle = f; g.fillRect(x, y, w, h); };
+  // Himmel und Hügel
+  px(0, 0, W, H, "#5a7ac8");
+  px(0, 0, W, 8, "#4a62b0");
+  for (const [x, y] of [[6, 4], [40, 6], [34, 3], [12, 9]]) px(x, y, 1, 1, "#f4e8a8");
+  px(0, 30, W, 10, "#3a7a3a");
+  for (let x = 0; x < W; x++) px(x, 28 + Math.round(Math.sin(x * 0.3) * 1.5), 1, 3, "#4a8a3a");
+  // Ringmauer mit Zinnen und Tor
+  px(8, 24, 32, 8, "#8a8494");
+  for (let x = 8; x < 40; x += 3) px(x, 22, 2, 2, "#8a8494");
+  px(22, 27, 4, 5, "#3a2a1a");
+  // Der Turm: sechs Etagen, oben die blaue Kuppel des Observatoriums
+  px(19, 4, 10, 22, "#a8a2b4");
+  px(19, 4, 2, 22, "#c8c2d4");
+  for (let k = 0; k < 6; k++) {
+    const y = 23 - k * 3.4;
+    px(19, Math.round(y) + 2, 10, 1, "#7a7488");
+    px(21, Math.round(y), 2, 2, k === 0 ? "#ff9a50" : "#ffd890");
+    px(25, Math.round(y), 2, 2, k === 0 ? "#ff9a50" : "#ffd890");
+  }
+  px(18, 3, 12, 2, "#c8c2d4");
+  for (let x = 18; x < 30; x += 2) px(x, 2, 1, 1, "#c8c2d4");
+  px(20, 0, 8, 3, "#2a3a8a");
+  px(23, 0, 2, 1, "#b48aff");
+  // Fahnen an den Ecktürmen
+  for (const x of [8, 37]) { px(x, 18, 3, 6, "#9a94a4"); px(x + 1, 14, 1, 4, "#4a3a2a"); px(x + 2, 14, 3, 2, "#a01a2e"); }
+  // Bordüre in Gold und Weinrot
+  g.strokeStyle = "#d8b048"; g.lineWidth = 2; g.strokeRect(1, 1, W - 2, H - 2);
+  g.strokeStyle = "#7a1a2a"; g.lineWidth = 1; g.strokeRect(3.5, 3.5, W - 7, H - 7);
+  const t = textur(c);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter;
+  return t;
+}
+
+const DREH_VASE = () => DREH([V(0, 0), V(0.18, 0), V(0.26, 0.25), V(0.24, 0.6), V(0.12, 0.85), V(0.16, 1.05), V(0, 1.05)], 14, "vase");
 
 // ---------- Möbel ----------
 
@@ -401,6 +441,14 @@ export function treppenturmBauen(szene, raster, kontext) {
       stufen.add(KASTEN(), farbe, [(GX0 + GX1) / 2, (hTop + unten) / 2, (za + zb) / 2], [0, 0, 0], [GX1 - GX0, hTop - unten, zb - za + 0.02]);
       stufen.add(KASTEN(), i >= 4 ? GOLD : "#3a2e24", [(GX0 + GX1) / 2, hTop + 0.005, zb - 0.06], [0, 0, 0], [GX1 - GX0, 0.02, 0.1], i >= 4 ? { art: "glanz" } : {});
     }
+    // Boden unter dem Tor oben an der Treppe (sonst klafft dort ein Loch zwischen Treppe und Etage)
+    const oben = ETAGEN_POS[i], thOben = THEMA[oben.id];
+    const ta = (tr.y0 - 1) * E, tb = tr.y0 * E;
+    stufen.add(KASTEN(), farbe, [(GX0 + GX1) / 2, (tr.oben + tr.unten - 0.7) / 2, (ta + tb) / 2], [0, 0, 0], [GX1 - GX0, tr.oben - tr.unten + 0.7, tb - ta + 0.04]);
+    const schwelle = new THREE.Mesh(new THREE.BoxGeometry(GX1 - GX0, 0.12, tb - ta + 0.04), new THREE.MeshStandardMaterial({ color: thOben.teppich ?? farbe, roughness: 0.9 }));
+    schwelle.position.set((GX0 + GX1) / 2, tr.oben - 0.05, (ta + tb) / 2);
+    schwelle.receiveShadow = true;
+    szene.add(schwelle);
     // Läufer auf den oberen Treppen
     if (i >= 3) stufen.add(KASTEN(), ["", "", "", "#a01a2e", "#2a3a8a", "#2a3a8a"][i], [(GX0 + GX1) / 2, (tr.oben + tr.unten) / 2 + 0.14, (z0 + z1) / 2], [Math.atan2(tr.oben - tr.unten, z1 - z0), 0, 0], [GX1 - GX0 - 1.2, 0.04, Math.hypot(z1 - z0, tr.oben - tr.unten)], { art: "stoff" });
   }
@@ -514,6 +562,37 @@ export function treppenturmBauen(szene, raster, kontext) {
       }
       deko.add(KASTEN(), "#8a1a2a", [IX0 + 5.2, h + 0.02, za + 3], [0, 0, 0], [3.4, 0.03, 4.4], { art: "stoff" });
       deko.add(KASTEN(), GOLD, [IX0 + 5.2, h + 0.015, za + 3], [0, 0, 0], [3.7, 0.02, 4.7], { art: "glanz" });
+      // Großer Wandteppich gegenüber dem Bett, links neben der Tür: die Burg von außen als Pixelbild
+      const tw = 6.4, th2 = 5.2, tx = (IX0 + GX0) / 2, tz = zb - 0.1;
+      const teppich = new THREE.Mesh(new THREE.PlaneGeometry(tw, th2), new THREE.MeshStandardMaterial({ map: wandteppichTextur(), roughness: 1 }));
+      teppich.position.set(tx, h + 1.1 + th2 / 2, tz);
+      teppich.rotation.y = Math.PI;
+      szene.add(teppich);
+      deko.add(ZYL(1, 1, 10), GOLD, [tx, h + 1.25 + th2, tz - 0.1], [0, 0, Math.PI / 2], [0.09, tw + 0.8, 0.09], { art: "glanz" });
+      for (const s of [-1, 1]) deko.add(KUGEL(), GOLD, [tx + s * (tw / 2 + 0.45), h + 1.25 + th2, tz - 0.1], [0, 0, 0], 0.16, { art: "glanz" });
+      for (let k = 0; k < 12; k++) deko.add(KASTEN(), GOLD, [tx - tw / 2 + 0.27 + k * (tw - 0.54) / 11, h + 1.0, tz - 0.06], [0, 0, 0], [0.08, 0.25, 0.02], { art: "stoff" });
+      // Truhe am Fußende des Bettes, Kandelaber neben dem Bett, Vasen mit Blumen
+      const bettX = 7 * E + 3, bettZ = (e.y0 + 1) * E + 3;
+      deko.add(KASTEN(), "#6a3a1e", [bettX + 3.6, h + 0.35, bettZ], [0, 0, 0], [0.8, 0.7, 2.0]);
+      deko.add(KASTEN(), GOLD, [bettX + 3.6, h + 0.72, bettZ], [0, 0, 0], [0.84, 0.06, 2.04], { art: "glanz" });
+      for (const dz of [-0.6, 0.6]) deko.add(KASTEN(), GOLD, [bettX + 4.02, h + 0.4, bettZ + dz], [0, 0, 0], [0.04, 0.5, 0.1], { art: "glanz" });
+      for (const dz of [-3.6, 3.6]) {
+        deko.add(ZYL(0.4, 1, 10), GOLD, [bettX - 1.6, h + 0.9, bettZ + dz], [0, 0, 0], [0.12, 1.8, 0.12], { art: "glanz" });
+        deko.add(ZYL(1, 1, 12), GOLD, [bettX - 1.6, h + 1.82, bettZ + dz], [0, 0, 0], [0.3, 0.05, 0.3], { art: "glanz" });
+        for (const dx of [-0.18, 0, 0.18]) { deko.add(ZYL(1, 1, 8), "#f4f0e0", [bettX - 1.6 + dx, h + 2.0, bettZ + dz], [0, 0, 0], [0.04, 0.32, 0.04]); flamme(bettX - 1.6 + dx, h + 2.25, bettZ + dz, 0.3, "#ffe0a0"); }
+      }
+      for (const [vx, vz] of [[IX1 - 0.7, zm], [GX1 + 1.0, zb - 0.8]]) {
+        deko.add(DREH_VASE(), "#2a4a9a", [vx, h, vz], [0, 0, 0], 1, { art: "glanz" });
+        for (let k = 0; k < 5; k++) deko.add(KUGEL_K(), ["#ff7aa8", "#ffd23a", "#ffffff", "#ff9a5a", "#c88aff"][k], [vx + Math.cos(k * 1.3) * 0.2, h + 1.25 + (k % 2) * 0.12, vz + Math.sin(k * 1.3) * 0.2], [0, 0, 0], 0.12);
+      }
+      // Kronleuchter aus Gold und eine goldene Zierleiste unter der Decke
+      deko.add(RING(0.08), GOLD, [(IX0 + IX1) / 2, h + 5.8, zm], [Math.PI / 2, 0, 0], [1.3, 1.3, 1], { art: "glanz" });
+      deko.add(RING(0.06), GOLD, [(IX0 + IX1) / 2, h + 5.5, zm], [Math.PI / 2, 0, 0], [0.7, 0.7, 1], { art: "glanz" });
+      deko.add(ZYL(1, 1, 6), GOLD, [(IX0 + IX1) / 2, h + 6.75, zm], [0, 0, 0], [0.03, 1.9, 0.03], { art: "glanz" });
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2; flamme((IX0 + IX1) / 2 + Math.cos(a) * 1.3, h + 6.1, zm + Math.sin(a) * 1.3, 0.4, "#fff0c0"); }
+      for (const [x0, x1, z0, z1] of [[IX0, IX1, za + 0.05, za + 0.05], [IX0, IX1, zb - 0.05, zb - 0.05], [IX0 + 0.05, IX0 + 0.05, za, zb], [IX1 - 0.05, IX1 - 0.05, za, zb]]) {
+        deko.add(KASTEN(), GOLD, [(x0 + x1) / 2, h + WAND_H - 0.25, (z0 + z1) / 2], [0, 0, 0], [Math.max(0.12, x1 - x0), 0.18, Math.max(0.12, z1 - z0)], { art: "glanz" });
+      }
     }
     if (id === "observatorium") {
       // Sternenkuppel mit Spalt, Sternkarten, schwebende Lichtkugeln, Himmelsgloben
@@ -560,14 +639,17 @@ export function treppenturmBauen(szene, raster, kontext) {
     { bg: F("#2a2a2c"), nebel: F("#3a3632"), hemi: F("#f0dcc0"), boden: F("#4a4038"), i: 1.35, sonne: 1.0, weit: 60 },
     { bg: F("#3a2e24"), nebel: F("#4a3a2c"), hemi: F("#ffe8c8"), boden: F("#5a3a28"), i: 1.55, sonne: 1.2, weit: 66 },
     { bg: F("#8aa0b8"), nebel: F("#d8ccb8"), hemi: F("#fff4e0"), boden: F("#a89070"), i: 1.8, sonne: 1.5, weit: 74 },
-    { bg: F("#1a1c3a"), nebel: F("#d8dcf0"), hemi: F("#f4f6ff"), boden: F("#c8c0d8"), i: 2.0, sonne: 1.7, weit: 80 },
+    { bg: F("#1a1c3a"), nebel: F("#2a2c48"), hemi: F("#eef0ff"), boden: F("#8a849c"), i: 1.3, sonne: 1.1, weit: 140 },
   ];
   const versatz = new THREE.Vector3(5, 26, 8);
   const tmp = new THREE.Color();
+  let spielerY = 0;
   const mische = (ziel, a, b, t) => ziel.copy(a).lerp(b, t);
   return {
     blockZeichen: BLOCKIERT,
     boden: bodenY,
+    // Im hellen Observatorium kein Bloom (sonst wirkt der weiße Marmor neblig); unten leuchten Fackeln und Kerzen
+    get bloom() { return spielerY < ETAGEN_POS[5].h - 1.5; },
     hindernis: (tx, ty) => (raster[ty]?.[tx] === "#" ? 999 : kachelH(tx, ty)),
     objektModell: (o) => halleObjektModell(o, animationen),
     licht: (pos) => {
@@ -579,6 +661,8 @@ export function treppenturmBauen(szene, raster, kontext) {
       mische(szene.background, a.bg, b.bg, u);
       mische(szene.fog.color, a.nebel, b.nebel, u);
       szene.fog.far = a.weit + (b.weit - a.weit) * u;
+      szene.fog.near = 16 + f * 4;
+      spielerY = pos.y;
       mische(hemi.color, a.hemi, b.hemi, u);
       mische(hemi.groundColor, a.boden, b.boden, u);
       hemi.intensity = a.i + (b.i - a.i) * u;
