@@ -17,8 +17,6 @@
 // Repository – die Lehrkraft hat die Liste.
 
 export const CODES = {
-  // Testcode zum Ausprobieren: ELD-TEST-0001 (10 XP). Vor dem Einsatz in der Klasse löschen.
-  "76ef454736d5b0e005fa6c1dd0a07464414434e6982299236a1ce9bff1044d75": { xp: 10, grund: "Testcode" },
   // Sprungcodes für Lehrkräfte
   "01517cac2340b3b1368f25a66f0ac1a2b3a22543624c6f8ad0b8d60b8327e5c2": { sprung: "menue", grund: "Sprungmenü (alle Stellen)" },
   "a2806dc4d8bf04d3b726c166a491784274df3a281247843c6f875b39bf34737e": { sprung: "dorf", grund: "Sprungcode" },
