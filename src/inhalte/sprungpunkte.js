@@ -68,6 +68,15 @@ const SCHRITTE = [
   ["scriptoria_q5", 150, "seite_wege"],
   ["scriptoria_boss", 200],
   ["scriptoria_finale", 250, "smaragd_abzeichen"],
+  ["vocantia_intro", 0],
+  ["vocantia_q1", 150, "stimme_worte"],
+  ["vocantia_q2", 150, "stimme_gespraech"],
+  ["vocantia_q3", 150, "stimme_dinge"],
+  ["vocantia_q4", 150, "stimme_meinung"],
+  ["vocantia_q5", 150, "stimme_buehne"],
+  ["vocantia_siegel", 50, "sprechsiegel"],   // steht für einen eingelösten Sprechsiegel-Code
+  ["vocantia_boss", 200],
+  ["vocantia_finale", 250, "diamant_abzeichen"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -125,6 +134,12 @@ export const SPRUNGPUNKTE = [
   { id: "scriptoria_q5", name: "Scriptoria: Kreuzung der Wegweiser (Quest 5)", bis: "scriptoria_q4", karte: "scriptoria", spawn: "nord" },
   { id: "scriptoria_boss", name: "Scriptoria: vor dem Bibliothekar der Schatten (Endkampf)", bis: "scriptoria_q5", karte: "scriptoria", spawn: "tiefe" },
   { id: "scriptoria_ende", name: "Scriptoria gerettet (Ende von Scriptoria)", bis: "scriptoria_finale", karte: "scriptoria", spawn: "tiefe" },
+  { id: "vocantia", name: "Vocantia: Ankunft im Bergdorf (Großmutter Runa)", bis: "scriptoria_finale", karte: "vocantia", spawn: "eingang" },
+  { id: "vocantia_quests", name: "Vocantia: fünf eingefrorene Bewohner (Quests 1–5)", bis: "vocantia_intro", karte: "vocantia", spawn: "mitte" },
+  { id: "vocantia_q5", name: "Vocantia: vier Bewohner frei, Bühne am See offen (Quest 5)", bis: "vocantia_q4", karte: "vocantia", spawn: "see" },
+  { id: "vocantia_pfad", name: "Vocantia: alle frei, Eiswand geschmolzen, ohne Sprechsiegel", bis: "vocantia_q5", karte: "vocantia", spawn: "pfad" },
+  { id: "vocantia_boss", name: "Vocantia: vor dem Schweigekönig (Endkampf, mit Sprechsiegel)", bis: "vocantia_siegel", karte: "vocantia", spawn: "gipfel" },
+  { id: "vocantia_ende", name: "Vocantia gerettet (Ende von Vocantia)", bis: "vocantia_finale", karte: "vocantia", spawn: "mitte" },
 ];
 
 const TESTHELD = {

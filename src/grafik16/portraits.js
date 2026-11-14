@@ -43,6 +43,13 @@ export const PORTRAITS = {
   boss_drachenrichter: { hintergrund: "#1c1630", drache: true },
   boss_bibliothekar: { hintergrund: "#0e1418", werwolf: true },
   npc_ambros: { hintergrund: "#2a1e34", augen: "#5a7a9a", ausdruck: "weise", alt: true, brille: true, szene: "bibliothek", amulett: true, licht: { farbe: "#ffe0a0", seite: -1 } },
+  npc_runa: { hintergrund: "#5a7a9a", augen: "#4a6a8a", ausdruck: "weise", alt: true, szene: "schnee", amulett: true, licht: { farbe: "#e8f4ff", seite: -1 } },
+  npc_eik: { hintergrund: "#6a8aaa", augen: "#4a7a3a", ausdruck: "neugierig", szene: "schnee", licht: { farbe: "#fff0d0", seite: 1 } },
+  npc_brynja: { hintergrund: "#6a8aaa", augen: "#3a6a9a", ausdruck: "froh", ohrringe: true, szene: "schnee", licht: { farbe: "#fff0d0", seite: -1 } },
+  npc_torvald: { hintergrund: "#5a6a7a", augen: "#3a4a6a", ausdruck: "froh", russ: true, szene: "schnee", licht: { farbe: "#ffb060", seite: 1 } },
+  npc_halvar: { hintergrund: "#4a6a8a", augen: "#4a6a9a", ausdruck: "weise", alt: true, szene: "schnee", amulett: true, licht: { farbe: "#ffc060", seite: 1 } },
+  npc_sigrun: { hintergrund: "#6a7aaa", augen: "#6a3a8a", ausdruck: "froh", szene: "schnee", blume: true, licht: { farbe: "#ffe0f0", seite: -1 } },
+  boss_schweigekoenig: { hintergrund: "#2a4a6a", troll: true },
   boss_echo: { hintergrund: "#22183a", szene: "runen", waechter: { stein: "#70608e", dunkel: "#40345a", glut: "#ecdcff", rune: "#b48aff" } },
 };
 
@@ -100,6 +107,19 @@ function huegel(b, y0, amp, freq, phase, farbe) {
 }
 
 const SZENEN = {
+  schnee(b, p) {
+    b.verlauf(0, 0, G, 44, R5(mische("#a8d8ff", p.hintergrund, 0.2)).reverse(), { dither: 0.9, umkehren: true });
+    // Verschneite Berge
+    for (const [x0, h, w] of [[-6, 30, 26], [16, 38, 22], [36, 32, 28]]) {
+      for (let x = Math.max(0, x0 - w); x < Math.min(G, x0 + w); x++) {
+        const oben = Math.round(G - h + Math.abs(x - x0) * (h / w) * 0.9);
+        for (let y = oben; y < G; y++) b.set(x, y, y - oben < 6 - Math.abs(x - x0) * 0.1 ? (hash(x, y, 7) > 0.2 ? "#f4f8ff" : "#d8e4f4") : (hash(x, y, 8) > 0.5 ? "#7a8aa0" : "#6a7a90"));
+      }
+    }
+    huegel(b, 52, 2, 0.12, 1, "#e8f0fa");
+    // Schneeflocken
+    for (let i = 0; i < 26; i++) b.set(Math.floor(hash(i, 1, 12) * G), Math.floor(hash(i, 2, 12) * G), "#ffffff");
+  },
   land(b, p) {
     const himmel = R5(mische("#6aa8e8", p.hintergrund, 0.25));
     b.verlauf(0, 0, G, 40, [...himmel].reverse(), { dither: 0.9, umkehren: true });
@@ -576,6 +596,41 @@ function werwolf(b, p) {
   b.ueber(f);
 }
 
+function schweigekoenig(b, p) {
+  // Hintergrund: blasser Winterhimmel, ein eisiger Gipfel und fallender Schnee
+  b.verlauf(0, 0, G, G, R5(p.hintergrund), { dither: 0.9 });
+  for (let x = 0; x < G; x++) {
+    const oben = Math.round(18 + Math.abs(x - 46) * 0.9);
+    for (let y = oben; y < G; y++) b.set(x, y, y - oben < 4 ? "#dce8f4" : "#3a5470");
+  }
+  const f = new Bild(G, G);
+  const haut = R5("#8ea8bc"), dunkel = R5("#5e7890"), fell = R5("#7a6a58"), eis = R("#bfe8ff");
+  const ton = (r, hx, hy, s = 700) => (x, y) => tonAus(r, 0.8 - ((x - hx) ** 2 + (y - hy) ** 2) / s, x, y, 0.5);
+  // Massige Schultern im Fellmantel
+  f.poly([[0, 64], [4, 44], [20, 38], [44, 38], [60, 44], [64, 64]], ton(fell, 24, 44, 1000));
+  for (let i = 0; i < 8; i++) f.poly([[4 + i * 8, 46], [8 + i * 8, 40], [12 + i * 8, 46]], fell[3]);
+  // Kette quer über die Brust
+  for (let i = 0; i < 9; i++) { const x = 6 + i * 6, y = 48 + Math.round(Math.sin(i / 8 * Math.PI) * 6); f.ellipse(x, y, 3, 2, "#4a4e58"); f.ellipse(x, y, 1, 1, fell[1]); f.set(x - 1, y - 1, "#8a909a"); }
+  // Kopf
+  f.fuelle(10, 10, 54, 46, (x, y) => ((x - 32) / 20) ** 2 + ((y - 28) / 17) ** 2 <= 1, ton(haut, 26, 20, 600));
+  // Schwere Stirn und Knollennase
+  f.fuelle(14, 16, 50, 26, (x, y) => ((x - 32) / 18) ** 2 + ((y - 21) / 4) ** 2 <= 1, ton(dunkel, 28, 18, 400));
+  f.kugel(32, 31, 4.5, 4, R("#c4d6e4"), { dither: 0.3 });
+  // Kalte, leuchtende Augen
+  for (const s of [-1, 1]) { f.ellipse(32 + s * 9, 25, 3, 2, "#8af0ff"); f.set(32 + s * 9, 25, "#ffffff"); f.linie(32 + s * 4, 21, 32 + s * 14, 22, dunkel[0]); }
+  // Maul mit Hauern
+  f.linie(24, 38, 40, 38, dunkel[0]);
+  for (const s of [-1, 1]) f.poly([[32 + s * 6, 38], [32 + s * 8, 38], [32 + s * 7, 33]], "#eef2e6");
+  // Eiszapfenbart
+  for (let i = 0; i < 9; i++) { const x = 20 + i * 3, l = 6 + Math.round((1 - Math.abs(i - 4) / 4) * 9); f.poly([[x - 1, 40], [x + 2, 40], [x, 40 + l]], i % 2 ? eis[1] : eis[2]); }
+  // Gefrorene Krone
+  f.rect(15, 9, 34, 4, eis[1]);
+  for (let i = 0; i < 6; i++) { const x = 16 + i * 6.4, h = i === 2 || i === 3 ? 10 : 6; f.poly([[x, 10], [x + 4, 10], [x + 2, 10 - h]], eis[2]); f.set(Math.round(x + 2), 10 - h + 2, "#ffffff"); }
+  f.set(31, 11, "#5ad0ff"); f.set(32, 11, "#5ad0ff");
+  f.umriss(null, { staerke: 0.3 });
+  b.ueber(f);
+}
+
 /** Malt das Porträt einer Figur (64×64). */
 export function portraitBild(schluessel) {
   const p = PORTRAITS[schluessel];
@@ -583,6 +638,7 @@ export function portraitBild(schluessel) {
   if (p?.waechter) { torwaechter(b, p); return b; }
   if (p?.drache) { drachenrichter(b, p); return b; }
   if (p?.werwolf) { werwolf(b, p); return b; }
+  if (p?.troll) { schweigekoenig(b, p); return b; }
   const d = AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);

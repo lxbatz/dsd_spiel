@@ -339,3 +339,26 @@ body.touch:not(.im-spiel) #joystick { display: none; }
 .hoer-zaehler { font-size: 13px; opacity: 0.75; }
 .hoer-knoepfe { justify-content: flex-start; margin-top: 8px; }
 .hoer-text { margin-bottom: 0; }
+
+/* ---------- Sprechaufgaben (Vocantia) ---------- */
+.sprechen .partner-karte { background: #eaf4ff; border-left: 4px solid #4a8ad8; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; color: #1a2a3a; }
+.sprechen .partner-karte > div { margin-top: 4px; }
+.sprech-ziel { margin: 10px 0 6px; font-weight: 600; }
+.sprech-wahl { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.sprech-wahl .gewaehlt { outline: 2px solid #4a8ad8; background: #dcecff; color: #1a2a3a; }
+.sprech-modus { margin: 6px 0; }
+.sprech-info { font-size: 14px; opacity: 0.85; margin-bottom: 6px; }
+.sprech-anzeige { display: flex; gap: 14px; align-items: center; margin: 8px 0; }
+.sprech-anzeige > div:last-child { flex: 1; }
+.sprech-zeit { font-size: 18px; font-weight: 700; }
+.sprech-balken { height: 10px; background: rgba(0,0,0,0.12); border-radius: 5px; overflow: hidden; margin-top: 4px; }
+.sprech-balken-fuellung { height: 100%; width: 0; background: linear-gradient(90deg, #7fd8ff, #3a7ad8); transition: width 0.2s; }
+.sprech-hinweis { font-size: 14px; min-height: 1.2em; margin-top: 4px; opacity: 0.85; }
+.kristall { width: 64px; height: 104px; flex: none; --pegel: 0; transition: filter 0.2s; }
+.kristall .kristall-svg { width: 100%; height: 100%; }
+.kristall-fuellung { transition: y 0.15s; }
+.kristall.spricht { filter: drop-shadow(0 0 calc(4px + var(--pegel) * 14px) #7fd8ff); }
+.kristall.voll { filter: drop-shadow(0 0 14px #bff0ff); }
+.kristall.flackert { animation: kristallFlackern 0.35s steps(2) infinite; }
+@keyframes kristallFlackern { 0% { opacity: 1; } 100% { opacity: 0.45; } }
+.sprech-aufnahme audio { width: 100%; margin-top: 6px; }

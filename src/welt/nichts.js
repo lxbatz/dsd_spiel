@@ -10,8 +10,9 @@ import { posen } from "./nichts_posen.js";
 export const NICHTS_OFFEN = true;
 
 /**
- * Alle Figuren. typ: "figur" (Menschen), "boss" (Wächter), "drache", "tier".
- * reihe: 0 = vorne (Helden), 1 = Dorf und Lythara, 4 = Aurelia, 2 = Wächter, 3 = hinten (Drache).
+ * Alle Figuren. typ: "figur" (Menschen), "boss" (Wächter), "werwolf", "troll", "drache", "tier".
+ * reihe: 0 = vorne (Helden), 1 = Dorf und Lythara, 4 = Aurelia und Scriptoria, 2 = Wächter und Endgegner,
+ * 5 = Vocantia, 3 = hinten (Drache).
  */
 export const GALERIE = [
   { key: "held_neu", typ: "figur", reihe: 0, name: "Ankömmling", text: "So sieht die Heldin oder der Held aus, bevor der Heldenpass ausgefüllt ist." },
@@ -51,6 +52,17 @@ export const GALERIE = [
     text: ["Endgegner von Scriptoria: ein Werwolf im zerrissenen Bibliotheksmantel, mit zerbrochener Brille.", "Nach dem Sieg verwandelt er sich zurück in Meister Ambros, den alten Bibliothekar."],
     posen: [["wolf", "Als Werwolf"], ["bibliothekar", "Zurückverwandelt: Meister Ambros"]],
   },
+  { key: "npc_runa", typ: "figur", reihe: 5, name: "Großmutter Runa", text: "Mentorin in Vocantia, dem Reich des Sprechens. Wartet am gefrorenen Brunnen." },
+  { key: "npc_eik", typ: "figur", reihe: 5, name: "Hirte Eik", text: "Hütet die Schafe auf der Weide von Vocantia. Quest 1: Erste Worte (über sich sprechen)." },
+  { key: "npc_brynja", typ: "figur", reihe: 5, name: "Händlerin Brynja", text: "Verkauft die wärmsten Wollsocken im Tal. Quest 2: Der Markt der Rollen (Gespräche)." },
+  { key: "npc_torvald", typ: "figur", reihe: 5, name: "Schmied Torvald", text: "Arbeitet vor der Langhalle. Quest 3: Die Halle der Dinge (Gegenstände beschreiben)." },
+  { key: "npc_halvar", typ: "figur", reihe: 5, name: "Ratsältester Halvar", text: "Der Älteste im Rat von Vocantia. Quest 4: Die Ratsrunde (Meinungen begründen)." },
+  { key: "npc_sigrun", typ: "figur", reihe: 5, name: "Spielleiterin Sigrun", text: "Leitet das Theater auf der Bühne am See. Quest 5: Die Bühne am See (Präsentation)." },
+  {
+    key: "boss_schweigekoenig", typ: "troll", reihe: 2, name: "Der Schweigekönig",
+    text: ["Endgegner von Vocantia: ein Eistroll mit gefrorener Krone, Eiszapfenbart und schweren Ketten.", "Nach dem Sieg zerspringen die Ketten, und er zieht sich geschlagen auf den Gipfel zurück."],
+    posen: [["thron", "In Ketten (vor dem Kampf)"], ["gipfel", "Besiegt: Ketten gesprengt, sitzt im Schnee"]],
+  },
   { key: "boss_echo", typ: "boss", reihe: 2, name: "Das Endlose Echo", text: "Wächter der Insel des Siegels (Schluss)." },
   {
     key: "boss_drachenrichter", typ: "drache", reihe: 3, name: "Der Drachenrichter",
@@ -66,9 +78,9 @@ export const GALERIE = [
 // ---------- Anordnung (Raster 44 × 42) ----------
 
 const BREITE = 44, HOEHE = 42;
-const REIHEN_Y = [30, 23, 15, 4, 19];
-const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5, werwolf: 2 };
-const ABSTAND = { 0: 5, 1: 4.5, 2: 6, 3: 0, 4: 2.5 };
+const REIHEN_Y = [30, 23, 15, 4, 19, 10];
+const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5, werwolf: 2, troll: 2 };
+const ABSTAND = { 0: 5, 1: 4.5, 2: 5.5, 3: 0, 4: 2.5, 5: 4 };
 
 function platzieren() {
   const objekte = [];

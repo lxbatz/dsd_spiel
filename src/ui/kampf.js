@@ -4,6 +4,7 @@
 import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
+import { sprechenStoppen } from "./sprechen.js";
 import { hatEffekt, kampfErgebnis } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
@@ -108,6 +109,7 @@ export async function kampf(gegner, roheFragen) {
       fokus(r.erstesFeld);
     });
     hoerenStoppen();
+    sprechenStoppen();
   }
 
   const sieg = lp <= 0;

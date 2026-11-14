@@ -70,6 +70,12 @@ export const QUESTS = [
   { id: "scriptoria_q5_w1", titel: "Großer Wegweiser", ort: "Scriptoria", fertigkeit: "lesen", thema: "Überschriften zuordnen, 4 bleiben übrig (wie DSD Lesen Teil 5)" },
   { id: "scriptoria_q5_w2", titel: "Tafel der Kurse", ort: "Scriptoria", fertigkeit: "lesen", thema: "Kursangebote: Überschriften zuordnen (wie DSD Lesen Teil 5)" },
   { id: "scriptoria_boss", titel: "Der Bibliothekar der Schatten", ort: "Scriptoria", fertigkeit: "lesen", thema: "Endkampf: kurze Lesetexte aus allen fünf Teilen", kampf: true },
+  { id: "vocantia_q1", titel: "Erste Worte", ort: "Vocantia", fertigkeit: "sprechen", thema: "Über sich, Familie und Freizeit ausführlich sprechen (wie DSD Mündlich Teil 1)" },
+  { id: "vocantia_q2", titel: "Der Markt der Rollen", ort: "Vocantia", fertigkeit: "sprechen", thema: "Nachfragen, reagieren, Zeit gewinnen; Rollenspiele mit Partner" },
+  { id: "vocantia_q3", titel: "Die Halle der Dinge", ort: "Vocantia", fertigkeit: "sprechen", thema: "Gegenstände und Arbeitsabläufe beschreiben und erklären" },
+  { id: "vocantia_q4", titel: "Die Ratsrunde", ort: "Vocantia", fertigkeit: "sprechen", thema: "Meinung sagen, begründen, höflich widersprechen" },
+  { id: "vocantia_q5", titel: "Die Bühne am See", ort: "Vocantia", fertigkeit: "sprechen", thema: "Präsentation gliedern und halten, Nachfragen beantworten (wie DSD Mündlich Teil 2)" },
+  { id: "vocantia_boss", titel: "Der Schweigekönig", ort: "Vocantia", fertigkeit: "sprechen", thema: "Endkampf: kurze Sprechaufgaben zu Prüfungsthemen (Sprechsiegel nötig)", kampf: true },
   { id: "dorf_finn", titel: "Finns Geheimnis", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Einen persönlichen Brief verstehen, Rat geben" },
   { id: "dorf_markt", titel: "Am Marktstand", ort: "Dorf: Nebenquests", fertigkeit: "sprechen", thema: "Verkaufsgespräche, Preise, Höflichkeit" },
   { id: "dorf_mimi_start", titel: "Mimi: Wilmas Nachricht", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Eine Nachricht verstehen (Details)" },
@@ -87,4 +93,5 @@ export const TEXT_NAMEN = {
   lythara_q4_text: "Meine Meinung (Rolle des Fürsprechers)",
   lythara_q5_text: "Mein Schluss (Rolle der Vollendung)",
   lythara_buch: "Mein ganzer Forumsbeitrag (Buch der Stimmen)",
+  vocantia_stichworte: "Meine Stichwörter für die Präsentation (Bühne am See)",
 };

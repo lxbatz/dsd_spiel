@@ -51,6 +51,13 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Quest 4 *Das Lehrlingshaus* (wie DSD Lesen Teil 4): zwei Informationstexte (Corvins Text für neue Lehrlinge, Ilkas Praktikumsunterlagen der Buchbinderei) mit je sechs Aufgaben A/B/C auf einem Blatt
    - Quest 5 *Die Wegweiser* (wie DSD Lesen Teil 5): an der Kreuzung im Norden die Schilder des Wegweisers und die Überschriften der Kurstafel zuordnen (je acht Überschriften, vier bleiben übrig)
    - Endkampf: **der Bibliothekar der Schatten**, ein Werwolf im zerrissenen Bibliotheksmantel – Fragen mit kurzen Lesetexten aus allen fünf Teilen; nach dem Sieg verwandelt er sich zurück in Meister Ambros, das Tor zur unterirdischen Bibliothek öffnet sich → *Smaragd-Abzeichen*
+7. **Vocantia – das Bergdorf im Schweigen** (Reich des Sprechens, nur 3D; über das Portal im Dorf, nachdem Scriptoria gerettet ist)
+   - Ein verschneites Bergdorf: hohe Gipfel, Holzhäuser mit Schneedächern und Eiszapfen, Tannen, ein gefrorener See, Schneefall und ein Frost-Rand am Bildschirm
+   - Der Schweigekönig, ein Eistroll mit gefrorener Krone und schweren Ketten, hat alle Stimmen eingefroren. Mentorin: Großmutter Runa am gefrorenen Brunnen
+   - Fünf Bewohner stehen in Eis erstarrt; wer für sie spricht, taut sie auf (Reihenfolge frei): Hirte Eik *Erste Worte* (über sich sprechen), Händlerin Brynja *Der Markt der Rollen* (nachfragen, reagieren, Rollenspiele), Schmied Torvald *Die Halle der Dinge* (Gegenstände und Abläufe beschreiben), Ratsältester Halvar *Die Ratsrunde* (Meinung begründen, widersprechen), Spielleiterin Sigrun *Die Bühne am See* (Präsentation wie DSD Mündlich Teil 2)
+   - Sprechaufgaben ohne Mikrofon mit der **Sprechuhr** oder mit Mikrofon über den **Stimmkristall** (zeigt nur, ob man spricht; die Stimme verlässt das Gerät nicht). Viele Aufgaben als Partnerübung
+   - Sind alle fünf frei, schmilzt die Eiswand am Bergpfad. Für den Endkampf braucht man zusätzlich das **Sprechsiegel**: einen Lehrercode für eine echte mündliche Leistung im Unterricht (`tools/lehrercodes.html`, Art „Sprechsiegel“)
+   - Endkampf: **der Schweigekönig** – kurze Sprechaufgaben zu Prüfungsthemen und Strategiefragen; nach dem Sieg zerspringen die Ketten, er zieht sich geschlagen auf den Gipfel zurück, und das Tal taut auf und blüht → *Diamant-Abzeichen*
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

@@ -12,6 +12,7 @@
 //   richtigfalsch { frage, aussagen: [[satz, true|false], ..], erklaerung? }
 //   block         { frage, aufgaben: [..], nummer?: 1 } – mehrere Aufgaben (auswahl, richtigfalsch, luecke …) auf
 //                   einem Blatt, z. B. zu einem Hörtext wie in DSD Hören Teil 3/4: erst lesen, dann hören, dann alles prüfen
+//   sprechen      { frage, dauer, hilfen?, checkliste, partner? } – Sprechaufgabe mit Sprechuhr oder Stimmkristall (ui/sprechen.js)
 //   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte?, vorlage? }
 //                   vorlage: Text (oder Funktion des Spielstands), der beim ersten Schreiben schon im Feld steht
 //
@@ -29,6 +30,7 @@ import { mischen, woerterZaehlen } from "../hilfen.js";
 import { hatEffekt, textSpeichern, zustand, questErgebnis } from "../zustand.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
+import { sprechen, sprechenStoppen } from "./sprechen.js";
 
 // ---------- Hilfen ----------
 
@@ -398,7 +400,7 @@ function block(a) {
   };
 }
 
-const TYPEN = { auswahl, luecke, ordnen, zuordnen, richtigfalsch, freitext, block };
+const TYPEN = { auswahl, luecke, ordnen, zuordnen, richtigfalsch, freitext, block, sprechen };
 
 export function aufgabeErstellen(aufgabe) {
   const fn = TYPEN[aufgabe.typ];
@@ -489,6 +491,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
       fokus(r.erstesFeld);
     });
     hoerenStoppen();
+    sprechenStoppen();
     if (ok === ABBRUCH) {
       questErgebnis(id, protokoll, { abgebrochen: true });
       return { abgebrochen: true };

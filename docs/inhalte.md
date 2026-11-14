@@ -10,6 +10,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `aurelia_q1.js` | Aurelia Quest 1: Durchsagen an den Rufmuscheln, Reisende beraten (Hörtexte mit Gong) |
+| `vocantia.js` | Vocantia (Sprechen): die fünf Quests (Erste Worte, Markt der Rollen, Halle der Dinge, Ratsrunde, Bühne am See) und der Schweigekönig |
 | `scriptoria_q5.js` | Scriptoria Quest 5: Überschriften zuordnen (Lesen Teil 5), Endkampf gegen den Bibliothekar der Schatten |
 | `scriptoria_q4.js` | Scriptoria Quest 4: zwei Informationstexte mit je sechs Aufgaben A/B/C (Lesen Teil 4) |
 | `scriptoria_q3.js` | Scriptoria Quest 3: Aushänge richtig/falsch (Lesen Teil 3), Laternenprobe zu Signalwörtern |
@@ -132,6 +133,20 @@ Wie auf dem Aufgabenblatt der Prüfung: erst alle Aufgaben lesen, dann den Text 
 ```
 `such` ist ein regulärer Ausdruck (Groß-/Kleinschreibung egal). Freie Texte werden nicht bewertet: Die Schülerin/der Schüler muss die Mindestwortzahl erreichen und den Selbstcheck abhaken. Die Lehrkraft liest den Text im Heldenpass und vergibt ggf. einen Lehrercode.
 
+### Sprechen
+```js
+{
+  typ: "sprechen",
+  frage: "Erzähl von deiner Familie.",
+  laut: "Erzähl mir bitte etwas über deine Familie.",   // optional: wird vorgelesen (sonst frage)
+  dauer: 30,                                            // so viele Sekunden muss man mindestens sprechen
+  hilfen: "In meiner Familie sind wir … · Ich habe … Geschwister.",   // Redemittel zum Aufklappen
+  partner: { a: "A fragt und hört zu.", b: "B antwortet ausführlich." },   // optional: Partnerübung
+  checkliste: ["Ich habe in ganzen Sätzen gesprochen.", "…"],   // Selbst- oder Partnercheck
+}
+```
+Man wählt zwischen **Ohne Mikrofon** (Sprechuhr mit Start/Pause) und **Mit Mikrofon** (Stimmkristall: füllt sich nur, solange man spricht; auf Wunsch eine Aufnahme zum Anhören). Die Stimme wird nicht gespeichert und nicht übertragen; die Wahl merkt sich der Browser. Die Aufgabe ist gelöst, wenn die Sprechzeit erreicht und die Checkliste abgehakt ist. Sprechaufgaben funktionieren auch im Bosskampf.
+
 ### Hörtexte
 
 Jede Aufgabe kann einen Hörtext haben (zusätzlich oder statt eines Lesetextes):
@@ -225,5 +240,7 @@ Figuren (`art: "npc"`) bekommen automatisch ein 3D-Modell und ein Pixel-Porträt
 Die Inseln der Stimmen (Karten-ID `turm`, damit alte Spielstände passen) haben einen eigenen 3D-Bau: `src/grafik3d/inseln3d.js`. Form und Lage der Inseln, Brücken und Hindernisse stehen in `src/welt/inseln_layout.js` (Mittelpunkt, Größe und Thema je Insel; das Raster wird daraus erzeugt). Eine Brücke (`art: "bruecke"`) sperrt den Weg, bis `offen(zustand)` wahr wird, und baut sich dann Planke für Planke auf. Die Inseln gibt es nur in der 3D-Version (`nur3d: true`); die älteren Versionen bleiben in der Halle.
 
 Ein Echo-Kristall (`bild: "kristall"`, `farbe`) glimmt schwach und leuchtet hell, sobald `leuchtet(zustand)` wahr ist. Die Wächter sind Varianten des Torwächters; ihre Farben und Zeichen stehen in `WAECHTER` (`src/grafik3d/halle3d.js`), die Porträts in `PORTRAITS` (`waechter: {...}`).
+
+Vocantia (`src/welt/vocantia.js`, 3D in `src/grafik3d/vocantia3d.js`, Raster in `src/welt/vocantia_layout.js`): Eingefrorene Figuren haben `eis: true` und tauen auf, sobald `leuchtet(zustand)` wahr wird. Das ganze Tal taut nach `vocantia_finale` auf. Der Schweigekönig steht in `src/grafik3d/eistroll.js` (Posen „thron“ und „gipfel“). Eine Welt kann mit `aktiv(an)` erfahren, ob sie gerade sichtbar ist (hier für den Frost-Rand).
 
 Ein Tor (`art: "tor"`) öffnet sich in 3D von selbst mit Staub und Funken, sobald `offen(zustand)` wahr wird. Ein Gegner, dessen `sichtbar(zustand)` nach dem Sieg falsch wird, löst sich in Funken auf.

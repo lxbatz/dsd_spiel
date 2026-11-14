@@ -114,6 +114,30 @@ export const AUSSEHEN = {
     haut: "#ecc8a8", haare: "#e8e4dc", frisur: "lang", bart: "lang", bartfarbe: "#ece8e0",
     kleid: "#3a2448", akzent: "#c8a050", hose: "#2a1a34", stiefel: "#2a1a10", robe: true, extra: "buch",
   },
+  npc_runa: {
+    haut: "#ecc8a8", haare: "#f0ece6", frisur: "dutt", wangen: true,
+    kleid: "#7a3a3a", akzent: "#e8dcc8", hose: "#5a2a2a", stiefel: "#3a2a1a", robe: true, schal: "#3a6a9a", extra: "wanderstab",
+  },
+  npc_eik: {
+    haut: "#f2d0b0", haare: "#d8b060", frisur: "kapuze", kapuze: "#8a6a4a",
+    kleid: "#7a8a5a", akzent: "#e8dcc0", hose: "#5a4a3a", stiefel: "#4a3020", schal: "#c8503a", extra: "wanderstab",
+  },
+  npc_brynja: {
+    haut: "#f0c8a4", haare: "#c86a2a", frisur: "zopf", wangen: true,
+    kleid: "#3a6a9a", akzent: "#f0e0c0", hose: "#2a4a6a", stiefel: "#4a2a1a", schuerze: "#e8d8b0", schal: "#c83a4a",
+  },
+  npc_torvald: {
+    haut: "#e0aa80", haare: "#a86a2a", frisur: "glatze", bart: "lang", bartfarbe: "#b8742e",
+    kleid: "#4a4a50", akzent: "#c8a050", hose: "#3a3a40", stiefel: "#2a1a14", schuerze: "#6a4a2a", armeHaut: true,
+  },
+  npc_halvar: {
+    haut: "#e8c0a0", haare: "#dcdcdc", frisur: "lang", bart: "lang", bartfarbe: "#e8e8e8",
+    kleid: "#2a3a5a", akzent: "#e0b040", hose: "#2a3a5a", stiefel: "#3a2a1a", robe: true, schal: "#8a6a4a", extra: "wanderstab",
+  },
+  npc_sigrun: {
+    haut: "#f4d4b8", haare: "#e8d070", frisur: "lang", langhaar: true,
+    kleid: "#8a3a8a", akzent: "#e8c060", hose: "#5a2a5a", stiefel: "#3a1a2a", robe: true,
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

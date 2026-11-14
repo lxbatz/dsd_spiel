@@ -355,6 +355,7 @@ async function portal(welt) {
   if (welt.dreiD && istErledigt("lythara_turm_intro")) ziele.push(["Zu den Inseln der Stimmen", "turm"]);
   if (welt.dreiD && istErledigt("lythara_finale")) ziele.push(["Nach Aurelia, ins Reich des Hörens", "aurelia"]);
   if (welt.dreiD && istErledigt("aurelia_finale")) ziele.push(["Nach Scriptoria, ins Reich des Lesens", "scriptoria"]);
+  if (welt.dreiD && istErledigt("scriptoria_finale")) ziele.push(["Nach Vocantia, ins Reich des Sprechens", "vocantia"]);
   if (welt.dreiD && NICHTS_OFFEN) ziele.push(["In DAS NICHTS (alle Figuren ansehen)", "nichts"]);
   if (ziele.length > 1) {
     const wahl = await frage("Portal", "Das Portal leuchtet blau. Wohin möchtest du reisen?", [...ziele.map(([t]) => t), "Noch nicht."]);

@@ -41,6 +41,7 @@
           <option value="25|Bonusaufgabe">Bonusaufgabe (25 XP)</option>
           <option value="50|Quest im Unterricht">Quest im Unterricht (50 XP)</option>
           <option value="100|DSD-Mission">DSD-Mission (100 XP)</option>
+          <option value="50|Sprechsiegel|sprechsiegel">Sprechsiegel – öffnet den Weg zum Schweigekönig in Vocantia (50 XP)</option>
           <option value="eigen">Eigene Belohnung …</option>
         </select>
       </label>
@@ -70,12 +71,12 @@
     }
 
     document.getElementById("los").addEventListener("click", async () => {
-      let xp, grund;
+      let xp, grund, gegenstand = null;
       if (art.value === "eigen") {
         xp = Number(document.getElementById("xp").value);
         grund = document.getElementById("grund").value.trim() || "Belohnung";
       } else {
-        [xp, grund] = art.value.split("|");
+        [xp, grund, gegenstand = null] = art.value.split("|");
         xp = Number(xp);
       }
       const anzahl = Math.min(200, Math.max(1, Number(document.getElementById("anzahl").value)));
@@ -85,7 +86,7 @@
       karten.replaceChildren();
       for (let i = 0; i < anzahl; i++) {
         const code = `ELD-${block()}-${block()}`;
-        zeilen.push(`  "${await sha256(code)}": { xp: ${xp}, grund: ${JSON.stringify(grund)} },`);
+        zeilen.push(`  "${await sha256(code)}": { xp: ${xp}, grund: ${JSON.stringify(grund)}${gegenstand ? `, gegenstand: "${gegenstand}"` : ""} },`);
         const k = document.createElement("div");
         k.className = "karte";
         k.innerHTML = `<small>Die Chroniken von Eldoria</small><b></b><small></small>`;

@@ -65,6 +65,21 @@ function hauptziele(z) {
   if (!e("scriptoria_q5")) return liste;
   liste.push({ text: "Besiege den Bibliothekar der Schatten vor dem Tor zur unterirdischen Bibliothek.", erledigt: e("scriptoria_boss") });
   if (e("scriptoria_finale")) liste.push({ text: "Scriptoria ist gerettet! Der Schwarze Nebel ist fort.", erledigt: true });
+  if (!e("scriptoria_finale")) return liste;
+  // Vocantia – Reich des Sprechens (Reihenfolge der fünf Bewohner frei)
+  liste.push({ text: "Reise durch das Portal im Dorf nach Vocantia und sprich mit Großmutter Runa am gefrorenen Brunnen.", erledigt: e("vocantia_intro") });
+  if (!e("vocantia_intro")) return liste;
+  for (const [id, text] of [
+    ["vocantia_q1", "Erste Worte: Sprich für Hirte Eik auf der Weide (Südwesten)."],
+    ["vocantia_q2", "Der Markt der Rollen: Sprich für Händlerin Brynja am Marktstand."],
+    ["vocantia_q3", "Die Halle der Dinge: Sprich für Schmied Torvald vor der Langhalle (Westen)."],
+    ["vocantia_q4", "Die Ratsrunde: Sprich für Ratsältesten Halvar am Ratshaus (Nordosten)."],
+    ["vocantia_q5", "Die Bühne am See: Sprich für Spielleiterin Sigrun an der Bühne (Südosten)."],
+  ]) liste.push({ text, erledigt: e(id) });
+  if (!["vocantia_q1", "vocantia_q2", "vocantia_q3", "vocantia_q4", "vocantia_q5"].every(e)) return liste;
+  liste.push({ text: "Hol dir das Sprechsiegel: einen Code von deiner Lehrkraft für eine mündliche Leistung im Unterricht.", erledigt: (z.gegenstaende ?? []).includes("sprechsiegel") });
+  liste.push({ text: "Steig den Bergpfad hinauf und besiege den Schweigekönig auf dem Plateau.", erledigt: e("vocantia_boss") });
+  if (e("vocantia_finale")) liste.push({ text: "Vocantia ist gerettet! Das Tal taut auf und blüht.", erledigt: true });
   return liste;
 }
 

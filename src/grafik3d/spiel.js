@@ -22,12 +22,13 @@ import { inselnBauen } from "./inseln3d.js";
 import { nichtsBauen } from "./nichts3d.js";
 import { aureliaBauen } from "./aurelia3d.js";
 import { scriptoriaBauen } from "./scriptoria3d.js";
+import { vocantiaBauen } from "./vocantia3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -290,6 +291,8 @@ export class Spiel3D {
     }
     const karte = this.karten[id] ??= this.karteBauen(id);
     this.karte = karte;
+    // Welten erfahren, ob sie gerade sichtbar sind (z. B. Frost-Rand am Bildschirm in Vocantia)
+    for (const k of Object.values(this.karten)) k.bau.aktiv?.(k === karte);
     if (this.renderPass) this.renderPass.scene = karte.szene;
     karte.szene.add(this.held.gruppe);
     const [sx, sy] = karte.def.spawns[spawn] ?? karte.def.spawns.start;
@@ -494,7 +497,7 @@ export class Spiel3D {
     hinweis(null);
     const p = this.held.gruppe.position, m = obj.modell.position;
     this.heldBlick = Math.atan2(m.x - p.x, m.z - p.z);
-    if (obj.figur && !obj.boss) obj.blick = Math.atan2(p.x - m.x, p.z - m.z);
+    if (obj.figur && !obj.boss && !obj.figur.starr?.()) obj.blick = Math.atan2(p.x - m.x, p.z - m.z);
     this.gespraech = obj;
     this.gespraechSeite = this.freieSeite(obj);
     obj.figur?.sprechen?.(true, this.uhr.elapsedTime);

@@ -200,3 +200,14 @@ Grundsätze der Bewertung:
 - Quest 4 Lehrlingshaus: wie Teil 4. Zwei Informationstexte (Ausbildung, Praktikum) mit je 6 Aufgaben (Satzanfang + 3 Fortsetzungen) in einem `block` mit `lesetext`. Fallen: „die meisten“ ↔ alle, „erst im zweiten Lehrjahr“, „Bettwäsche bekommen Sie“ ↔ mitbringen, „nicht mit der großen Maschine, aber kleine Werkzeuge“.
 - Quest 5 Wegweiser: wie Teil 5. Je vier Texte, acht Überschriften (Beispiel Z, vier bleiben übrig). Die Ablenker nehmen Lockwörter aus den Texten auf (Notfall → Erste Hilfe, Aurelia → Reise).
 - Endkampf Bibliothekar der Schatten: kurze Lesetexte aus allen fünf Teilen, dazu Signalwörter und Strategien.
+
+**Vocantia (Sprechen):**
+- Grundlage ist der Überblick „Mündliche Kommunikation“ oben: Teil 1 Gespräch zu Alltags- und Berufsthemen, Teil 2 Präsentation mit Nachfragen. Eigene Aufgaben, keine Prüfungsthemen-Karten übernommen.
+- Jede Quest mischt Übungen ohne Mikrofon (Redemittel zuordnen, Lücken, Satzbau, beste Antwort wählen) mit Sprechaufgaben (`sprechen`) und mindestens einer Partnerübung. Die Sprechuhr reicht immer; das Mikrofon ist freiwillig.
+- Quest 1 Eik: über sich, Familie, Freizeit ausführlich sprechen (mehr als ein Satz, Details, Begründung).
+- Quest 2 Brynja: Gesprächsstrategien wie im Prüfungsgespräch (nachfragen, um Erklärung bitten, Zeit gewinnen, widersprechen), Rollenspiele.
+- Quest 3 Torvald: Gegenstände und Arbeitsabläufe beschreiben (Berufswelt: Werkzeug, Arbeitsplatz).
+- Quest 4 Halvar: Meinung sagen, begründen, auf andere reagieren.
+- Quest 5 Sigrun: Präsentation wie Teil 2 (Gliederung, Stichwortzettel als `freitext`, 90 Sekunden frei sprechen, Nachfragen beantworten).
+- Endkampf Schweigekönig: kurze Sprechaufgaben zu Prüfungsthemen (Schule, Zukunft, Feste, Praktikum, Arbeitsplatz, Berufswahl) und Strategiefragen.
+- Das Sprechsiegel (Lehrercode) stellt sicher, dass vor dem Endkampf mindestens einmal vor echten Menschen gesprochen wurde. Die Bewertung der mündlichen Leistung bleibt bei der Lehrkraft.

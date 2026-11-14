@@ -138,6 +138,41 @@ export const GEGENSTAENDE = {
     icon: "💚",
     text: "Du hast das Reich Scriptoria gerettet. Du liest Briefe, Berichte, Regeln, Informationstexte und Anzeigen genau – so wie in der DSD-Prüfung.",
   },
+  stimme_worte: {
+    name: "Stimme der ersten Worte",
+    icon: "💠",
+    text: "Ein Eiskristall, der leise summt. Du kannst über dich, deine Familie und deine Freizeit ausführlich sprechen.",
+  },
+  stimme_gespraech: {
+    name: "Stimme des Gesprächs",
+    icon: "💠",
+    text: "Ein Eiskristall, der leise summt. Du kannst nachfragen, Zeit gewinnen und in einem Gespräch reagieren.",
+  },
+  stimme_dinge: {
+    name: "Stimme der Dinge",
+    icon: "💠",
+    text: "Ein Eiskristall, der leise summt. Du kannst Gegenstände und Arbeitsabläufe beschreiben und erklären.",
+  },
+  stimme_meinung: {
+    name: "Stimme der Meinung",
+    icon: "💠",
+    text: "Ein Eiskristall, der leise summt. Du kannst deine Meinung sagen, sie begründen und anderen höflich widersprechen.",
+  },
+  stimme_buehne: {
+    name: "Stimme der Bühne",
+    icon: "💠",
+    text: "Der fünfte Eiskristall. Du kannst eine kurze Präsentation gliedern, frei halten und Fragen beantworten.",
+  },
+  diamant_abzeichen: {
+    name: "Diamant-Abzeichen",
+    icon: "💎",
+    text: "Du hast das Reich Vocantia gerettet. Du sprichst über dich, führst Gespräche, erklärst Dinge, begründest deine Meinung und hältst eine Präsentation – so wie in der DSD-Prüfung.",
+  },
+  sprechsiegel: {
+    name: "Sprechsiegel",
+    icon: "🗣️",
+    text: "Ein Siegel aus warmem Bernstein. Deine Lehrkraft hat es dir für eine echte mündliche Leistung im Unterricht gegeben. In Vocantia öffnet es den Weg zum Schweigekönig.",
+  },
   gold_abzeichen: {
     name: "Gold-Abzeichen",
     icon: "🥇",
