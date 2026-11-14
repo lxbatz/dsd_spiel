@@ -231,10 +231,35 @@ function nebelBauen(o, animationen) {
   return { modell: g, setzeOffen: g.userData.setzeOffen };
 }
 
+/** Lehrlingshaus: Holzhaus auf Stelzen mit runden, warm leuchtenden Fenstern */
+function baumhausBauen(animationen) {
+  const g = new THREE.Group();
+  const t = new Teile();
+  const holz = "#6a4a30", dunkel = "#4a3020";
+  for (const sx of [-2.4, 2.4]) for (const sz of [-1.4, 1.4]) t.add(ZYL(1, 1, 8), dunkel, [sx, 0.9, sz], [0, 0, 0], [0.22, 1.8, 0.22]);
+  t.add(KASTEN(), holz, [0, 1.85, 0], [0, 0, 0], [5.6, 0.2, 3.6]);
+  t.add(KASTEN(), "#7a5838", [0, 3.2, 0], [0, 0, 0], [5.0, 2.5, 3.0]);
+  for (let i = 0; i < 6; i++) t.add(KASTEN(), dunkel, [0, 2.1 + i * 0.42, 1.52], [0, 0, 0], [5.02, 0.04, 0.02]);
+  t.add(KEGEL(4), "#3a4a2a", [0, 5.4, 0], [0, Math.PI / 4, 0], [4.3, 2.0, 3.0]);
+  t.add(KASTEN(), dunkel, [1.4, 2.9, 1.52], [0, 0, 0], [0.9, 1.6, 0.06]);
+  // Treppe
+  for (let i = 0; i < 4; i++) t.add(KASTEN(), dunkel, [1.4, 0.25 + i * 0.42, 2.3 + (3 - i) * 0.35], [0, 0, 0], [1.0, 0.1, 0.35]);
+  t.in(g);
+  const fenster = [[-1.2, 3.4], [-0.1, 3.4]].map(([x, y]) => {
+    const f = new THREE.Mesh(new THREE.CircleGeometry(0.38, 16), new THREE.MeshBasicMaterial({ color: "#ffc870", toneMapped: false }));
+    f.position.set(x, y, 1.53); g.add(f); return f;
+  });
+  animationen.push((zeit) => fenster.forEach((f, i) => f.material.color.setHSL(0.1, 1, 0.55 + Math.sin(zeit * 2 + i) * 0.05)));
+  g.userData.setzeLeuchten = () => {};
+  g.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  return g;
+}
+
 function objektModell(o, animationen) {
   if (o.bild === "briefbaum") return { modell: briefbaumBauen(animationen) };
   if (o.bild === "lesepult") return { modell: lesepultBauen(animationen) };
   if (o.bild === "aushang") return { modell: aushangBauen() };
+  if (o.bild === "baumhaus") return { modell: baumhausBauen(animationen) };
   if (o.bild === "steintor") return { modell: steintorBauen(animationen) };
   if (o.bild === "nebel") return nebelBauen(o, animationen);
   return null;

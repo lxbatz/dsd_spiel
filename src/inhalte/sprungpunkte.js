@@ -61,6 +61,9 @@ const SCHRITTE = [
   ["scriptoria_q3_a1", 25], ["scriptoria_q3_a2", 25],
   ["scriptoria_q3_probe", 0],
   ["scriptoria_q3", 150, "seite_regeln"],
+  ["scriptoria_q4_start", 0],
+  ["scriptoria_q4_t1", 25], ["scriptoria_q4_t2", 25],
+  ["scriptoria_q4", 150, "seite_hinweise"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -114,6 +117,7 @@ export const SPRUNGPUNKTE = [
   { id: "scriptoria_q2", name: "Scriptoria: Lesekreis bei Mara (Quest 2)", bis: "scriptoria_q1", karte: "scriptoria", spawn: "nordwest" },
   { id: "scriptoria_q3", name: "Scriptoria: Nachtpfad bei Vesna (Quest 3)", bis: "scriptoria_q2", karte: "scriptoria", spawn: "ost" },
   { id: "scriptoria_q3_ende", name: "Scriptoria: Aushänge gelesen, Laternenprobe", bis: "scriptoria_q3_a2", karte: "scriptoria", spawn: "ost" },
+  { id: "scriptoria_q4", name: "Scriptoria: Lehrlingshaus bei Corvin (Quest 4)", bis: "scriptoria_q3", karte: "scriptoria", spawn: "nordost" },
 ];
 
 const TESTHELD = {

@@ -55,4 +55,5 @@ export const CODES = {
   "a79ab8de764a9d6d5865e9d7cc11e5c5b91a85c9c2595e3c0017b01693daa2a4": { sprung: "scriptoria_q2", grund: "Sprungcode" },
   "b68dddd19afe94d5f1e2d0596c9535cedb4556ce0cf53cab1a8b0785a9b9730c": { sprung: "scriptoria_q3", grund: "Sprungcode" },
   "233fe47b709a78f2634c1e9b2bb8a8dd3e601a41be573da4d2ea7e54da6e19ec": { sprung: "scriptoria_q3_ende", grund: "Sprungcode" },
+  "f2569c7434b7e2cee62c17fdf896cee84792a4a2b6f4b04d0acb93a23e4cc376": { sprung: "scriptoria_q4", grund: "Sprungcode" },
 };

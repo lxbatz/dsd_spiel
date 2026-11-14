@@ -123,6 +123,11 @@ export const GEGENSTAENDE = {
     icon: "📜",
     text: "Eine Seite aus dem Großen Buch von Scriptoria. Du liest Regeln und Hinweise genau – auch die kleinen Wörter wie „nur“, „unter“ und „auch“.",
   },
+  seite_hinweise: {
+    name: "Leuchtende Seite der Hinweise",
+    icon: "📜",
+    text: "Eine Seite aus dem Großen Buch von Scriptoria. Du findest in langen Informationstexten die richtige Stelle – und lässt dich von „alle“ und „die meisten“ nicht täuschen.",
+  },
   gold_abzeichen: {
     name: "Gold-Abzeichen",
     icon: "🥇",

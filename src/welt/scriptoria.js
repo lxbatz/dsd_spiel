@@ -4,7 +4,8 @@
 // Quest 1: Die verlorenen Wörter (Lesen Teil 1) bei Bote Fennick am Briefbaum.
 // Quest 2: Der Lesekreis (Lesen Teil 2) bei Mara.
 // Quest 3: Der Nachtpfad (Lesen Teil 3) bei Laternenwärterin Vesna: zwei Aushänge, dann die Laternenprobe.
-// Quests 4–5 und der Bibliothekar der Schatten folgen; ihre Orte sind schon da.
+// Quest 4: Das Lehrlingshaus (Lesen Teil 4) bei Ausbilder Corvin und Lehrling Ilka: zwei Informationstexte.
+// Quest 5 und der Bibliothekar der Schatten folgen; ihre Orte sind schon da.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -14,12 +15,15 @@ import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { BRIEFE, LESEKREIS } from "../inhalte/scriptoria_q1_q2.js";
 import { AUSHAENGE, LATERNENPROBE } from "../inhalte/scriptoria_q3.js";
+import { BRETT, PRAKTIKUM } from "../inhalte/scriptoria_q4.js";
 import { RASTER, PFADE } from "./scriptoria_layout.js";
 
 const LIRIEN = "Lirien, Hüterin der Bücher";
 const FENNICK = "Bote Fennick";
 const MARA = "Mara vom Lesekreis";
 const VESNA = "Laternenwärterin Vesna";
+const CORVIN = "Ausbilder Corvin";
+const ILKA = "Lehrling Ilka";
 const aushaengeGelesen = (z = zustand) => AUSHAENGE.every((a) => z.erledigt[a.id]);
 
 /** Welche Quest den Nebel auf einem Pfad vertreibt (Index wie in PFADE[].nebel) */
@@ -40,10 +44,17 @@ async function lirien() {
     erledigen("scriptoria_intro");
     return;
   }
+  if (istErledigt("scriptoria_q4")) {
+    await dialog(LIRIEN, [
+      "Vier Seiten leuchten! Der Nebel auf dem Pfad nach Norden ist verschwunden.",
+      "Dort stehen die alten Wegweiser. Hinter ihnen liegt der Eingang zur unterirdischen Bibliothek – und der Schatten, der sie bewacht. (Quest 5 und der Endkampf kommen bald.)",
+    ], B);
+    return;
+  }
   if (istErledigt("scriptoria_q3")) {
     await dialog(LIRIEN, [
-      "Drei Seiten leuchten! Der Nachtpfad ist wieder sicher, und der Nebel vor dem Lehrlingshaus im Nordosten weicht.",
-      "Beim Lehrlingshaus und an den Wegweisern im Norden warten noch Aufgaben. (Diese Quests kommen bald.)",
+      "Drei Seiten leuchten! Der Nachtpfad ist wieder sicher, und der Nebel vor dem Lehrlingshaus im Nordosten ist fort.",
+      "Morgen kommen neue Lehrlinge, aber Ausbilder Corvin hat ein Problem: Der Nebel hat seine Informationen durcheinandergebracht. Geh zu ihm ins Lehrlingshaus.",
     ], B);
     return;
   }
@@ -217,6 +228,83 @@ function aushangAktion(a) {
   };
 }
 
+// ---------- Quest 4: Das Lehrlingshaus ----------
+
+async function corvin(welt) {
+  const B = bild("npc_corvin");
+  if (!istErledigt("scriptoria_q3")) {
+    await dialog(CORVIN, "Ich bin Corvin, der Ausbilder. Wie bist du denn durch den Nebel gekommen?", B);
+    return;
+  }
+  if (!istErledigt("scriptoria_q4_start")) {
+    await dialog(CORVIN, [
+      "Willkommen im Lehrlingshaus! Ich bin Corvin. Seit dreißig Jahren bilde ich hier die Lehrlinge der Bibliothek aus.",
+      "Morgen kommen die Neuen. Für sie habe ich die wichtigsten Informationen ans Schwarze Brett gehängt. Aber der Nebel flüstert ihnen falsche Dinge ins Ohr: „Ihr müsst drei Jahre hier wohnen!“, „Ihr dürft nicht kochen!“ …",
+      "Lies meinen Text genau und finde heraus, was wirklich stimmt. Und dann hilf bitte Ilka – sie fängt nächste Woche ein Praktikum in der Buchbinderei an und versteht ihre Unterlagen nicht.",
+      "Ein Tipp: Lies zuerst die Aufgaben. Dann suchst du im Text die passende Stelle. Und Vorsicht bei Wörtern wie „alle“, „die meisten“, „erst“ und „nur“!",
+    ], B);
+    erledigen("scriptoria_q4_start");
+    return;
+  }
+  if (istErledigt("scriptoria_q4")) {
+    await dialog(CORVIN, "Die neuen Lehrlinge sind da – und keiner glaubt mehr dem Nebel. Wenn du willst, bekommst du bei uns jederzeit einen Ausbildungsplatz!", B);
+    return;
+  }
+  if (!istErledigt("scriptoria_q4_t1") || !istErledigt("scriptoria_q4_t2")) {
+    await dialog(CORVIN, !istErledigt("scriptoria_q4_t1") ? "Lies zuerst meinen Text am Schwarzen Brett, gleich neben der Tür." : "Hilf jetzt noch Ilka mit ihren Praktikumsunterlagen. Sie sitzt hinten bei den Regalen.", B);
+    return;
+  }
+  erledigen("scriptoria_q4");
+  welt.aktualisieren();
+  await dialog(CORVIN, [
+    "Ilka strahlt, und meine Lehrlinge wissen Bescheid. Du liest Informationstexte wie ein alter Bibliothekar – nur schneller!",
+    "Hier – diese Seite ist aus dem Schwarzen Brett gefallen. Sie leuchtet! Und hörst du das? Der Nebel auf dem Weg nach Norden zieht sich zurück.",
+  ], B);
+  await belohnung({ xp: 150, grund: "Quest abgeschlossen: Das Lehrlingshaus", gegenstaende: ["seite_hinweise"], fanfare: true });
+}
+
+/** Station mit einem Informationstext (wiederholbar) */
+function textStation({ id, name, sprecher, bildKey, vorher, einleitung, titel, aufgaben, danach }) {
+  return async () => {
+    const B = bildKey ? bild(bildKey) : undefined;
+    if (!istErledigt("scriptoria_q4_start")) {
+      await dialog(sprecher, vorher, B);
+      return;
+    }
+    if (istErledigt(id)) {
+      const nochmal = await frage(sprecher, `${danach}\n\nMöchtest du den Text noch einmal üben?`, ["Ja, noch einmal", "Nein"], B);
+      if (nochmal === 0) await aufgabenFolge({ id, titel, untertitel: "Informationstext · Aufgaben 15–20", aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher, bild: B, frageText: einleitung, ja: "Ja, ich lese genau", spaeter: "Gut, dann später.",
+      folge: { id, titel, untertitel: "Informationstext · Aufgaben 15–20 · wie DSD Lesen Teil 4", aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(id);
+    await dialog(sprecher, danach, B);
+    await belohnung({ xp: 25, grund: `${name}: Text verstanden!`, fanfare: true });
+  };
+}
+
+const brett = textStation({
+  id: "scriptoria_q4_t1", name: "Schwarzes Brett", sprecher: "Schwarzes Brett",
+  vorher: "Ein langer Text für neue Lehrlinge. Sprich zuerst mit Ausbilder Corvin.",
+  einleitung: "„Willkommen im Lehrlingshaus“ – ein langer Text mit Informationen für neue Lehrlinge. Darunter sechs Fragen der Neuen. Möchtest du sie beantworten?",
+  titel: "Willkommen im Lehrlingshaus",
+  aufgaben: BRETT,
+  danach: "Jetzt wissen die neuen Lehrlinge Bescheid: wo sie wohnen, wann sie essen und wer ihnen hilft.",
+});
+
+const ilka = textStation({
+  id: "scriptoria_q4_t2", name: "Ilkas Praktikumsunterlagen", sprecher: ILKA, bildKey: "npc_ilka",
+  vorher: "Hallo! Ich bin Ilka. Nächste Woche fange ich ein Praktikum an … Hast du schon mit Corvin gesprochen?",
+  einleitung: "Hallo! Ich bin Ilka. Nächste Woche fange ich mein Praktikum in der Buchbinderei an. Aber die Unterlagen sind so lang! Muss ich eine Schürze kaufen? Bekomme ich danach sofort eine Stelle? Hilfst du mir?",
+  titel: "Ihr Praktikum in der Buchbinderei",
+  aufgaben: PRAKTIKUM,
+  danach: "Danke! Jetzt weiß ich alles: alte Kleidung anziehen, am Freitag früher Schluss – und am Ende darf ich mein eigenes Buch behalten!",
+});
+
 // ---------- Nebel, Platzhalter, Portal ----------
 
 function nebelAktion(i) {
@@ -247,6 +335,7 @@ export default {
     west: [7, 27],
     nordwest: [7, 9],
     ost: [36, 26],
+    nordost: [36, 12],
   },
   objekte: [
     { id: "portal_scriptoria", art: "portal", name: "Portal ins Dorf", x: 21, y: 42, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
@@ -267,8 +356,13 @@ export default {
       aktion: aushangAktion(a), hinweis: `${a.name} lesen`,
       marker: (z) => Boolean(z.erledigt.scriptoria_q3_start) && !z.erledigt[a.id],
     })),
-    { id: "lehrlingshaus", art: "objekt", name: "Lehrlingshaus", bild: "aushang", x: 37, y: 8,
-      aktion: spaeter("Lehrlingshaus", "Hier wohnen die Lehrlinge der Bibliothek. (Quest 4 kommt bald.)"), hinweis: "Das Lehrlingshaus ansehen" },
+    { id: "lehrlingshaus", art: "objekt", name: "Lehrlingshaus", bild: "baumhaus", x: 32, y: 6, breite: 3, hoehe: 2 },
+    { id: "corvin", art: "npc", name: CORVIN, bild: "npc_corvin", x: 35, y: 8, aktion: corvin,
+      marker: (z) => Boolean(z.erledigt.scriptoria_q3) && (!z.erledigt.scriptoria_q4_start || (Boolean(z.erledigt.scriptoria_q4_t1 && z.erledigt.scriptoria_q4_t2) && !z.erledigt.scriptoria_q4)) },
+    { id: "schwarzes_brett", art: "objekt", name: "Schwarzes Brett", bild: "aushang", x: 37, y: 8, aktion: brett, hinweis: "Das Schwarze Brett lesen",
+      marker: (z) => Boolean(z.erledigt.scriptoria_q4_start) && !z.erledigt.scriptoria_q4_t1 },
+    { id: "ilka", art: "npc", name: ILKA, bild: "npc_ilka", x: 38, y: 13, aktion: ilka,
+      marker: (z) => Boolean(z.erledigt.scriptoria_q4_start) && !z.erledigt.scriptoria_q4_t2 },
     { id: "wegweiser", art: "objekt", name: "Wegweiser", bild: "aushang", x: 22, y: 9,
       aktion: spaeter("Wegweiser", "Viele Schilder zeigen in alle Richtungen – aber die Schrift ist verschwunden. (Quest 5 kommt bald.)"), hinweis: "Die Wegweiser lesen" },
     { id: "tiefe_tor", art: "objekt", name: "Tor zur unterirdischen Bibliothek", bild: "steintor", x: 21, y: 1, breite: 3,

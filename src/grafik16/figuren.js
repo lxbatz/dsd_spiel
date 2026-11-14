@@ -102,6 +102,14 @@ export const AUSSEHEN = {
     haut: "#d8a880", haare: "#2a3a5a", frisur: "kapuze", kapuze: "#2a2a4a",
     kleid: "#3a3a5a", akzent: "#e8b840", hose: "#2a2a3a", stiefel: "#2a1a14", robe: true, extra: "wanderstab",
   },
+  npc_corvin: {
+    haut: "#e0b898", haare: "#9a9a9a", frisur: "glatze", bart: "lang", bartfarbe: "#b8b8b8",
+    kleid: "#4a3a2a", akzent: "#c8a050", hose: "#3a2a1a", stiefel: "#2a1a10", robe: true, extra: "buch",
+  },
+  npc_ilka: {
+    haut: "#f2d0b0", haare: "#d8a040", frisur: "zopf", wangen: true,
+    kleid: "#4a7a5a", akzent: "#f0e0b0", hose: "#3a4a6a", stiefel: "#4a3a2a",
+  },
   npc_lyra: {
     haut: "#f4d2b0", haare: "#cfc6ee", frisur: "spitzhut", langhaar: true, hut: "#6a3fa0", hutband: "#e6c45a",
     kleid: "#6a3fa0", akzent: "#e6c45a", hose: "#4a2a80", stiefel: "#2a1a2a", robe: true, extra: "buch",

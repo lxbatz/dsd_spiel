@@ -56,7 +56,10 @@ function hauptziele(z) {
   if (!e("scriptoria_q2")) return liste;
   const aushaenge = ["scriptoria_q3_a1", "scriptoria_q3_a2"].filter(e).length;
   liste.push({ text: `Der Nachtpfad: Lies die Aushänge im Osten (${aushaenge}/2) und besteh Vesnas Laternenprobe.`, erledigt: e("scriptoria_q3") });
-  if (e("scriptoria_q3")) liste.push({ text: "Scriptoria, Quest 4: Das Lehrlingshaus (kommt bald)", erledigt: false });
+  if (!e("scriptoria_q3")) return liste;
+  const texte = ["scriptoria_q4_t1", "scriptoria_q4_t2"].filter(e).length;
+  liste.push({ text: `Das Lehrlingshaus: Lies den Text am Schwarzen Brett und Ilkas Praktikumsunterlagen (${texte}/2) und sprich dann mit Ausbilder Corvin.`, erledigt: e("scriptoria_q4") });
+  if (e("scriptoria_q4")) liste.push({ text: "Scriptoria, Quest 5: Die Wegweiser (kommt bald)", erledigt: false });
   return liste;
 }
 
