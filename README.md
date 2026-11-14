@@ -41,7 +41,7 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Quest 4 *Die Werft* (genau nach DSD Hören Teil 1, 3 und 4): an der Werkbank fünf Szenen am Arbeitsplatz (je eine Aufgabe), bei Azubi Timon ein Radiointerview (richtig/falsch), bei Bootsbauerin Daria ein Bericht über ihre Ausbildung (6 Aufgaben auf einem Blatt), dann die Abnahme bei Werftmeisterin Kassia im **Prüfungsmodus** (jeder Text höchstens zweimal, kein Text zum Einblenden) → *Der Ton der Werft*, das Festschiff läuft vom Stapel
    - Quest 5 *Der Glockenturm* (wie DSD Hören Teil 5): an zwei Stimmenmuscheln auf der Akropolis Meinungen zuordnen (8 Aussagen, 4 bleiben übrig; die zweite Muschel nur einmal hören), dann der **Endkampf gegen den Drachenrichter** mit kurzen Hörtexten aus allen fünf Prüfungsteilen → *Der Ton des Turms*, die große Glocke läutet, der Drache kniet nieder
    - Finale: **Aurelia ist gerettet** → *Gold-Abzeichen*
-6. **Scriptoria – das Reich der Tausend Bücher** (Reich des Lesens, nur 3D; über das Portal im Dorf, nachdem Aurelia gerettet ist) – *im Aufbau*
+6. **Scriptoria – das Reich der Tausend Bücher** (Reich des Lesens, nur 3D; über das Portal im Dorf, nachdem Aurelia gerettet ist)
    - Ein verwunschener Bücherwald bei Nacht: riesige silbergraue Bäume, Bücherregale zwischen den Wurzeln, leuchtende Pilze, Glühwürmchen, der Große Lesebaum mit Laternen
    - Der Schwarze Nebel versperrt die Pfade zwischen den Lichtungen und weicht nach jeder gelösten Lese-Quest zurück
    - Mentorin: Lirien, Hüterin der Bücher
@@ -49,7 +49,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Quest 2 *Der Lesekreis* (wie DSD Lesen Teil 2): Situationen den Berichten im Gästebuch zuordnen, vier Abschnitte bleiben übrig
    - Quest 3 *Der Nachtpfad* (wie DSD Lesen Teil 3): zwei Aushänge (Regeln für Besucher, Hinweise für Lehrlinge im Archiv) richtig/falsch, dann Vesnas Laternenprobe zu Signalwörtern (unter, nur, auch wenn, nicht)
    - Quest 4 *Das Lehrlingshaus* (wie DSD Lesen Teil 4): zwei Informationstexte (Corvins Text für neue Lehrlinge, Ilkas Praktikumsunterlagen der Buchbinderei) mit je sechs Aufgaben A/B/C auf einem Blatt
-   - Folgen: Wegweiser (Teil 5), Endgegner: der Bibliothekar der Schatten
+   - Quest 5 *Die Wegweiser* (wie DSD Lesen Teil 5): an der Kreuzung im Norden die Schilder des Wegweisers und die Überschriften der Kurstafel zuordnen (je acht Überschriften, vier bleiben übrig)
+   - Endkampf: **der Bibliothekar der Schatten**, ein Werwolf im zerrissenen Bibliotheksmantel – Fragen mit kurzen Lesetexten aus allen fünf Teilen; nach dem Sieg verwandelt er sich zurück in Meister Ambros, das Tor zur unterirdischen Bibliothek öffnet sich → *Smaragd-Abzeichen*
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

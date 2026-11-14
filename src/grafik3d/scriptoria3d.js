@@ -10,6 +10,7 @@ import { E } from "./welt.js";
 import { lichtpunkteBauen } from "./effekte.js";
 import { HINDERNIS, BLOCKIERT, bloecke, LICHTUNGEN } from "../welt/scriptoria_layout.js";
 import { zustand } from "../zustand.js";
+import { bibliothekarBauen } from "./werwolf.js";
 
 const RINDE = "#8e9690", RINDE_DUNKEL = "#5a625e", MOOS = "#1f3a26", LAUB = "#12261a";
 const PILZFARBEN = ["#5ff0ff", "#b98aff", "#7dff9a", "#ffd36a"];
@@ -171,7 +172,9 @@ function steintorBauen(animationen) {
   const t = new Teile();
   for (const sx of [-2.2, 2.2]) t.add(KASTEN(), "#4a4a50", [sx, 2.2, 0], [0, 0, 0], [1.2, 4.4, 1.4]);
   t.add(KASTEN(), "#4a4a50", [0, 4.8, 0], [0, 0, 0], [5.8, 1.2, 1.5]);
-  t.add(KASTEN(), "#050608", [0, 2.0, -0.2], [0, 0, 0], [3.2, 4.0, 0.8]);
+  const innen = new THREE.Mesh(new THREE.BoxGeometry(3.2, 4.0, 0.8), new THREE.MeshBasicMaterial({ color: "#050608" }));
+  innen.position.set(0, 2.0, -0.2);
+  g.add(innen);
   // Wurzeln über dem Tor
   for (let k = 0; k < 6; k++) t.add(ZYL(0.5, 1, 6), RINDE_DUNKEL, [-2.6 + k, 4.4 - (k % 2) * 0.6, 0.6], [0.3, 0, 0.5 - k * 0.2], [0.12, 2.4, 0.12]);
   t.in(g);
@@ -180,11 +183,41 @@ function steintorBauen(animationen) {
     const a = new THREE.Sprite(new THREE.SpriteMaterial({ map: texturen().licht, color: "#ffcc33", transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
     a.position.set(sx, 2.6, 0.25); a.scale.setScalar(0.45); g.add(a); return a;
   });
-  animationen.push((zeit) => {
+  const torLicht = new THREE.Sprite(new THREE.SpriteMaterial({ map: texturen().licht, color: "#ffc870", transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+  torLicht.position.set(0, 2.2, 0.4); torLicht.scale.set(5, 6, 1);
+  g.add(torLicht);
+  let offen = 0;
+  g.userData.setzeLeuchten = (an, sofort) => { g.userData.ziel = an ? 1 : 0; if (sofort) offen = g.userData.ziel; };
+  animationen.push((zeit, dt = 0.016) => {
+    offen += ((g.userData.ziel ?? 0) - offen) * Math.min(1, dt * 0.7);
+    innen.material.color.setRGB(0.02 + offen * 0.9, 0.02 + offen * 0.62, 0.03 + offen * 0.3);
+    torLicht.material.opacity = offen * (0.75 + Math.sin(zeit * 2) * 0.1);
     const blinzeln = Math.sin(zeit * 0.7) > 0.97 ? 0 : 1;
-    const da = !zustand.erledigt.scriptoria_q5_boss;
+    const da = !zustand.erledigt.scriptoria_boss && !zustand.erledigt.scriptoria_q5;
     augen.forEach((a) => { a.visible = da; a.material.opacity = blinzeln * (0.7 + Math.sin(zeit * 3) * 0.2); });
   });
+  g.traverse((m) => { if (m.isMesh && m !== innen) m.castShadow = true; });
+  return g;
+}
+
+/** Wegweiser: Pfahl mit Pfeilschildern in alle Richtungen */
+function wegweiserBauen() {
+  const g = new THREE.Group();
+  const t = new Teile();
+  t.add(ZYL(0.8, 1, 8), RINDE_DUNKEL, [0, 1.6, 0], [0, 0, 0], [0.14, 3.2, 0.14]);
+  const schilder = [[2.5, 0.3, "#8a6a44"], [2.0, 2.2, "#7a5a38"], [1.5, 4.1, "#8a6a44"], [1.0, 5.6, "#6a4a30"]];
+  for (const [h, a, f] of schilder) {
+    const s = new THREE.Group();
+    const ts = new Teile();
+    ts.add(KASTEN(), f, [0.65, 0, 0], [0, 0, 0], [1.2, 0.32, 0.06]);
+    ts.add(KEGEL(3), f, [1.38, 0, 0], [0, 0, -Math.PI / 2], [0.2, 0.28, 0.05]);
+    for (let i = 0; i < 3; i++) ts.add(KASTEN(), "#e8dcc0", [0.45 + i * 0.25, 0, 0.035], [0, 0, 0], [0.16, 0.04, 0.01]);
+    ts.in(s);
+    s.position.y = h; s.rotation.y = a;
+    g.add(s);
+  }
+  t.add(KUGEL_K(), MOOS, [0, 0.15, 0], [0, 0, 0], [0.5, 0.25, 0.5]);
+  t.in(g);
   g.userData.setzeLeuchten = () => {};
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
   return g;
@@ -262,6 +295,12 @@ function objektModell(o, animationen) {
   if (o.bild === "baumhaus") return { modell: baumhausBauen(animationen) };
   if (o.bild === "steintor") return { modell: steintorBauen(animationen) };
   if (o.bild === "nebel") return nebelBauen(o, animationen);
+  if (o.bild === "wegweiser") return { modell: wegweiserBauen() };
+  if (o.bild === "bibliothekar") {
+    const f = bibliothekarBauen();
+    f.gruppe.userData.setzeLeuchten = (an, sofort) => (sofort ? f.sofort : f.pose)(an ? "bibliothekar" : "wolf");
+    return { modell: f.gruppe, figur: f, boss: true, kopfY: 3.0, weit: 5.5 };
+  }
   return null;
 }
 
@@ -433,7 +472,7 @@ export function scriptoriaBauen(szene, raster, kontext) {
     schwaden.forEach((s) => {
       const u = s.userData;
       s.position.set(u.x + Math.sin(zeit * 0.1 + u.p) * 3, 1.5 + Math.sin(zeit * 0.3 + u.p) * 0.5, u.z + Math.cos(zeit * 0.08 + u.p) * 3);
-      s.material.opacity = 0.45 * (1 - geloest / 6);
+      s.material.opacity = zustand.erledigt.scriptoria_finale ? 0 : 0.45 * (1 - geloest / 6);
     });
   });
 

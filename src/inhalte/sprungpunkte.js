@@ -64,6 +64,10 @@ const SCHRITTE = [
   ["scriptoria_q4_start", 0],
   ["scriptoria_q4_t1", 25], ["scriptoria_q4_t2", 25],
   ["scriptoria_q4", 150, "seite_hinweise"],
+  ["scriptoria_q5_w1", 25], ["scriptoria_q5_w2", 25],
+  ["scriptoria_q5", 150, "seite_wege"],
+  ["scriptoria_boss", 200],
+  ["scriptoria_finale", 250, "smaragd_abzeichen"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -118,6 +122,9 @@ export const SPRUNGPUNKTE = [
   { id: "scriptoria_q3", name: "Scriptoria: Nachtpfad bei Vesna (Quest 3)", bis: "scriptoria_q2", karte: "scriptoria", spawn: "ost" },
   { id: "scriptoria_q3_ende", name: "Scriptoria: Aushänge gelesen, Laternenprobe", bis: "scriptoria_q3_a2", karte: "scriptoria", spawn: "ost" },
   { id: "scriptoria_q4", name: "Scriptoria: Lehrlingshaus bei Corvin (Quest 4)", bis: "scriptoria_q3", karte: "scriptoria", spawn: "nordost" },
+  { id: "scriptoria_q5", name: "Scriptoria: Kreuzung der Wegweiser (Quest 5)", bis: "scriptoria_q4", karte: "scriptoria", spawn: "nord" },
+  { id: "scriptoria_boss", name: "Scriptoria: vor dem Bibliothekar der Schatten (Endkampf)", bis: "scriptoria_q5", karte: "scriptoria", spawn: "tiefe" },
+  { id: "scriptoria_ende", name: "Scriptoria gerettet (Ende von Scriptoria)", bis: "scriptoria_finale", karte: "scriptoria", spawn: "tiefe" },
 ];
 
 const TESTHELD = {

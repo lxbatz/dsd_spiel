@@ -5,6 +5,7 @@
 import * as THREE from "../../vendor/three.module.min.js";
 import { figurBauen, torwaechterBauen, Teile, ZYL, RING, KASTEN } from "./figuren.js";
 import { drachenrichterBauen } from "./drache.js";
+import { bibliothekarBauen } from "./werwolf.js";
 import { katzeBauen } from "./katze.js";
 import { WAECHTER } from "./halle3d.js";
 import { textur } from "./texturen.js";
@@ -70,6 +71,7 @@ function galerieModell(o, animationen) {
   if (typ === "figur") figur = figurBauen(AUSSEHEN[key], key);
   else if (typ === "tier") { figur = katzeBauen(); figur.gruppe.scale.setScalar(2.2); }
   else if (typ === "boss") { figur = torwaechterBauen(WAECHTER[key]); figur.gruppe.scale.setScalar(1.25); }
+  else if (typ === "werwolf") { figur = bibliothekarBauen(); posen.set(key, figur.pose); }
   else { figur = drachenrichterBauen(); figur.gruppe.scale.setScalar(1.2); posen.set(key, figur.pose); }
   dreh.add(figur.gruppe);
   g.traverse((m) => { if (m.isMesh) { m.castShadow = m.castShadow || m.userData.figur; m.receiveShadow = true; } });

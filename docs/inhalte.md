@@ -10,6 +10,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `lythara_inseln.js` | Lythara Quests 2–5 und Finale (Inseln der Stimmen): je drei Echo-Kristalle, ein Text am Pult und ein Wächter; das Buch der Stimmen |
 | `dorf_neben.js` | Nebenquests im Dorf: Finns Geheimnis, Ein Tag am Marktstand, Borins Werkstatt (mit Lesetexten) |
 | `aurelia_q1.js` | Aurelia Quest 1: Durchsagen an den Rufmuscheln, Reisende beraten (Hörtexte mit Gong) |
+| `scriptoria_q5.js` | Scriptoria Quest 5: Überschriften zuordnen (Lesen Teil 5), Endkampf gegen den Bibliothekar der Schatten |
 | `scriptoria_q4.js` | Scriptoria Quest 4: zwei Informationstexte mit je sechs Aufgaben A/B/C (Lesen Teil 4) |
 | `scriptoria_q3.js` | Scriptoria Quest 3: Aushänge richtig/falsch (Lesen Teil 3), Laternenprobe zu Signalwörtern |
 | `scriptoria_q1_q2.js` | Scriptoria Quest 1 (Briefe mit Wortliste + Betreff, Lesen Teil 1) und Quest 2 (Berichte zuordnen, Lesen Teil 2) |

@@ -41,6 +41,8 @@ export const PORTRAITS = {
   boss_vergessen: { hintergrund: "#2a2420", szene: "runen", waechter: { stein: "#7c7670", dunkel: "#4a4642", glut: "#ffd890", rune: "#ffb347" } },
   boss_zauderer: { hintergrund: "#16261a", szene: "runen", waechter: { stein: "#5e7660", dunkel: "#34443a", glut: "#d0ffd6", rune: "#7aff9a" } },
   boss_drachenrichter: { hintergrund: "#1c1630", drache: true },
+  boss_bibliothekar: { hintergrund: "#0e1418", werwolf: true },
+  npc_ambros: { hintergrund: "#2a1e34", augen: "#5a7a9a", ausdruck: "weise", alt: true, brille: true, szene: "bibliothek", amulett: true, licht: { farbe: "#ffe0a0", seite: -1 } },
   boss_echo: { hintergrund: "#22183a", szene: "runen", waechter: { stein: "#70608e", dunkel: "#40345a", glut: "#ecdcff", rune: "#b48aff" } },
 };
 
@@ -532,12 +534,55 @@ function drachenrichter(b, p) {
   b.ueber(f);
 }
 
+
+function werwolf(b, p) {
+  // Hintergrund: dunkler Wald mit Nebel und einem bleichen Mond
+  b.verlauf(0, 0, G, G, R5(p.hintergrund), { dither: 0.9 });
+  b.ellipse(50, 12, 7, 7, "#d8dcc8"); b.ellipse(48, 11, 5, 5, "#eef0e0");
+  for (const x of [4, 14, 58]) b.rect(x, 0, 5, G, "#141a1c");
+  for (let i = 0; i < 18; i++) b.set(Math.floor(hash(i, 3, 9) * 64), 40 + Math.floor(hash(i, 4, 9) * 24), "#3a2a4a");
+  const f = new Bild(G, G);
+  const fell = R5("#4a4652"), dunkel = R5("#2e2b34"), hell = R("#8a8494"), mantel = R5("#3a2448");
+  const ton = (r, hx, hy, s = 700) => (x, y) => tonAus(r, 0.8 - ((x - hx) ** 2 + (y - hy) ** 2) / s, x, y, 0.5);
+  // Schultern im zerrissenen Mantel
+  f.poly([[2, 64], [8, 46], [22, 40], [42, 40], [56, 46], [62, 64]], ton(mantel, 24, 46, 900));
+  for (let i = 0; i < 6; i++) f.poly([[6 + i * 9, 64], [10 + i * 9, 56], [14 + i * 9, 64]], mantel[0]);
+  // Fellkragen
+  for (let i = 0; i < 9; i++) f.poly([[14 + i * 4, 44], [16 + i * 4, 36], [19 + i * 4, 44]], i % 2 ? hell[1] : fell[2]);
+  // Ohren
+  f.poly([[14, 22], [12, 2], [24, 14]], ton(dunkel, 15, 8));
+  f.poly([[15, 18], [14, 7], [21, 14]], "#8a5a6a");
+  f.poly([[50, 22], [52, 2], [40, 14]], ton(dunkel, 48, 8));
+  f.poly([[49, 18], [50, 7], [43, 14]], "#8a5a6a");
+  // Kopf mit Wangenfell
+  f.fuelle(12, 10, 52, 42, (x, y) => ((x - 32) / 19) ** 2 + ((y - 25) / 15) ** 2 <= 1, ton(fell, 26, 18, 500));
+  for (const s of [-1, 1]) for (let i = 0; i < 4; i++) f.poly([[32 + s * 14, 26 + i * 3], [32 + s * 22, 30 + i * 4], [32 + s * 15, 31 + i * 3]], hell[1 + (i % 2)]);
+  // Schnauze und Maul
+  f.poly([[24, 28], [40, 28], [42, 44], [22, 44]], ton(hell, 30, 30, 300));
+  f.ellipse(32, 30, 4, 3, "#141016"); f.set(31, 29, "#5a5060");
+  f.poly([[24, 40], [40, 40], [37, 47], [27, 47]], "#3a0e14");
+  for (let x = 25; x <= 39; x += 3) { f.set(x, 40, "#f2ead6"); f.set(x, 41, "#f2ead6"); }
+  f.rect(25, 40, 1, 4, "#f2ead6"); f.rect(39, 40, 1, 4, "#f2ead6");
+  // Glühende Augen unter wütenden Brauen
+  for (const s of [-1, 1]) {
+    f.ellipse(32 + s * 8, 22, 3, 2, "#ffd23a"); f.set(32 + s * 8, 22, "#fff4b0");
+    f.linie(32 + s * 4, 19, 32 + s * 12, 17, dunkel[0]);
+  }
+  // Zerbrochene runde Brille
+  for (const s of [-1, 1]) for (let a = 0; a < 24; a++) { const w = (a / 24) * Math.PI * 2; f.set(Math.round(32 + s * 8 + Math.cos(w) * 5), Math.round(22 + Math.sin(w) * 4), "#c8a050"); }
+  f.linie(27, 21, 37, 21, "#c8a050");
+  f.linie(41, 18, 45, 25, "#e8f0ff");   // Sprung im Glas
+  f.umriss(null, { staerke: 0.3 });
+  b.ueber(f);
+}
+
 /** Malt das Porträt einer Figur (64×64). */
 export function portraitBild(schluessel) {
   const p = PORTRAITS[schluessel];
   const b = new Bild(G, G);
   if (p?.waechter) { torwaechter(b, p); return b; }
   if (p?.drache) { drachenrichter(b, p); return b; }
+  if (p?.werwolf) { werwolf(b, p); return b; }
   const d = AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);

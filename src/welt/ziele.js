@@ -59,7 +59,12 @@ function hauptziele(z) {
   if (!e("scriptoria_q3")) return liste;
   const texte = ["scriptoria_q4_t1", "scriptoria_q4_t2"].filter(e).length;
   liste.push({ text: `Das Lehrlingshaus: Lies den Text am Schwarzen Brett und Ilkas Praktikumsunterlagen (${texte}/2) und sprich dann mit Ausbilder Corvin.`, erledigt: e("scriptoria_q4") });
-  if (e("scriptoria_q4")) liste.push({ text: "Scriptoria, Quest 5: Die Wegweiser (kommt bald)", erledigt: false });
+  if (!e("scriptoria_q4")) return liste;
+  const schilder = ["scriptoria_q5_w1", "scriptoria_q5_w2"].filter(e).length;
+  liste.push({ text: `Die Wegweiser: Ordne an der Kreuzung im Norden die Schilder und die Kurstafel (${schilder}/2).`, erledigt: e("scriptoria_q5") });
+  if (!e("scriptoria_q5")) return liste;
+  liste.push({ text: "Besiege den Bibliothekar der Schatten vor dem Tor zur unterirdischen Bibliothek.", erledigt: e("scriptoria_boss") });
+  if (e("scriptoria_finale")) liste.push({ text: "Scriptoria ist gerettet! Der Schwarze Nebel ist fort.", erledigt: true });
   return liste;
 }
 

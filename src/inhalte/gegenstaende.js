@@ -128,6 +128,16 @@ export const GEGENSTAENDE = {
     icon: "📜",
     text: "Eine Seite aus dem Großen Buch von Scriptoria. Du findest in langen Informationstexten die richtige Stelle – und lässt dich von „alle“ und „die meisten“ nicht täuschen.",
   },
+  seite_wege: {
+    name: "Leuchtende Seite der Wege",
+    icon: "📜",
+    text: "Die fünfte Seite aus dem Großen Buch von Scriptoria. Du findest zu kurzen Texten die passende Überschrift – und lässt dich von Lockwörtern nicht täuschen.",
+  },
+  smaragd_abzeichen: {
+    name: "Smaragd-Abzeichen",
+    icon: "💚",
+    text: "Du hast das Reich Scriptoria gerettet. Du liest Briefe, Berichte, Regeln, Informationstexte und Anzeigen genau – so wie in der DSD-Prüfung.",
+  },
   gold_abzeichen: {
     name: "Gold-Abzeichen",
     icon: "🥇",

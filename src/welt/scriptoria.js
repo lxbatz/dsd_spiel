@@ -5,17 +5,21 @@
 // Quest 2: Der Lesekreis (Lesen Teil 2) bei Mara.
 // Quest 3: Der Nachtpfad (Lesen Teil 3) bei Laternenwärterin Vesna: zwei Aushänge, dann die Laternenprobe.
 // Quest 4: Das Lehrlingshaus (Lesen Teil 4) bei Ausbilder Corvin und Lehrling Ilka: zwei Informationstexte.
-// Quest 5 und der Bibliothekar der Schatten folgen; ihre Orte sind schon da.
+// Quest 5: Die Wegweiser (Lesen Teil 5) an der Kreuzung im Norden: Wegweiser und Kurstafel.
+// Endkampf: der Bibliothekar der Schatten (ein Werwolf) vor dem Tor zur unterirdischen Bibliothek.
+// Nach dem Sieg verwandelt er sich in Meister Ambros zurück; das Tor öffnet sich, Scriptoria ist gerettet.
 
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
 import { questStarten } from "./quest.js";
+import { kampf } from "../ui/kampf.js";
 import { belohnung } from "../ui/belohnung.js";
 import { bild } from "../ui/bilder.js";
 import { zustand, istErledigt, erledigen } from "../zustand.js";
 import { BRIEFE, LESEKREIS } from "../inhalte/scriptoria_q1_q2.js";
 import { AUSHAENGE, LATERNENPROBE } from "../inhalte/scriptoria_q3.js";
 import { BRETT, PRAKTIKUM } from "../inhalte/scriptoria_q4.js";
+import { WEGWEISER, KURSE, BIBLIOTHEKAR } from "../inhalte/scriptoria_q5.js";
 import { RASTER, PFADE } from "./scriptoria_layout.js";
 
 const LIRIEN = "Lirien, Hüterin der Bücher";
@@ -24,6 +28,12 @@ const MARA = "Mara vom Lesekreis";
 const VESNA = "Laternenwärterin Vesna";
 const CORVIN = "Ausbilder Corvin";
 const ILKA = "Lehrling Ilka";
+const AMBROS = "Meister Ambros";
+const SCHILDER = [
+  { id: "scriptoria_q5_w1", name: "Großer Wegweiser", aufgaben: WEGWEISER, untertitel: "Überschriften zuordnen · Wohin führt welcher Weg?" },
+  { id: "scriptoria_q5_w2", name: "Tafel der Kurse", aufgaben: KURSE, untertitel: "Überschriften zuordnen · Kurse für Lehrlinge" },
+];
+const schilderFertig = (z = zustand) => SCHILDER.every((s) => z.erledigt[s.id]);
 const aushaengeGelesen = (z = zustand) => AUSHAENGE.every((a) => z.erledigt[a.id]);
 
 /** Welche Quest den Nebel auf einem Pfad vertreibt (Index wie in PFADE[].nebel) */
@@ -44,10 +54,25 @@ async function lirien() {
     erledigen("scriptoria_intro");
     return;
   }
+  if (istErledigt("scriptoria_finale")) {
+    await dialog(LIRIEN, [
+      `${name}, sieh dich um! Der Schwarze Nebel ist fort. Die Pilze leuchten heller als je zuvor, und unten in der Tiefe brennen wieder die Lampen der großen Bibliothek.`,
+      "Und Ambros … unser alter Freund ist zurück. Du hast nicht nur Bücher gerettet, sondern auch einen Menschen. Danke!",
+    ], B);
+    return;
+  }
+  if (istErledigt("scriptoria_q5")) {
+    await dialog(LIRIEN, [
+      "Alle fünf Seiten leuchten! Der Nebel vor dem Tor ist verschwunden.",
+      "Jetzt musst du hinab zur unterirdischen Bibliothek. Vor dem Tor wartet der Bibliothekar der Schatten. Vor langer Zeit war er unser Bibliothekar Ambros – bis er Morgraths Buch des Vergessens gelesen hat.",
+      "Mit Gewalt besiegst du ihn nicht. Zeig ihm, dass du genau lesen kannst. Vielleicht erinnert er sich dann, wer er einmal war.",
+    ], B);
+    return;
+  }
   if (istErledigt("scriptoria_q4")) {
     await dialog(LIRIEN, [
       "Vier Seiten leuchten! Der Nebel auf dem Pfad nach Norden ist verschwunden.",
-      "Dort stehen die alten Wegweiser. Hinter ihnen liegt der Eingang zur unterirdischen Bibliothek – und der Schatten, der sie bewacht. (Quest 5 und der Endkampf kommen bald.)",
+      "Dort stehen die alten Wegweiser an der Kreuzung. Der Nebel hat die Schilder heruntergerissen, und niemand weiß mehr, wohin die Wege führen. Bring sie wieder in Ordnung!",
     ], B);
     return;
   }
@@ -305,6 +330,88 @@ const ilka = textStation({
   danach: "Danke! Jetzt weiß ich alles: alte Kleidung anziehen, am Freitag früher Schluss – und am Ende darf ich mein eigenes Buch behalten!",
 });
 
+// ---------- Quest 5: Die Wegweiser ----------
+
+function schildAktion(sch) {
+  return async (welt) => {
+    if (!istErledigt("scriptoria_q4")) {
+      await dialog(sch.name, "Die Schilder liegen im Moos. Die Schrift ist kaum zu erkennen.");
+      return;
+    }
+    if (istErledigt(sch.id)) {
+      const nochmal = await frage(sch.name, "Die Schilder hängen wieder richtig. Möchtest du noch einmal üben?", ["Ja, noch einmal", "Nein"]);
+      if (nochmal === 0) await aufgabenFolge({ id: sch.id, titel: sch.name, untertitel: sch.untertitel, aufgaben: sch.aufgaben });
+      return;
+    }
+    const geschafft = await questStarten({
+      sprecher: sch.name,
+      frageText: sch.id === "scriptoria_q5_w1"
+        ? "Der Nebel hat die Schilder vom Wegweiser gerissen. Unter jedem Pfeil steht noch ein kurzer Text. Welches Schild gehört wohin? Aber Vorsicht: Im Moos liegen auch Schilder von anderen Wegweisern!"
+        : "Die Tafel mit den Kursen für Lehrlinge ist umgefallen. Die Überschriften liegen durcheinander – und es sind mehr Überschriften als Kurse. Hängst du sie richtig auf?",
+      ja: "Ja, Schilder ordnen",
+      spaeter: "Die Schilder bleiben im Moos liegen.",
+      folge: { id: sch.id, titel: sch.name, untertitel: `${sch.untertitel} · wie DSD Lesen Teil 5`, aufgaben: sch.aufgaben },
+    });
+    if (!geschafft) return;
+    erledigen(sch.id);
+    await belohnung({ xp: 25, grund: `${sch.name}: alles richtig zugeordnet!`, fanfare: true });
+    if (!schilderFertig()) return;
+    erledigen("scriptoria_q5");
+    welt.aktualisieren();
+    await dialog("Die Wegweiser", [
+      "Knarrend drehen sich die Wegweiser. Alle Pfeile zeigen jetzt nach Norden – zum Tor im Hügel.",
+      "Aus dem Holz löst sich eine leuchtende Seite. Der letzte Nebel vor dem Tor zieht sich zurück … und aus der Tiefe hörst du ein lautes Knurren.",
+    ]);
+    await belohnung({ xp: 150, grund: "Quest abgeschlossen: Die Wegweiser", gegenstaende: ["seite_wege"], fanfare: true });
+  };
+}
+
+// ---------- Endkampf: Der Bibliothekar der Schatten ----------
+
+async function bibliothekar(welt) {
+  if (istErledigt("scriptoria_boss")) {
+    await dialog(AMBROS, [
+      "Ach, meine Brille ist noch immer zerbrochen … aber ich sehe klarer als seit Jahren.",
+      "Das Buch des Vergessens habe ich verbrannt. Wer liest, soll verstehen – nicht vergessen. Geh nur durch das Tor, die große Bibliothek gehört jetzt wieder allen.",
+    ], bild("npc_ambros"));
+    return;
+  }
+  const B = bild("boss_bibliothekar");
+  const D = BIBLIOTHEKAR.name;
+  if (!istErledigt("scriptoria_q5")) {
+    await dialog(D, "„GRRR … Noch bist du nicht bereit. Hol zuerst alle fünf Seiten!“", B);
+    return;
+  }
+  const bereit = await frage(D, "„Du willst zur großen Bibliothek? Dann lies! Jede Antwort muss sitzen. Bist du bereit?“", ["Ja, ich bin bereit!", "Noch nicht."], B);
+  if (bereit !== 0) return;
+  const sieg = await kampf({ ...BIBLIOTHEKAR, bild: B, quest: "scriptoria_boss" }, BIBLIOTHEKAR.fragen);
+  if (!sieg) return;
+  erledigen("scriptoria_boss");
+  welt.aktualisieren();
+  await belohnung({ xp: 200, grund: "Bosskampf gewonnen: Der Bibliothekar der Schatten" });
+  await dialog(AMBROS, [
+    "Wie lange war ich ein Schatten? … Das Buch des Vergessens hat mir eingeflüstert, dass niemand mehr richtig liest. Ich habe es geglaubt – und bin selbst zum Ungeheuer geworden.",
+    "Aber du hast jeden Text verstanden, bis zum letzten kleinen Wort. Danke.",
+    "Komm, das Tor öffnet sich!",
+  ], bild("npc_ambros"));
+  erledigen("scriptoria_finale");
+  welt.aktualisieren();
+  await dialog(LIRIEN, [
+    "Das steinerne Tor schwingt auf. Warmes Licht fällt aus der Tiefe – Tausende Bücher, Regale bis zur Decke, Lampen, die wieder brennen.",
+    "Die fünf leuchtenden Seiten fliegen aus deiner Tasche und setzen sich in das Große Buch von Scriptoria. Der Schwarze Nebel ist fort.",
+    `Lirien legt dir eine grüne Brosche in die Hand: „Für dich, ${zustand.held?.name ?? "Leserin oder Leser"}. Scriptoria ist gerettet!“`,
+  ], bild("npc_lirien"));
+  await belohnung({ xp: 250, grund: "Scriptoria ist gerettet!", gegenstaende: ["smaragd_abzeichen"], fanfare: true });
+}
+
+async function tor() {
+  if (istErledigt("scriptoria_finale")) {
+    await dialog("Die große Bibliothek", "Das Tor steht offen. Unten warten Tausende Bücher auf dich – und auf alle, die genau lesen wollen.");
+    return;
+  }
+  await dialog("Tor", "Ein steinernes Tor im Hügel, überwachsen von Wurzeln. Davor hält jemand Wache …");
+}
+
 // ---------- Nebel, Platzhalter, Portal ----------
 
 function nebelAktion(i) {
@@ -314,7 +421,6 @@ function nebelAktion(i) {
   };
 }
 
-const spaeter = (name, text) => async () => dialog(name, text);
 
 async function heimweg(welt) {
   const antwort = await frage("Portal", "Das Portal schimmert grün zwischen den Wurzeln. Möchtest du ins Dorf der Ankömmlinge zurückkehren?", ["Ja, ins Dorf", "Nein, ich bleibe"]);
@@ -336,6 +442,8 @@ export default {
     nordwest: [7, 9],
     ost: [36, 26],
     nordost: [36, 12],
+    nord: [22, 11],
+    tiefe: [22, 5],
   },
   objekte: [
     { id: "portal_scriptoria", art: "portal", name: "Portal ins Dorf", x: 21, y: 42, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
@@ -363,10 +471,17 @@ export default {
       marker: (z) => Boolean(z.erledigt.scriptoria_q4_start) && !z.erledigt.scriptoria_q4_t1 },
     { id: "ilka", art: "npc", name: ILKA, bild: "npc_ilka", x: 38, y: 13, aktion: ilka,
       marker: (z) => Boolean(z.erledigt.scriptoria_q4_start) && !z.erledigt.scriptoria_q4_t2 },
-    { id: "wegweiser", art: "objekt", name: "Wegweiser", bild: "aushang", x: 22, y: 9,
-      aktion: spaeter("Wegweiser", "Viele Schilder zeigen in alle Richtungen – aber die Schrift ist verschwunden. (Quest 5 kommt bald.)"), hinweis: "Die Wegweiser lesen" },
+    ...SCHILDER.map((sch, i) => ({
+      id: sch.id, art: "objekt", name: sch.name, bild: i ? "aushang" : "wegweiser", x: i ? 25 : 19, y: 9,
+      aktion: schildAktion(sch), hinweis: `${sch.name} ansehen`,
+      marker: (z) => Boolean(z.erledigt.scriptoria_q4) && !z.erledigt[sch.id],
+    })),
     { id: "tiefe_tor", art: "objekt", name: "Tor zur unterirdischen Bibliothek", bild: "steintor", x: 21, y: 1, breite: 3,
-      aktion: spaeter("Tor", "Ein steinernes Tor im Hügel, überwachsen von Wurzeln. Dahinter knurrt etwas in der Dunkelheit … (Der Bibliothekar der Schatten kommt bald.)"), hinweis: "Das Tor untersuchen" },
+      aktion: tor, hinweis: "Das Tor untersuchen", leuchtet: (z) => Boolean(z.erledigt.scriptoria_finale) },
+    { id: "bibliothekar", art: "npc", name: "Der Bibliothekar der Schatten", bild: "bibliothekar", x: 21, y: 3, breite: 3,
+      aktion: bibliothekar, hinweis: "Den Bibliothekar ansprechen",
+      leuchtet: (z) => Boolean(z.erledigt.scriptoria_boss),
+      marker: (z) => Boolean(z.erledigt.scriptoria_q5) && !z.erledigt.scriptoria_boss },
     ...PFADE.filter((p) => p.tor).map((p) => ({
       id: `nebel_${p.nebel}`, art: "nebel", name: "Schwarzer Nebel", bild: "nebel",
       x: p.tor[0], y: p.tor[1], breite: p.tor[2], hoehe: p.tor[3],
