@@ -6,13 +6,16 @@ import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 
-// Rechtsklick, Bilder ziehen sowie Strg+S und Strg+U sind im Spiel gesperrt (für nichts nötig).
+// Rechtsklick, Bilder ziehen, Strg+S, Strg+U, F12 und Strg+Umschalt+I/J/C sind im Spiel gesperrt (für nichts nötig).
 // In Textfeldern bleibt der Rechtsklick erlaubt, damit Kopieren und Einfügen beim Schreiben funktioniert.
 const editierbar = (z) => z?.closest?.("textarea, input, [contenteditable='true']");
 document.addEventListener("contextmenu", (ev) => { if (!editierbar(ev.target)) ev.preventDefault(); });
 document.addEventListener("dragstart", (ev) => { if (ev.target?.tagName === "IMG") ev.preventDefault(); });
 document.addEventListener("keydown", (ev) => {
-  if ((ev.ctrlKey || ev.metaKey) && ["s", "u"].includes(ev.key.toLowerCase())) ev.preventDefault();
+  const taste = ev.key.toLowerCase();
+  if ((ev.ctrlKey || ev.metaKey) && ["s", "u"].includes(taste)) ev.preventDefault();
+  // F12 und Strg+Umschalt+I/J/C (Entwicklerwerkzeuge)
+  if (ev.key === "F12" || ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && ["i", "j", "c"].includes(taste))) ev.preventDefault();
 });
 
 export const PROLOG = [
