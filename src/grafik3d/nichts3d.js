@@ -16,7 +16,7 @@ import { E } from "./welt.js";
 import { posen } from "../welt/nichts_posen.js";
 
 const WEISS = "#f3f1ec";
-const SOCKEL_H = { figur: 0.35, tier: 0.35, boss: 0.45, drache: 0.6 };
+const SOCKEL_H = { figur: 0.35, tier: 0.35, boss: 0.45, werwolf: 0.45, drache: 0.6 };
 
 function leinwand(w, h) {
   const c = document.createElement("canvas");
