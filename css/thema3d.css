@@ -66,3 +66,9 @@ body { background: #10121a; }
   .portrait { width: 88px; height: 88px; }
   .kampf-kopf .portrait { width: 88px; height: 88px; }
 }
+
+/* Schmale Handys: Knöpfe der Kopfleiste kompakter, damit alle (auch ☰) sichtbar bleiben */
+@media (max-width: 480px) {
+  .hud-knoepfe { gap: 4px; }
+  .hud-knoepfe button { padding: 4px 8px; }
+}

@@ -248,7 +248,26 @@ function tonKnopfAktualisieren() {
 beimStummschalten(tonKnopfAktualisieren);
 tonKnopfAktualisieren();
 
+// ---------- Credits ----------
+
+const CREDITS = [
+  ["Idee und fachliche Leitung", "Johannes Richter"],
+  ["Game Direction und ausführender Produzent", "Alexander Batzke"],
+  ["Programmierung, Grafik, Questdesign, Texte", "Claude Code"],
+  ["Musik", "Beau Buckley (Fantasy Musica)"],
+];
+
+function creditsAnzeigen() {
+  zeigen(
+    el("h2", {}, "🎬 Credits"),
+    el("div", { class: "untertitel" }, "Die Chroniken von Eldoria"),
+    el("dl", { class: "credits" }, CREDITS.flatMap(([rolle, name]) => [el("dt", {}, rolle), el("dd", {}, name)])),
+    el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen)),
+  );
+}
+
 const AKTIONEN = {
+  credits: creditsAnzeigen,
   ziele: aufgabenAnzeigen,
   inventar: inventarAnzeigen,
   heldenpass: heldenpassAnzeigen,

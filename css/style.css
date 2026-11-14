@@ -362,3 +362,8 @@ body.touch:not(.im-spiel) #joystick { display: none; }
 .kristall.flackert { animation: kristallFlackern 0.35s steps(2) infinite; }
 @keyframes kristallFlackern { 0% { opacity: 1; } 100% { opacity: 0.45; } }
 .sprech-aufnahme audio { width: 100%; margin-top: 6px; }
+
+/* Credits */
+.credits { text-align: center; margin: 18px 0 8px; }
+.credits dt { font-size: 0.85em; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 16px; }
+.credits dd { margin: 4px 0 0; font-size: 1.25em; font-weight: 600; }
