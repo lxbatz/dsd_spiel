@@ -195,8 +195,8 @@ Grundsätze der Bewertung:
 
 **Scriptoria (Lesen):**
 - Quest 1 Briefbaum: wie Teil 1. Ein Brief mit 4 Lücken und einer Wortliste mit Beispiel (0), einige Wörter bleiben übrig, dazu die Betreffzeile (A/B/C). Alles steht in einem `block`.
-- Quest 4 Lehrlingshaus: wie Teil 4. Zwei Informationstexte (Ausbildung, Praktikum) mit je 6 Aufgaben (Satzanfang + 3 Fortsetzungen) in einem `block` mit `lesetext`. Fallen: „die meisten“ ↔ alle, „erst im zweiten Lehrjahr“, „Bettwäsche bekommen Sie“ ↔ mitbringen, „nicht mit der großen Maschine, aber kleine Werkzeuge“.
-- Quest 3 Nachtpfad: wie Teil 3. Zwei Aushänge mit Regeln, je 5 Aussagen richtig/falsch. Fallen: „unter zwölf“, „kostenlos“ ↔ bezahlen, „liegen bereit“ ↔ mitbringen, „auch wenn“, „nur mit Erlaubnis“. Danach eine Übung zu Signalwörtern.
 - Quest 2 Lesekreis: wie Teil 2. Situationen werden Berichtabschnitten zugeordnet (`zuordnen` mit `beispiel` und `ablenker`), vier bleiben übrig.
+- Quest 3 Nachtpfad: wie Teil 3. Zwei Aushänge mit Regeln, je 5 Aussagen richtig/falsch. Fallen: „unter zwölf“, „kostenlos“ ↔ bezahlen, „liegen bereit“ ↔ mitbringen, „auch wenn“, „nur mit Erlaubnis“. Danach eine Übung zu Signalwörtern.
+- Quest 4 Lehrlingshaus: wie Teil 4. Zwei Informationstexte (Ausbildung, Praktikum) mit je 6 Aufgaben (Satzanfang + 3 Fortsetzungen) in einem `block` mit `lesetext`. Fallen: „die meisten“ ↔ alle, „erst im zweiten Lehrjahr“, „Bettwäsche bekommen Sie“ ↔ mitbringen, „nicht mit der großen Maschine, aber kleine Werkzeuge“.
 - Quest 5 Wegweiser: wie Teil 5. Je vier Texte, acht Überschriften (Beispiel Z, vier bleiben übrig). Die Ablenker nehmen Lockwörter aus den Texten auf (Notfall → Erste Hilfe, Aurelia → Reise).
 - Endkampf Bibliothekar der Schatten: kurze Lesetexte aus allen fünf Teilen, dazu Signalwörter und Strategien.
