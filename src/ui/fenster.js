@@ -15,7 +15,7 @@ export function el(tag, attrs = {}, ...kinder) {
     else if (k === "value") e.value = v;
     else e.setAttribute(k, v === true ? "" : v);
   }
-  for (const kind of kinder.flat()) {
+  for (const kind of kinder.flat(Infinity)) {
     if (kind === null || kind === undefined || kind === false) continue;
     e.append(kind instanceof Node ? kind : String(kind));
   }

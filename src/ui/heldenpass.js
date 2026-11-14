@@ -106,7 +106,7 @@ export function heldenpassAnzeigen() {
         el("h2", {}, h.name),
         el("div", { class: "untertitel" }, `${k?.name ?? ""} · Stufe ${s.stufe}: ${s.titel} · ${zustand.xp} XP`))),
     el("dl", { class: "pass-ansicht" },
-      FELDER.slice(1).map(([id, label]) => [el("div", {}, el("dt", {}, label), el("dd", {}, h[id] || "–"))])),
+      FELDER.slice(1).map(([id, label]) => el("div", {}, el("dt", {}, label), el("dd", {}, h[id] || "–")))),
     el("h3", {}, "📝 Meine Texte"),
     texte.length
       ? texte.map(([id, t]) => el("details", { style: "margin-bottom:8px" },

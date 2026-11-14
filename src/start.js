@@ -6,6 +6,15 @@ import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 
+// Rechtsklick, Bilder ziehen sowie Strg+S und Strg+U sind im Spiel gesperrt (für nichts nötig).
+// In Textfeldern bleibt der Rechtsklick erlaubt, damit Kopieren und Einfügen beim Schreiben funktioniert.
+const editierbar = (z) => z?.closest?.("textarea, input, [contenteditable='true']");
+document.addEventListener("contextmenu", (ev) => { if (!editierbar(ev.target)) ev.preventDefault(); });
+document.addEventListener("dragstart", (ev) => { if (ev.target?.tagName === "IMG") ev.preventDefault(); });
+document.addEventListener("keydown", (ev) => {
+  if ((ev.ctrlKey || ev.metaKey) && ["s", "u"].includes(ev.key.toLowerCase())) ev.preventDefault();
+});
+
 export const PROLOG = [
   "Vor langer Zeit war Eldoria ein Land des Friedens. Vier Reiche lebten in Harmonie: Aurelia, das Reich des Hörens. Scriptoria, das Reich des Lesens. Lythara, das Reich des Schreibens. Und Vocantia, das Reich des Sprechens.",
   "Verbunden waren sie durch das Sprachsiegel von Eldoria. Es half allen Bewohnern, miteinander zu sprechen und gemeinsam Probleme zu lösen.",
