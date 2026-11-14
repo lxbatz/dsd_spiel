@@ -1,5 +1,5 @@
 // Lythara – Die Inseln der Stimmen (Quests 2–5 und Finale)
-// Hinter der Siegeltür der Halle: schwebende Inseln hoch über Lythara. Auf jeder der vier Inseln
+// Hinter dem Siegel oben im Turm der Tausend Treppen: schwebende Inseln hoch über Lythara. Auf jeder der vier Inseln
 // stehen drei Echo-Kristalle, ein Pult (freier Text) und ein Wächter. Ist der Wächter besiegt,
 // erscheint die Brücke zur nächsten Insel. Auf der obersten Insel liegt das Buch der Stimmen.
 // Die Karten-ID bleibt "turm", damit alte Spielstände weiter passen.
@@ -34,7 +34,7 @@ async function lyra() {
   if (!istErledigt("lythara_turm_intro")) {
     await dialog(LYRA, [
       `Da bist du ja, ${name}! Willkommen auf den Inseln der Stimmen – hoch über Lythara.`,
-      "Schau dich um: Dort unten liegt die Halle der Tausend Tore. In der Halle hast du gelernt, wie man einen Text einleitet. Aber ein ganzer Beitrag hat noch mehr Teile.",
+      "Schau dich um: Unter uns ragt der Turm der Tausend Treppen aus den Wolken. Dort hast du Etage für Etage gelernt, wie man einen Text einleitet. Aber ein ganzer Beitrag hat noch mehr Teile.",
       "Über uns schweben vier Inseln. Auf jeder wartet eine Schriftrolle: Wiedergabe, Erfahrungen, Meinung und Schluss.",
       `Auf der höchsten Insel liegt das Buch der Stimmen. Dort schreibst du am Ende deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage: „${FRAGE}“`,
       "Genau so einen Text schreibst du auch in der DSD-Prüfung. Ich rufe jetzt die erste Brücke – zur Insel der Echos. Viel Glück!",
@@ -159,7 +159,7 @@ async function buchDerStimmen() {
   }
   const geschafft = await questStarten({
     sprecher: "Das Buch der Stimmen",
-    frageText: "Die leeren Seiten des Buches leuchten. Hier schreibst du deinen ganzen Forumsbeitrag. Deine Texte aus der Halle und von den Inseln liegen schon bereit.\n\nMöchtest du jetzt schreiben?",
+    frageText: "Die leeren Seiten des Buches leuchten. Hier schreibst du deinen ganzen Forumsbeitrag. Deine Texte aus dem Turm und von den Inseln liegen schon bereit.\n\nMöchtest du jetzt schreiben?",
     ja: "Ja, jetzt schreiben",
     spaeter: "Das Buch wartet auf deine Worte.",
     folge: { id: "lythara_buch", titel: "Das Buch der Stimmen", untertitel: "Dein ganzer Forumsbeitrag", aufgaben: [BUCH] },
@@ -172,8 +172,8 @@ async function buchDerStimmen() {
 
 async function rueckweg(welt) {
   const antwort = await frage("Das zerbrochene Siegel",
-    "Im Siegel schimmern zwei Bilder: die Halle der Tausend Tore und das Dorf der Ankömmlinge. Wohin möchtest du reisen?",
-    ["In die Halle der Tausend Tore", "Ins Dorf der Ankömmlinge", "Ich bleibe hier"]);
+    "Im Siegel schimmern zwei Bilder: der Turm der Tausend Treppen und das Dorf der Ankömmlinge. Wohin möchtest du reisen?",
+    ["In den Turm der Tausend Treppen", "Ins Dorf der Ankömmlinge", "Ich bleibe hier"]);
   if (antwort === 0) welt.reisen("halle", "vonTurm");
   if (antwort === 1) welt.reisen("dorf", "vonLythara");
 }

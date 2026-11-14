@@ -23,12 +23,13 @@ import { nichtsBauen } from "./nichts3d.js";
 import { aureliaBauen } from "./aurelia3d.js";
 import { scriptoriaBauen } from "./scriptoria3d.js";
 import { vocantiaBauen } from "./vocantia3d.js";
+import { treppenturmBauen } from "./treppenturm3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen, treppenturm: treppenturmBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;
@@ -193,16 +194,17 @@ export class Spiel3D {
       }
       if (!res) res = { modell: objektBauen(o, animationen) };
       const versatz = res.versatz ?? [0, 0];
-      res.modell.position.set(cx + versatz[0], 0, cz + versatz[1]);
+      const bodenY = bau.boden?.(cx, cz) ?? 0;
+      res.modell.position.set(cx + versatz[0], bodenY, cz + versatz[1]);
       szene.add(res.modell);
       const marker = this.markerBauen();
-      const markerY = res.boss ? 5.2 : o.art === "tor" ? 7.9 : o.art === "npc" ? 2.95 : 2.8;
+      const markerY = bodenY + (res.boss ? 5.2 : o.art === "tor" ? 7.9 : o.art === "npc" ? 2.95 : 2.8);
       marker.position.set(cx, markerY, cz + (o.art === "tor" ? 1.3 : 0));
       marker.userData.y = markerY;
       szene.add(marker);
       const rand = o.art === "npc" ? 0.45 : 0.1;
       karte.objekte.push({
-        def: o, modell: res.modell, figur: res.figur ?? null, marker, setzeOffen: res.setzeOffen, boss: res.boss,
+        def: o, modell: res.modell, figur: res.figur ?? null, marker, setzeOffen: res.setzeOffen, boss: res.boss, bodenY,
         kopfY: res.kopfY, weit: res.weit, kameraY: res.kameraY,
         rechteck: { x0: o.x * E + rand, z0: o.y * E + rand, x1: (o.x + b) * E - rand, z1: (o.y + h) * E - rand },
         fest: o.art !== "portal",
@@ -285,6 +287,8 @@ export class Spiel3D {
   }
 
   async wechseln(id, spawn, { sofort = false } = {}) {
+    // In 3D ist die Halle der Tausend Tore zum Turm der Tausend Treppen geworden (gleiche Startpunkte)
+    if (id === "halle") id = "treppenturm";
     if (!sofort) {
       this.blende.classList.add("an");
       await new Promise((r) => setTimeout(r, 450));
@@ -296,14 +300,15 @@ export class Spiel3D {
     if (this.renderPass) this.renderPass.scene = karte.szene;
     karte.szene.add(this.held.gruppe);
     const [sx, sy] = karte.def.spawns[spawn] ?? karte.def.spawns.start;
-    this.held.gruppe.position.set(welt(sx), 0, welt(sy));
+    const startY = karte.bau.boden?.(welt(sx), welt(sy)) ?? 0;
+    this.held.gruppe.position.set(welt(sx), startY, welt(sy));
     this.held.gruppe.rotation.y = Math.PI;
     this.yaw = 0;
     this.hoehe = karte.bau.kamera?.hoehe ?? 2.9;
     this.abstand = karte.bau.kamera?.abstand ?? 6.2;
     this.kameraAbstand = this.abstand;
     this.laufZiel = null;
-    this.kamera.position.set(welt(sx), this.hoehe, welt(sy) + this.abstand);
+    this.kamera.position.set(welt(sx), startY + this.hoehe, welt(sy) + this.abstand);
     ortSetzen(id, spawn);
     musik(karte.def.musik ?? null);
     this.ersteAktualisierung = true;
@@ -423,7 +428,7 @@ export class Spiel3D {
         return;
       }
     }
-    const boden = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const boden = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(this.held?.gruppe.position.y ?? 0));
     const punkt = new THREE.Vector3();
     if (this.raycaster.ray.intersectPlane(boden, punkt)) {
       this.laufZiel = { punkt, festSeit: 0 };
@@ -435,7 +440,7 @@ export class Spiel3D {
     window.addEventListener("eldoria:belohnung", (ev) => {
       if (!this.held || !this.karte) return;
       const p = this.held.gruppe.position;
-      this.karte.effekte.belohnung(new THREE.Vector3(p.x, 0.2, p.z), Boolean(ev.detail?.aufgestiegen));
+      this.karte.effekte.belohnung(new THREE.Vector3(p.x, p.y + 0.2, p.z), Boolean(ev.detail?.aufgestiegen));
     });
     window.addEventListener("eldoria:treffer", () => {
       const o = this.gespraech;
@@ -571,7 +576,7 @@ export class Spiel3D {
       const schritt = this.tempo * dt;
       const vorher = g.position.clone();
       const nx = g.position.x + richtung.x * schritt, nz = g.position.z + richtung.z * schritt;
-      if (!this.blockiert(nx, nz)) g.position.set(nx, 0, nz);
+      if (!this.blockiert(nx, nz)) g.position.set(nx, g.position.y, nz);
       else if (!this.blockiert(nx, g.position.z)) g.position.x = nx;
       else if (!this.blockiert(g.position.x, nz)) g.position.z = nz;
       if (automatisch) {
@@ -591,6 +596,9 @@ export class Spiel3D {
       }
     }
     if (this.heldBlick != null) g.rotation.y += winkelDiff(g.rotation.y, this.heldBlick) * Math.min(1, dt * 8);
+    // Treppen und Etagen: Die Figur folgt der Bodenhöhe der Welt (ohne „boden“ bleibt sie auf 0)
+    const sollY = this.karte.bau.boden?.(g.position.x, g.position.z) ?? 0;
+    g.position.y += (sollY - g.position.y) * Math.min(1, dt * 14);
   }
 
   /** Auf welcher Seite hat die Gesprächskamera freie Sicht? (1 = rechts, -1 = links) */
@@ -599,10 +607,10 @@ export class Spiel3D {
     const richtung = new THREE.Vector3(p.x - m.x, 0, p.z - m.z);
     if (richtung.lengthSq() < 0.01) richtung.set(0, 0, 1);
     richtung.normalize();
-    const kopf = new THREE.Vector3(p.x, 1.7, p.z);
+    const kopf = new THREE.Vector3(p.x, p.y + 1.7, p.z);
     const wert = (s) => {
       const ziel = kopf.clone().addScaledVector(richtung, 2.3).addScaledVector(new THREE.Vector3(richtung.z, 0, -richtung.x), 1.75 * s);
-      ziel.y = 2.05;
+      ziel.y = p.y + 2.05;
       return this.freieStrecke(kopf, ziel) / kopf.distanceTo(ziel);
     };
     return wert(-1) > wert(1) + 0.05 ? -1 : 1;
@@ -643,19 +651,20 @@ export class Spiel3D {
       const quer = new THREE.Vector3(richtung.z, 0, -richtung.x).multiplyScalar(this.gespraechSeite ?? 1);
       const gross = o.boss || o.def.art === "tor" || o.def.bild === "siegeltuer";
       const weit = o.weit ?? (gross ? 5.0 : o.dynamisch ? 2.0 : 2.3);
-      ziel = new THREE.Vector3(p.x, o.kameraY ?? (gross ? 3.0 : 2.05), p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
+      ziel = new THREE.Vector3(p.x, p.y + (o.kameraY ?? (gross ? 3.0 : 2.05)), p.z).addScaledVector(richtung, weit).addScaledVector(quer, gross ? 2.4 : 1.75);
       const kopfY = o.kopfY ?? (o.boss ? 3.3 : o.def.art === "tor" ? 3.6 : o.dynamisch ? 0.5 : o.figur ? 1.85 : 1.2);
-      blick = new THREE.Vector3(m.x, kopfY, m.z).lerp(new THREE.Vector3(p.x, 1.6, p.z), 0.18);
+      blick = new THREE.Vector3(m.x, m.y + kopfY, m.z).lerp(new THREE.Vector3(p.x, p.y + 1.6, p.z), 0.18);
       // Auf niedrigen Bildschirmen (Handy quer) die Figuren höher ins Bild rücken
       blick.y -= this.behaelter.clientHeight < 520 ? 1.0 : 0.35;
-      const frei = this.freieStrecke(new THREE.Vector3(p.x, 1.7, p.z), ziel);
-      const voll = new THREE.Vector3(p.x, 1.7, p.z).distanceTo(ziel);
-      if (frei < voll) ziel.lerpVectors(new THREE.Vector3(p.x, 1.7, p.z), ziel, frei / voll);
+      const kopfHeld = new THREE.Vector3(p.x, p.y + 1.7, p.z);
+      const frei = this.freieStrecke(kopfHeld, ziel);
+      const voll = kopfHeld.distanceTo(ziel);
+      if (frei < voll) ziel.lerpVectors(kopfHeld, ziel, frei / voll);
       this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 3.5));
     } else {
       const rechts = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
-      const kopf = new THREE.Vector3(p.x, 1.7, p.z).addScaledVector(rechts, 0.35);
-      const voll = new THREE.Vector3(p.x + Math.sin(this.yaw) * this.abstand, this.hoehe, p.z + Math.cos(this.yaw) * this.abstand).addScaledVector(rechts, 0.7);
+      const kopf = new THREE.Vector3(p.x, p.y + 1.7, p.z).addScaledVector(rechts, 0.35);
+      const voll = new THREE.Vector3(p.x + Math.sin(this.yaw) * this.abstand, p.y + this.hoehe, p.z + Math.cos(this.yaw) * this.abstand).addScaledVector(rechts, 0.7);
       const frei = this.freieStrecke(kopf, voll);
       const gesamt = kopf.distanceTo(voll);
       const sollAbstand = Math.min(1, frei / gesamt);
@@ -664,7 +673,7 @@ export class Spiel3D {
       this.kameraAnteil += (sollAbstand - this.kameraAnteil) * Math.min(1, dt * (sollAbstand < this.kameraAnteil ? 14 : 2.5));
       ziel = new THREE.Vector3().lerpVectors(kopf, voll, this.kameraAnteil);
       this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 7));
-      blick = new THREE.Vector3(p.x, 1.55, p.z).addScaledVector(rechts, 0.42);
+      blick = new THREE.Vector3(p.x, p.y + 1.55, p.z).addScaledVector(rechts, 0.42);
     }
     if (this.wackelnBis > performance.now()) blick.add(new THREE.Vector3((Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2, 0));
     this.blickPunkt = this.blickPunkt ? this.blickPunkt.lerp(blick, 1 - Math.exp(-dt * 8)) : blick.clone();
@@ -693,7 +702,7 @@ export class Spiel3D {
         o.verschwinden -= dt;
         const k = Math.max(0, o.verschwinden / 2.2);
         o.modell.scale.setScalar(1.25 * (0.3 + 0.7 * k));
-        o.modell.position.y = (1 - k) * 1.5;
+        o.modell.position.y = (o.bodenY ?? 0) + (1 - k) * 1.5;
         if (o.verschwinden <= 0) { o.verschwinden = 0; o.modell.visible = false; }
       }
       if (o.boss && this.trefferBis > performance.now()) o.modell.position.x += (Math.random() - 0.5) * 0.08;
@@ -719,7 +728,7 @@ export class Spiel3D {
         const m = obj.modell.position;
         const q = obj.rechteck;
         const groesse = obj.dynamisch ? 0.6 : Math.max(0.8, Math.max(q.x1 - q.x0, q.z1 - q.z0) * 0.6);
-        karte.ring.position.set(obj.dynamisch ? m.x : (q.x0 + q.x1) / 2, 0.04, obj.dynamisch ? m.z : (q.z0 + q.z1) / 2);
+        karte.ring.position.set(obj.dynamisch ? m.x : (q.x0 + q.x1) / 2, (obj.bodenY ?? 0) + 0.04, obj.dynamisch ? m.z : (q.z0 + q.z1) / 2);
         karte.ring.scale.setScalar(groesse * (1 + Math.sin(t * 4) * 0.05));
         karte.ring.material.opacity = 0.5 + Math.sin(t * 4) * 0.2;
       }

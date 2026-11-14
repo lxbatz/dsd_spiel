@@ -191,7 +191,7 @@ export class Effekte {
 
   /** Kleine Staubwölkchen beim Laufen. */
   schritt(pos) {
-    _p.set(pos.x + zufall() * 0.15, 0.05, pos.z + zufall() * 0.15);
+    _p.set(pos.x + zufall() * 0.15, pos.y + 0.05, pos.z + zufall() * 0.15);
     _v.set(zufall() * 0.3, 0.25, zufall() * 0.3);
     this.rauch.aussenden(_p, _v, { farbe: [0.82, 0.76, 0.66], groesse: 0.25, dauer: 0.6, wachsen: 1.5 });
   }
@@ -219,7 +219,7 @@ export class Effekte {
   ziel(pos) {
     for (let i = 0; i < 14; i++) {
       const a = (i / 14) * Math.PI * 2;
-      _p.set(pos.x + Math.cos(a) * 0.35, 0.08, pos.z + Math.sin(a) * 0.35);
+      _p.set(pos.x + Math.cos(a) * 0.35, pos.y + 0.08, pos.z + Math.sin(a) * 0.35);
       _v.set(Math.cos(a) * 0.4, 0.6, Math.sin(a) * 0.4);
       this.funken.aussenden(_p, _v, { farbe: [1.2, 1.0, 0.5], groesse: 0.1, dauer: 0.5 });
     }

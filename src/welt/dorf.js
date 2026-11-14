@@ -351,7 +351,7 @@ async function portal(welt) {
     return;
   }
   // Mehrere Ziele (nur in der 3D-Version): die Inseln der Stimmen nach dem ersten Besuch, DAS NICHTS (Figurengalerie)
-  const ziele = [["In die Halle der Tausend Tore", "halle"]];
+  const ziele = [[welt.dreiD ? "In den Turm der Tausend Treppen" : "In die Halle der Tausend Tore", "halle"]];
   if (welt.dreiD && istErledigt("lythara_turm_intro")) ziele.push(["Zu den Inseln der Stimmen", "turm"]);
   if (welt.dreiD && istErledigt("lythara_finale")) ziele.push(["Nach Aurelia, ins Reich des Hörens", "aurelia"]);
   if (welt.dreiD && istErledigt("aurelia_finale")) ziele.push(["Nach Scriptoria, ins Reich des Lesens", "scriptoria"]);

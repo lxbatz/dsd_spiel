@@ -15,7 +15,7 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Abschluss: *Bronze-Abzeichen*, das Portal nach Lythara öffnet sich
 2. **Lythara, Quest 1: Die Schriftrolle des Beobachters** (Lernziel: Einleitung schreiben)
    - Der magische Spiegel zeigt einen Forumsbeitrag (Jonas, Praktikum im Ausland)
-   - Halle der Tausend Tore: fünf Tore = Thema, Quelle, Interesse, Leser, Überschrift
+   - Turm der Tausend Treppen (in den 2D-Versionen: Halle der Tausend Tore): fünf Tore = Thema, Quelle, Interesse, Leser, Überschrift. Man steigt Etage für Etage nach oben: Keller (Lyra) → Kammern des Gesindes → Waffenkammer der Ritter → Bankettsaal → Gemächer der Burgherren → Observatorium mit Pult, Torwächter und dem Siegel zu den Inseln
    - Pult des Beobachters: eigene Einleitung schreiben (mit Selbstcheck und Textprüfung)
    - Bosskampf gegen den Torwächter der Quellen → *Rolle des Beobachters*
 3. **Nebenquests im Dorf** (freiwillig, nach dem Torwächter; blaue Zeichen über den Figuren)
@@ -30,7 +30,7 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Insel der Waage (Marmorterrasse mit großer Waage): die eigene Meinung sagen und begründen → der Zauderer → *Rolle des Fürsprechers*
    - Insel des Siegels (Sternwarte): einen Schluss schreiben → das Endlose Echo → *Rolle der Vollendung*
    - Auf jeder Insel: drei Echo-Kristalle (Übungen), ein eigener Text am Pult, ein Bosskampf
-   - Das zerbrochene Siegel auf der Ankunftsinsel bringt einen zurück in die Halle oder ins Dorf; vom Portal im Dorf kommt man (nach dem ersten Besuch) direkt wieder zu den Inseln
+   - Das zerbrochene Siegel auf der Ankunftsinsel bringt einen zurück in den Turm oder ins Dorf; vom Portal im Dorf kommt man (nach dem ersten Besuch) direkt wieder zu den Inseln
    - Finale: **Das Buch der Stimmen** – der ganze Forumsbeitrag aus allen fünf Teilen → *Silber-Abzeichen*
 5. **Aurelia – die Hafenstadt der Glocken** (Reich des Hörens, nur 3D; über das Portal im Dorf, nachdem Lythara gerettet ist)
    - Antike Mittelmeerstadt: weiße Häuser mit Ziegeldächern, Agora mit Säulenhallen und Brunnen, Glockenturm auf der Akropolis, Leuchtturm, Stadtmauer, Hafen mit fünf Stegen, Booten und Werft
@@ -71,8 +71,8 @@ Alle Texte und Aufgaben sind **eigene Beispielinhalte**. Die Lythara-Quests sind
 Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden über die Schulter, die Welt besteht aus runden Polygonfiguren mit Licht und Schatten. In Gesprächen schwenkt die Kamera auf das Gegenüber, und das Dialogfenster zeigt ein **detailliertes Pixel-Porträt** (aus der 16-Bit-Version übernommen).
 
 - **Dorf der Ankömmlinge:** Schmetterlinge, Vögel, fallende Blätter, Pollen, Blumen und Gras im Wind, glitzerndes Wasser, Rauch aus der Schmiede – und Mimi, die Katze von Händlerin Wilma (man kann sie streicheln).
-- **Halle der Tausend Tore:** verlorene Bibliothek mit Bücherregalen, Kerzenlicht, Mondlicht durch hohe Fenster, schwebenden Büchern und fünf magischen Toren, die sich nach dem Rätsel öffnen. Der Torwächter löst sich nach dem Sieg in Funken auf.
-- **Inseln der Stimmen:** Abendhimmel mit zwei Monden, Wolkenmeer, schwebende Felsinseln mit leuchtenden Kristallen, magische Brücken, die sich Planke für Planke aufbauen. In der Ferne liegt die Halle der Tausend Tore.
+- **Turm der Tausend Treppen:** sechs Etagen einer Burg, durch gerade Treppen verbunden. Unten ein dunkler Keller mit Fässern und Fackeln, oben ein heller Marmorsaal mit Sternenkuppel, Fernrohr und Himmelsgloben – jede Etage ist schöner, heller und eleganter. Oben an jeder Treppe ein magisches Tor, das sich nach dem Rätsel öffnet. Der Torwächter löst sich nach dem Sieg in Funken auf. (Die älteren 2D-Versionen behalten die Halle der Tausend Tore.)
+- **Inseln der Stimmen:** Abendhimmel mit zwei Monden, Wolkenmeer, schwebende Felsinseln mit leuchtenden Kristallen, magische Brücken, die sich Planke für Planke aufbauen. Unter der Ankunftsinsel ragt die Kuppel des Turms der Tausend Treppen aus den Wolken.
 - **Effekte:** goldene Funken bei Belohnungen, eine Lichtsäule beim Stufenaufstieg, Treffer-Funken im Bosskampf, sanftes Leuchten (Bloom) auf starken Geräten.
 - **Grafikstufen:** Hoch, Mittel, Niedrig. Das Spiel wählt automatisch eine passende Stufe und schaltet selbst herunter, wenn es ruckelt. Im Menü kann man die Stufe auch selbst wählen.
 
@@ -106,7 +106,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 
   Alles wird nur im Browser ausgewertet. Mit „Beispielklasse zeigen“ kann man es ohne echte Daten ausprobieren.
 
-- **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Halle: vor dem Torwächter“ oder „Insel der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
+- **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Turm: vor dem Torwächter“ oder „Insel der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).
@@ -124,7 +124,7 @@ css/thema3d.css        Aussehen der 3D-Version
 src/main3d.js          Start der 3D-Version
 src/start.js           Titelbildschirm und Prolog
 src/zustand.js         Spielstand, XP, Stufen, Speichern, Spielstand-Datei
-src/welt/              Karten und Story-Logik (Dorf, Halle der Tausend Tore, Inseln der Stimmen)
+src/welt/              Karten und Story-Logik (Dorf, Turm der Tausend Treppen/Halle, Inseln der Stimmen, Aurelia, Scriptoria, Vocantia)
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes
 src/ui/                Fenster: Dialoge, Aufgabentypen, Bosskampf, Heldenpass, Kopfleiste
 src/grafik3d/          3D: Figuren, Dorf, Halle, Effekte, Katze, Kamera, Touch, Grafikstufen

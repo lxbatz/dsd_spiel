@@ -608,6 +608,8 @@ function schwebendeBuecher(szene, raum, animationen) {
 
 // ---------- Objekte der Halle ----------
 
+export function halleObjektModell(o, animationen) { return objektModell(o, animationen); }
+
 function objektModell(o, animationen) {
   if (o.art === "tor") return torBauen(o, animationen);
   if (o.bild === "pult") return { modell: pultBauen(animationen) };

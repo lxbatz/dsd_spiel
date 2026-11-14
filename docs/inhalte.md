@@ -241,6 +241,8 @@ Die Inseln der Stimmen (Karten-ID `turm`, damit alte Spielstände passen) haben 
 
 Ein Echo-Kristall (`bild: "kristall"`, `farbe`) glimmt schwach und leuchtet hell, sobald `leuchtet(zustand)` wahr ist. Die Wächter sind Varianten des Torwächters; ihre Farben und Zeichen stehen in `WAECHTER` (`src/grafik3d/halle3d.js`), die Porträts in `PORTRAITS` (`waechter: {...}`).
 
+Der Turm der Tausend Treppen (`src/welt/treppenturm.js`, Raster und Höhen in `src/welt/treppenturm_layout.js`, 3D in `src/grafik3d/treppenturm3d.js`) ersetzt in 3D die Halle der Tausend Tore: Wer in 3D zur Karte `halle` reist, landet im Turm (gleiche Startpunkte und Fortschrittsmarken). Eine Welt kann mit `boden(x, z)` eine Bodenhöhe liefern; dann steigen Figur, Kamera, Objekte und Marker Treppen und Etagen hinauf (ohne `boden` bleibt alles auf Höhe 0).
+
 Vocantia (`src/welt/vocantia.js`, 3D in `src/grafik3d/vocantia3d.js`, Raster in `src/welt/vocantia_layout.js`): Eingefrorene Figuren haben `eis: true` und tauen auf, sobald `leuchtet(zustand)` wahr wird. Das ganze Tal taut nach `vocantia_finale` auf. Der Schweigekönig steht in `src/grafik3d/eistroll.js` (Posen „thron“ und „gipfel“). Eine Welt kann mit `aktiv(an)` erfahren, ob sie gerade sichtbar ist (hier für den Frost-Rand).
 
 Ein Tor (`art: "tor"`) öffnet sich in 3D von selbst mit Staub und Funken, sobald `offen(zustand)` wahr wird. Ein Gegner, dessen `sichtbar(zustand)` nach dem Sieg falsch wird, löst sich in Funken auf.

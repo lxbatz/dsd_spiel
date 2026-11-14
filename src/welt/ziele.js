@@ -12,7 +12,7 @@ function hauptziele(z) {
     { text: "Lies das Schwarze Brett am Brunnen.", erledigt: e("dorf_brett") },
     { text: "Kehre zu Aldric zurück.", erledigt: e("dorf_abschluss") },
     { text: "Reise durch das Portal nach Lythara und sprich mit Meisterin Lyra.", erledigt: e("lythara_intro") },
-    { text: `Öffne die fünf Tore der Halle (${tore}/5).`, erledigt: tore === 5 },
+    { text: `Öffne die fünf Tore in Lythara (${tore}/5).`, erledigt: tore === 5 },
     { text: "Schreibe am Pult des Beobachters deine eigene Einleitung.", erledigt: e("lythara_einleitung") },
     { text: "Besiege den Torwächter der Quellen.", erledigt: e("lythara_q1_boss") },
   ];

@@ -43,7 +43,7 @@ export const GALERIE = [
   { key: "npc_ilka", typ: "figur", reihe: 4, name: "Lehrling Ilka", text: "Beginnt bald ein Praktikum in der Buchbinderei. Quest 4: Das Lehrlingshaus." },
   { key: "npc_ambros", typ: "figur", reihe: 1, name: "Meister Ambros", text: "Der alte Bibliothekar von Scriptoria – bis er das Buch des Vergessens las und zum Bibliothekar der Schatten wurde." },
   { key: "npc_lyra", typ: "figur", reihe: 1, name: "Meisterin Lyra", text: "Die letzte Schülerin der Schreibmeister. Führt durch Lythara." },
-  { key: "boss_torwaechter", typ: "boss", reihe: 2, name: "Der Torwächter der Quellen", text: "Boss von Quest 1 (Einleitung) in der Halle der Tausend Tore." },
+  { key: "boss_torwaechter", typ: "boss", reihe: 2, name: "Der Torwächter der Quellen", text: "Boss von Quest 1 (Einleitung) im Observatorium des Turms der Tausend Treppen." },
   { key: "boss_kopist", typ: "boss", reihe: 2, name: "Der Kopist", text: "Wächter der Insel der Echos (Wiedergabe)." },
   { key: "boss_vergessen", typ: "boss", reihe: 2, name: "Der Wächter des Vergessens", text: "Wächter der Insel der Erinnerungen (Erfahrungsbericht)." },
   { key: "boss_zauderer", typ: "boss", reihe: 2, name: "Der Zauderer", text: "Wächter der Insel der Waage (Meinung)." },

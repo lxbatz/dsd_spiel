@@ -1,12 +1,12 @@
 // Lythara – Die Inseln der Stimmen in 3D.
 // Schwebende Felsinseln im Abendhimmel über einem Wolkenmeer, verbunden durch magische Brücken.
 // Jede Insel hat ein eigenes Thema:
-//   Ankunft        – Runenkreis, das zerbrochene Siegel (Weg zurück in die Halle), Laternen
+//   Ankunft        – Runenkreis, das zerbrochene Siegel (Weg zurück in den Turm), Laternen
 //   Echos          – Grotte mit Wasserbecken, Echo-Ringe, Wasserfall über die Inselkante
 //   Erinnerungen   – Herbstgarten mit rotgoldenen Bäumen, Laternen, schwebenden Erinnerungsbildern
 //   Waage          – Marmorterrasse mit Säulenkranz und einer riesigen goldenen Waage
 //   Siegel         – Sternwarte: Sternkarte am Boden, Kuppelbögen, Fernrohr, Planetenmodell
-// In der Ferne: die Halle der Tausend Tore auf ihrem Berg, kleine schwebende Inseln, zwei Monde.
+// In der Ferne: der Turm der Tausend Treppen, der aus den Wolken ragt, kleine schwebende Inseln, zwei Monde.
 // Form und Lage der Inseln kommen aus src/welt/inseln_layout.js.
 
 import * as THREE from "../../vendor/three.module.min.js";
@@ -314,7 +314,7 @@ function felsGeometrie(randPunkte, tiefe, seed) {
 
 const felsMaterial = () => new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 });
 
-/** Ferne Deko: kleine schwebende Inseln mit Bäumen und die Halle der Tausend Tore auf ihrem Berg. */
+/** Ferne Deko: kleine schwebende Inseln mit Bäumen und der Turm der Tausend Treppen, der aus den Wolken ragt. */
 function ferneBauen(szene, mitte, animationen, B, T) {
   const material = felsMaterial();
   const gras = new THREE.MeshStandardMaterial({ color: "#6a9a5a", roughness: 1, flatShading: true });
@@ -348,26 +348,33 @@ function ferneBauen(szene, mitte, animationen, B, T) {
   }
   animationen.push((t) => { for (const g of kleine) g.position.y = g.userData.y + Math.sin(t * 0.3 + g.userData.p) * 0.8; });
 
-  // Die Halle der Tausend Tore auf einem Berg unter den Inseln (Blick zurück)
-  const halle = new THREE.Group();
-  const stein = "#6a6488", dach = "#3a3a6a";
+  // Der Turm der Tausend Treppen ragt aus dem Wolkenmeer bis knapp unter die Inseln (Blick zurück):
+  // sechs Etagen mit Fensterreihen, oben die Kuppel des Observatoriums, aus der das Siegel leuchtet.
+  const turm = new THREE.Group();
+  const stein = "#7a7488", hell = "#c8c2d4", dach = "#2a3a7a";
   const t = new Teile();
-  t.add(KEGEL(9), "#5a5468", [0, -30, 0], [0, 0.3, 0], [70, 80, 70], { verlauf: 0.5 });
-  t.add(KASTEN(), stein, [0, 18, 0], [0, 0, 0], [34, 16, 22]);
-  t.add(KEGEL(4), dach, [0, 33, 0], [0, Math.PI / 4, 0], [26, 14, 18]);
-  for (const [x, z, h] of [[-20, -12, 34], [20, -12, 30], [-20, 12, 30], [20, 12, 36], [0, -16, 44]]) {
-    t.add(ZYL(1, 1, 10), stein, [x, 10 + h / 2, z], [0, 0, 0], [4.5, h, 4.5]);
-    t.add(KEGEL(10), dach, [x, 10 + h + 5, z], [0, 0, 0], [5.6, 10, 5.6]);
+  t.add(ZYL(0.92, 1, 16), stein, [0, -75, 0], [0, 0, 0], [11, 140, 11], { verlauf: 0.6 });
+  for (let k = 0; k < 6; k++) {
+    const y = -60 + k * 9;
+    t.add(ZYL(1, 1, 16), hell, [0, y, 0], [0, 0, 0], [10.8, 0.6, 10.8]);                 // Gesims je Etage
   }
-  t.in(halle, { schatten: false });
+  t.add(ZYL(1, 1, 16), hell, [0, -4.5, 0], [0, 0, 0], [11.4, 1.2, 11.4]);
+  for (let k = 0; k < 16; k++) { const a = (k / 16) * Math.PI * 2; t.add(KASTEN(), hell, [Math.cos(a) * 10.8, -3.2, Math.sin(a) * 10.8], [0, -a, 0], [1.6, 1.6, 1.0]); }
+  t.add(KUGEL(), dach, [0, -4, 0], [0, 0, 0], [8.5, 7, 8.5]);
+  t.in(turm, { schatten: false });
   const fenster = new Teile();
-  for (let i = 0; i < 14; i++) fenster.add(KASTEN(), "#ffd890", [-14 + (i % 7) * 4.6, 14 + Math.floor(i / 7) * 6, 11.2], [0, 0, 0], [1.4, 2.4, 0.3], { art: "leucht" });
-  fenster.add(KUGEL(), "#c8a8ff", [0, 56, -16], [0, 0, 0], 2.2, { art: "leucht" });
-  fenster.in(halle, { schatten: false });
-  halle.position.set(mitte.x - 40, -62, mitte.z + 330);
-  halle.rotation.y = 0.5;
-  halle.scale.setScalar(1.25);
-  szene.add(halle);
+  for (let k = 0; k < 6; k++) for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + k * 0.2, y = -64 + k * 9;
+    fenster.add(KASTEN(), k === 0 ? "#ff9a50" : "#ffd890", [Math.cos(a) * 10.2, y + 2, Math.sin(a) * 10.2], [0, -a, 0], [0.6, 1.6 + k * 0.4, 1.2 + k * 0.15], { art: "leucht" });
+  }
+  fenster.add(KUGEL(), "#c8a8ff", [0, 3.2, 0], [0, 0, 0], 1.2, { art: "leucht" });
+  fenster.in(turm, { schatten: false });
+  const strahl = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 1.6, 40, 12, 1, true), new THREE.MeshBasicMaterial({ color: "#b48aff", transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  strahl.position.y = 22;
+  turm.add(strahl);
+  animationen.push((zeit) => { strahl.material.opacity = 0.18 + Math.sin(zeit * 1.3) * 0.07; });
+  turm.position.set(mitte.x - 30, -8, mitte.z + T / 2 + 60);
+  szene.add(turm);
 }
 
 // ---------- Inseln ----------
@@ -827,7 +834,7 @@ function brueckeBauen(o, animationen) {
   return { modell: g, setzeOffen };
 }
 
-/** Das zerbrochene Siegel: ein schwebender Steinring mit lila Leuchten – der Weg zurück in die Halle. */
+/** Das zerbrochene Siegel: ein schwebender Steinring mit lila Leuchten – der Weg zurück in den Turm. */
 function siegelPortalBauen(animationen) {
   const g = new THREE.Group();
   const t = new Teile();

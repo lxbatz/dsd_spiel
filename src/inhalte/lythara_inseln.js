@@ -1080,7 +1080,7 @@ export const BUCH = {
   id: "lythara_buch",
   lesetext: TEXT,
   vorlage: entwurf,
-  frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine fünf Texte aus der Halle und von den Inseln stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
+  frage: `Schreibe jetzt deinen ganzen Forumsbeitrag zu Jonas' Text und zur Frage „${FRAGE}“. Deine fünf Texte aus dem Turm und von den Inseln stehen schon da. Lies alles noch einmal, verbinde die Teile mit Überleitungen und verbessere deinen Text.`,
   minWoerter: 180,
   stichpunkte: "So ist dein Beitrag aufgebaut: 1. Überschrift und Einleitung · 2. Wiedergabe von Jonas' Text · 3. Deine Erfahrungen · 4. Deine Meinung mit Begründungen · 5. Schluss mit Gruß und Namen. Diese Reihenfolge ist ein guter Plan – in der Prüfung darfst du die drei Punkte (Wiedergabe, Erfahrungen, Meinung) aber auch anders ordnen. In der echten Prüfung hast du dafür 75 Minuten Zeit. Niemand zählt dort die Wörter – wichtig ist, dass du alle Punkte ausführlich bearbeitest. Trau dich auch an längere Sätze (weil, obwohl, Relativsätze, würde …): Das gibt Punkte, auch wenn noch Fehler drin sind.",
   muster: [

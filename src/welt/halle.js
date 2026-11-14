@@ -1,4 +1,6 @@
 // Lythara – Die Halle der Tausend Tore (Quest 1: Die Schriftrolle des Beobachters)
+// Diese Karte nutzen die älteren 2D-Versionen. In 3D wird daraus der Turm der Tausend Treppen
+// (src/welt/treppenturm.js), der die Aktionen von hier übernimmt.
 
 import { dialog, frage, textZeigen } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
@@ -52,7 +54,7 @@ async function lyra() {
     : "Alle Tore sind offen! Schreibe am Pult deine Einleitung und stell dich dann dem Torwächter.", B);
 }
 
-function torAktion(torId) {
+export function torAktion(torId) {
   const tor = TORE[torId];
   return async (welt) => {
     if (!istErledigt("lythara_intro")) {
@@ -74,7 +76,7 @@ function torAktion(torId) {
   };
 }
 
-async function pult() {
+export async function pult() {
   if (istErledigt("lythara_einleitung")) {
     const nochmal = await frage("Pult des Beobachters", "Deine Einleitung liegt auf dem Pult. Möchtest du sie überarbeiten?", ["Ja, überarbeiten", "Nein"]);
     if (nochmal !== 0) return;
@@ -93,7 +95,7 @@ async function pult() {
   await belohnung({ xp: 25, grund: "Bonusaufgabe: Deine eigene Einleitung", fanfare: true });
 }
 
-async function torwaechter(welt) {
+export async function torwaechter(welt) {
   const B = bild("boss_torwaechter");
   if (!istErledigt("lythara_einleitung")) {
     await dialog(TORWAECHTER.name, "Du willst mich herausfordern? Zeig mir zuerst am Pult, dass du eine Einleitung schreiben kannst!", B);
@@ -106,10 +108,10 @@ async function torwaechter(welt) {
   erledigen("lythara_q1_boss");
   welt.aktualisieren();
   await belohnung({ xp: 150, grund: "Bosskampf gewonnen und Quest abgeschlossen: Die Schriftrolle des Beobachters", gegenstaende: ["rolle_beobachter"] });
-  await dialog(LYRA, "Lyras Stimme hallt durch die Halle: „Du hast es geschafft! Komm zu mir zum Eingang.“", bild("npc_lyra"));
+  await dialog(LYRA, "Lyras Stimme hallt bis zu dir herauf: „Du hast es geschafft! Komm zu mir zum Eingang.“", bild("npc_lyra"));
 }
 
-async function siegel(welt) {
+export async function siegel(welt) {
   if (!istErledigt("lythara_q1_boss")) {
     await dialog("Siegeltür", "Eine schwere Tür mit einem leuchtenden Siegel. Der Torwächter bewacht sie.");
     return;
@@ -122,7 +124,7 @@ async function siegel(welt) {
   if (antwort === 0) welt.reisen("turm", "eingang");
 }
 
-async function rueckportal(welt) {
+export async function rueckportal(welt) {
   const antwort = await frage("Portal", "Möchtest du zurück ins Dorf der Ankömmlinge reisen?", ["Ja, zurück ins Dorf", "Nein, ich bleibe"]);
   if (antwort === 0) welt.reisen("dorf", "vonLythara");
 }
