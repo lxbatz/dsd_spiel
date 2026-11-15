@@ -25,7 +25,7 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 | `battle_02` | Bosskampf | wie oben (Platzhalter) |
 | `fanfare_03` | Sieg im Bosskampf | wie oben (Platzhalter) |
 | `fanfare_02` | Levelaufstieg | wie oben (Platzhalter) |
-| `evil_03` | Feste Schattenzahn (finale Kampagne) | wie oben (Platzhalter) |
+| `evil_03` | noch nicht verwendet | wie oben (Platzhalter) |
 
 Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit FluidSynth und dem Klangsatz „FluidR3 GM“ (MIT-Lizenz, Frank Wen) erzeugt; die Stille am Ende wurde abgeschnitten, damit die Musik ohne Lücke in Schleife läuft.
 
@@ -35,3 +35,6 @@ Welche Datei wo läuft, steht in `src/musik.js`.
 - `vocantia_snow_02` – Vocantia im ewigen Winter (aus `vocantia_snow_02.mid`, mit FluidR3_GM umgewandelt)
 - `vocantia_town_02` – Vocantia nach dem Auftauen (aus `vocantia_town_02.mid`, mit FluidR3_GM umgewandelt)
 - `beach_01` – Aurelia nach dem Sieg über den Drachenrichter (aus `beach_01.mid`, mit FluidR3_GM umgewandelt)
+- `dungeon_schattenzahn` – die Feste Schattenzahn (aus `dungeon_schattenzahn.mid`, mit FluidR3_GM umgewandelt)
+- `boss_morgrath` – Endkampf gegen Morgrath (aus `boss_morgrath.mid`, mit FluidR3_GM umgewandelt)
+- `glocke_aurelia` – die große Glocke von Aurelia, läutet nach dem Sieg über den Drachenrichter (Aufnahme der Schulglocke, vom Projekt hochgeladen)

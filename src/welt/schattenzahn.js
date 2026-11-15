@@ -141,7 +141,7 @@ function morgrathAktion(t) {
 
 async function endkampf(welt) {
   const B = bild("boss_morgrath");
-  const sieg = await kampf({ ...MORGRATH, bild: B, quest: "schattenzahn_boss" }, MORGRATH.fragen);
+  const sieg = await kampf({ ...MORGRATH, bild: B, quest: "schattenzahn_boss", musik: "kampf_morgrath" }, MORGRATH.fragen);
   if (!sieg) return;
   erledigen("schattenzahn_boss");
   welt.aktualisieren();

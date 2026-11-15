@@ -24,7 +24,7 @@ export async function kampf(gegner, roheFragen) {
   let runde = 0;
   const verlauf = [];
   const musikVorher = aktuelleMusik();
-  musik("kampf");
+  musik(gegner.musik ?? "kampf");
 
   await new Promise((los) => {
     const k = knopf("⚔️ Kampf beginnen", los);

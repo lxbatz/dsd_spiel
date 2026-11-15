@@ -8,7 +8,7 @@
 // Quest 5: Der Glockenturm (Meinungen zuordnen wie DSD Hören Teil 5) an zwei Stimmenmuscheln,
 //          dann der Endkampf gegen den Drachenrichter vor dem Turm. Danach ist Aurelia gerettet.
 
-import { musik } from "../musik.js";
+import { musik, spieleJingle } from "../musik.js";
 import { dialog, frage } from "../ui/fenster.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
 import { questStarten } from "./quest.js";
@@ -485,6 +485,7 @@ async function drachenrichter(welt) {
   await belohnung({ xp: 200, grund: "Bosskampf gewonnen: Der Drachenrichter", gegenstaende: ["ton_turm"] });
   erledigen("aurelia_q5");
   welt.aktualisieren();
+  spieleJingle("glocke", { vorziehen: true });   // die große Glocke läutet (unsere Schulglocke) – sie übertönt die Siegesfanfare
   await dialog(ORPHEON, [
     "Hoch oben im Turm beginnt die große Glocke zu schwingen – erst leise, dann immer lauter. DONG … DONG … DONG …",
     "Alle fünf Töne klingen zusammen: Hafen, Markt, Leuchtturm, Werft und Turm. Die ganze Stadt bleibt stehen und hört zu.",

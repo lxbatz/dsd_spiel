@@ -2,11 +2,12 @@
 // Die Dateien liegen im Ordner Sound/. Welche Musik wo läuft:
 //   - Intro-Text (Prolog):           MUSIK.intro
 //   - Karten: Feld "musik" in der Kartendefinition (src/welt/*.js)
-//   - Bosskampf:                     MUSIK.kampf, Sieg: JINGLES.sieg (src/ui/kampf.js)
+//   - Bosskampf:                     MUSIK.kampf (oder gegner.musik), Sieg: JINGLES.sieg (src/ui/kampf.js)
+//   - Große Glocke von Aurelia:      JINGLES.glocke (nach dem Sieg über den Drachenrichter)
 //   - Quest abgeschlossen:           JINGLES.fanfare  (fanfare_01, über belohnung({ fanfare: true }))
 //   - Neue Stufe (Levelaufstieg):    JINGLES.stufe    (fanfare_02, in belohnung() und beim Lehrercode)
 //   - Bossgegner besiegt:            JINGLES.sieg     (fanfare_03, src/ui/kampf.js)
-//   Läuft schon ein Jingle (z. B. die Siegesfanfare), wartet die Stufen-Fanfare, bis er zu Ende ist.
+//   Läuft schon ein Jingle (z. B. die Siegesfanfare oder die Glocke), warten Quest- und Stufen-Fanfare, bis er zu Ende ist.
 
 export const MUSIK = {
   intro: "Sound/opening_03.mp3",
@@ -18,15 +19,17 @@ export const MUSIK = {
   scriptoria: "Sound/forest_02.mp3",
   vocantia: "Sound/vocantia_snow_02.mp3",
   vocantia_fruehling: "Sound/vocantia_town_02.mp3",
-  schattenzahn: "Sound/evil_03.mp3",
+  schattenzahn: "Sound/dungeon_schattenzahn.mp3",
   schattenzahn_sieg: "Sound/opening_03.mp3",
   kampf: "Sound/battle_02.mp3",
+  kampf_morgrath: "Sound/boss_morgrath.mp3",
 };
 
 export const JINGLES = {
   fanfare: "Sound/fanfare_01.mp3",
   stufe: "Sound/fanfare_02.mp3",
   sieg: "Sound/fanfare_03.mp3",
+  glocke: "Sound/glocke_aurelia.mp3",
 };
 
 const LAUTSTAERKE = 0.45;
@@ -37,7 +40,7 @@ try { stumm = localStorage.getItem(EINSTELLUNG) === "1"; } catch { /* egal */ }
 
 let aktuell = null;   // { id, audio }
 let jingle = null;
-let naechster = null; // Jingle, der nach dem laufenden gespielt wird
+let warteschlange = []; // Jingles, die nach dem laufenden gespielt werden
 const beobachter = new Set();
 
 function ausblenden(audio, dauer = 600) {
@@ -81,12 +84,13 @@ export function musik(id, { sofort = false } = {}) {
 /**
  * Spielt einen kurzen Jingle; die Hintergrundmusik pausiert so lange.
  * danach: true – läuft gerade ein Jingle, wird dieser erst zu Ende gespielt.
+ * vorziehen: true – unterbricht den laufenden Jingle, aber wartende Jingles bleiben in der Schlange.
  */
-export function spieleJingle(id, { danach = false } = {}) {
+export function spieleJingle(id, { danach = false, vorziehen = false } = {}) {
   if (stumm || !JINGLES[id]) return;
-  if (danach && jingle) { naechster = id; return; }
+  if (danach && jingle) { if (!warteschlange.includes(id)) warteschlange.push(id); return; }
   jingle?.pause();
-  naechster = null;
+  if (!danach && !vorziehen) warteschlange = [];
   const audio = new Audio(JINGLES[id]);
   audio.volume = Math.min(1, LAUTSTAERKE + 0.2);
   jingle = audio;
@@ -94,7 +98,7 @@ export function spieleJingle(id, { danach = false } = {}) {
   const weiter = () => {
     if (jingle !== audio) return;
     jingle = null;
-    if (naechster) { const n = naechster; naechster = null; spieleJingle(n); return; }
+    if (warteschlange.length) { spieleJingle(warteschlange.shift(), { danach: true }); return; }
     if (aktuell && !stumm) abspielen(aktuell.audio);
   };
   audio.addEventListener("ended", weiter);
@@ -118,7 +122,7 @@ export function stummSchalten(wert = !stumm) {
     aktuell?.audio.pause();
     jingle?.pause();
     jingle = null;
-    naechster = null;
+    warteschlange = [];
   } else if (aktuell) {
     abspielen(aktuell.audio);
   }

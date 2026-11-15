@@ -5,7 +5,7 @@ import { spieleJingle } from "../musik.js";
 
 /** Vergibt XP und Gegenstände und zeigt einen Belohnungsbildschirm. fanfare: true bei abgeschlossenen Quests. */
 export function belohnung({ xp = 0, grund = "", gegenstaende = [], fanfare = false }) {
-  if (fanfare) spieleJingle("fanfare");
+  if (fanfare) spieleJingle("fanfare", { danach: true });
   const neu = gegenstaende.filter((id) => geben(id));
   const ergebnis = xp ? xpGeben(xp, grund) : null;
   if (ergebnis?.aufgestiegen) spieleJingle("stufe", { danach: true });
