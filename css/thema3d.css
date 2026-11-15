@@ -94,3 +94,5 @@ body:not(.im-spiel) .kompass { display: none; }
 body.kino #spiel::before, body.kino #spiel::after { height: 11vh; }
 #hud, .kompass, #joystick, #aktion-knopf { transition: opacity .6s; }
 body.kino #hud, body.kino .kompass, body.kino #joystick, body.kino #aktion-knopf, body.kino #hinweis { opacity: 0; pointer-events: none; }
+.ton-schalter { color: var(--hell); border-color: rgba(201, 162, 78, .7); background: rgba(255, 255, 255, .06); }
+.ton-schalter:hover { background: rgba(255, 255, 255, .14); }

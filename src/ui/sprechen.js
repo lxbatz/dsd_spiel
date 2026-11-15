@@ -13,6 +13,8 @@
 
 import { el } from "./fenster.js";
 import { hoertextElement } from "./hoeren.js";
+import { tonSchalter } from "./tonschalter.js";
+import { mikrofonStille } from "../musik.js";
 
 const WAHL = "eldoria-mikrofon";
 let aktiv = null;   // { stream, ctx, raf, recorder, urls }
@@ -23,6 +25,7 @@ function wahlSpeichern(an) { try { localStorage.setItem(WAHL, an ? "1" : "0"); }
 /** Mikrofon, Messung und Aufnahmen beenden (beim Weitergehen und nach dem Kampf). */
 export function sprechenStoppen() {
   if (!aktiv) return;
+  mikrofonStille(false);
   clearInterval(aktiv.raf);
   try { if (aktiv.recorder?.state === "recording") aktiv.recorder.stop(); } catch { /* egal */ }
   aktiv.stream?.getTracks().forEach((t) => t.stop());
@@ -94,7 +97,7 @@ export function sprechen(a) {
   const kristallKnopf = el("button", { type: "button", class: "knopf" }, "🎙 Mikrofon einschalten");
   const aufnahmeKnopf = el("button", { type: "button", class: "knopf zweitrangig", hidden: true }, "⏺ Aufnehmen");
   const kristallBereich = el("div", { class: "sprech-modus", hidden: true },
-    el("div", { class: "sprech-info" }, "💎 Stimmkristall: Er lädt sich auf, solange du sprichst. Das Spiel hört nicht, WAS du sagst – nur, DASS du sprichst. Nichts wird gespeichert."),
+    el("div", { class: "sprech-info" }, "💎 Stimmkristall: Er lädt sich auf, solange du sprichst. Das Spiel hört nicht, WAS du sagst – nur, DASS du sprichst. Nichts wird gespeichert. Solange das Mikrofon an ist, schweigt die Musik."),
     el("div", { class: "knopfleiste" }, kristallKnopf, aufnahmeKnopf));
 
   kristallKnopf.addEventListener("click", async () => {
@@ -108,6 +111,7 @@ export function sprechen(a) {
       analyser.fftSize = 1024;
       ctx.createMediaStreamSource(stream).connect(analyser);
       aktiv = { stream, ctx, raf: 0, recorder: null, urls: [] };
+      mikrofonStille(true);
       const daten = new Float32Array(analyser.fftSize);
       // Zeitbasiert (alle 50 ms), damit es auch auf langsamen Geräten gleich schnell läuft
       const start = performance.now();
@@ -182,7 +186,9 @@ export function sprechen(a) {
       el("div", {}, el("b", {}, "B: "), a.partner.b)) : null,
     hoertextElement({ sprecher: a.partner ? "Die Frage zum Vorlesen" : "Die Prüferin fragt", text: frageText, stimme: { tonhoehe: 1.05, tempo: 0.9 } }),
     a.hilfen ? el("details", { class: "stichpunkte" }, el("summary", {}, "💡 Redemittel"), el("div", {}, a.hilfen)) : null,
-    el("div", { class: "sprech-ziel" }, `Ziel: mindestens ${dauer} Sekunden sprechen.`),
+    el("div", { class: "sprech-ziel-zeile" },
+      el("div", { class: "sprech-ziel" }, `Ziel: mindestens ${dauer} Sekunden sprechen.`),
+      tonSchalter()),
     wahl, uhrBereich, kristallBereich,
     el("div", { class: "sprech-anzeige" }, kristall, el("div", {}, anzeige, balken, hinweis)),
     aufnahmeBereich,

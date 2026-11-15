@@ -257,10 +257,12 @@ Das Ende läuft über drei Zustände: `schattenzahn_boss` (Morgrath in der Lava)
 - **Auslöser:** `ausloeser: [{ wenn(zustand, tx, ty), aktion(welt) }]` in der Karte startet einen Ablauf, sobald die Bedingung stimmt (z. B. die Figur betritt auf der Flucht den Vorhof).
 - **Drehung:** `drehung` an einem Objekt dreht das Modell (z. B. die Mentoren vor dem Tor mit Blick zur Burg).
 
-Kampf- und Prüfungsfenster haben oben einen Knopf „Musik an/aus“ (`tonSchalter()` aus `src/ui/tonschalter.js`); er folgt auch der Taste M.
+Kampf-, Prüfungs- und Sprechfenster haben oben einen Knopf „Musik an/aus“ (`tonSchalter()` aus `src/ui/tonschalter.js`); er folgt auch der Taste M.
 
 Ein Tor (`art: "tor"`) öffnet sich in 3D von selbst mit Staub und Funken, sobald `offen(zustand)` wahr wird. Ein Gegner, dessen `sichtbar(zustand)` nach dem Sieg falsch wird, löst sich in Funken auf.
 
 ## Intro (3D)
 
 `src/grafik3d/intro.js` zeigt zu jeder Tafel des Prologs (`PROLOG` in `src/start.js`) eine Szene. `titelZeigen` bekommt dafür `intro: { szene(nr), ende() }` (siehe `src/main3d.js`); die 16-Bit-Version zeigt den Prolog weiter ohne Szenen. Die Reiche werden nur für das Intro gebaut: Während des Intros gelten vorübergehend die Fortschritte bis zur Befreiung aller vier Reiche (damit sie „schön“ aussehen), danach wird der Zustand zurückgesetzt und die Intro-Karten werden verworfen. Die Kamerafahrten über die Reiche stehen in `REICHE` (Kachelkoordinaten). Szenen wechseln mit `spiel.ueberblenden(fn)`: Das letzte Bild bleibt als Standbild stehen und blendet über die neue Szene aus. Das Sprachsiegel ist ein gemeinsames Modell (`src/grafik3d/siegel.js`), Morgrath kann mit `schlagen(u)` mit dem Streitkolben zuschlagen.
+
+**Musik und Mikrofon:** Solange der Stimmkristall das Mikrofon benutzt, schweigt die Hintergrundmusik (`mikrofonStille` in `src/musik.js`), damit sie nicht mitgemessen oder mit aufgenommen wird. Beim Weitergehen (`sprechenStoppen`) kommt sie zurück.

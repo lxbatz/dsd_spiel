@@ -77,7 +77,7 @@ export function musik(id, { sofort = false } = {}) {
   if (!id || !MUSIK[id]) return;
   const audio = new Audio(MUSIK[id]);
   audio.loop = true;
-  audio.volume = LAUTSTAERKE;
+  audio.volume = lautstaerke();
   aktuell = { id, audio };
   if (!stumm && !jingle) abspielen(audio);
 }
@@ -107,11 +107,25 @@ export function spieleJingle(id, { danach = false, vorziehen = false } = {}) {
   abspielen(audio);
 }
 
-let stilleBeimHoeren = false;
+let stilleBeimHoeren = false, hoertextLaeuft = false, mikrofonAn = false;
+
+/** Lautstärke der Hintergrundmusik aus allen Gründen zusammen (Hörtext, Mikrofon) */
+function lautstaerke() {
+  if (mikrofonAn) return 0;
+  if (hoertextLaeuft) return stilleBeimHoeren ? 0 : LAUTSTAERKE * 0.15;
+  return LAUTSTAERKE;
+}
 
 /** Musik leiser stellen, solange ein Hörtext läuft (in der Probeprüfung ganz still). */
 export function leiser(an) {
-  if (aktuell) aktuell.audio.volume = an ? (stilleBeimHoeren ? 0 : LAUTSTAERKE * 0.15) : LAUTSTAERKE;
+  hoertextLaeuft = Boolean(an);
+  if (aktuell) aktuell.audio.volume = lautstaerke();
+}
+
+/** Solange das Mikrofon (Stimmkristall) an ist, schweigt die Musik, damit sie nicht mitgemessen oder mit aufgenommen wird. */
+export function mikrofonStille(an) {
+  mikrofonAn = Boolean(an);
+  if (aktuell) aktuell.audio.volume = lautstaerke();
 }
 
 /** In der Probeprüfung Hören: Während ein Hörtext läuft, schweigt die Musik ganz. */
