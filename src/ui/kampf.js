@@ -11,6 +11,7 @@ import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
 
 /**
  * gegner: { name, bild (Data-URL), lp, schaden, einleitung, spott: [..], sieg: [..], niederlage: [..] }
+ *   optional: musik (ID aus MUSIK), lpVoll (volle Lebenskraft, wenn der Gegner schon geschwächt ist), phase (Text über dem Kampf)
  * fragen: Aufgaben (wie in aufgaben.js)
  * Liefert true bei Sieg, false bei Niederlage.
  */
@@ -48,11 +49,12 @@ export async function kampf(gegner, roheFragen) {
     await new Promise((weiter) => {
       const r = aufgabeErstellen(a);
       const portrait = el("img", { class: "portrait", src: gegner.bild, alt: "" });
-      const balken = el("div", { style: `width:${(lp / gegner.lp) * 100}%` });
+      const voll = gegner.lpVoll ?? gegner.lp;
+      const balken = el("div", { style: `width:${(lp / voll) * 100}%` });
       const herzAnzeige = el("div", { class: "herzen", title: "Deine Herzen" });
       const zeichneHerzen = () => { herzAnzeige.textContent = "❤️".repeat(herzen) + "🖤".repeat(herzenMax - herzen); };
       zeichneHerzen();
-      const lpText = el("div", { class: "fortschritt" }, `${gegner.name}: ${lp} / ${gegner.lp} Lebenspunkte`);
+      const lpText = el("div", { class: "fortschritt" }, `${gegner.name}: ${lp} / ${voll} Lebenspunkte`);
       const feedback = el("div", { class: "feedback", hidden: true });
       const leiste = el("div", { class: "knopfleiste" });
 
@@ -68,8 +70,8 @@ export async function kampf(gegner, roheFragen) {
         verlauf.push({ frage: a.frage, typ: a.typ, ok: Boolean(e.ok) });
         if (e.ok) {
           lp = Math.max(0, lp - schaden);
-          balken.style.width = `${(lp / gegner.lp) * 100}%`;
-          lpText.textContent = `${gegner.name}: ${lp} / ${gegner.lp} Lebenspunkte`;
+          balken.style.width = `${(lp / voll) * 100}%`;
+          lpText.textContent = `${gegner.name}: ${lp} / ${voll} Lebenspunkte`;
           portrait.classList.remove("treffer");
           void portrait.offsetWidth;
           portrait.classList.add("treffer");
@@ -98,6 +100,7 @@ export async function kampf(gegner, roheFragen) {
           portrait,
           el("div", { style: "flex:1" },
             el("h2", {}, gegner.name),
+            gegner.phase ? el("div", { class: "fortschritt" }, gegner.phase) : null,
             el("div", { class: "lp-balken" }, balken),
             lpText,
             herzAnzeige)),

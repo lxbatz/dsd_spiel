@@ -150,7 +150,7 @@ function objektModell(o, animationen, ankerFuer) {
     const lichter = [];
     f.gruppe.traverse((m) => { if (m.isPointLight) lichter.push(m); });
     for (const l of lichter) { ankerFuer(l.parent, l.position.clone(), l.color, l.intensity, l.distance, l.decay); l.parent.remove(l); }
-    f.gruppe.userData.setzeLeuchten = (an, sofort) => (sofort ? f.sofort : f.pose)(an ? "gefallen" : "stehen");
+    f.gruppe.userData.setzeLeuchten = (an, sofort) => (sofort ? f.sofort : f.pose)(an === true ? "gefallen" : an || "stehen");
     return { modell: f.gruppe, figur: f, boss: true, kopfY: 6.6, weit: 9, kameraY: 3.4, versatz: [0, 0.4] };
   }
   return null;

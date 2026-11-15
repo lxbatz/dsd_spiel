@@ -433,7 +433,7 @@ const ABBRUCH = Symbol("abbruch");
  * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst)
  * oder { abgebrochen: true }.
  */
-export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lesetext }) {
+export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lesetext, kopf }) {
   const aufgaben = roh.map(aufgabeAufloesen);
   let ersterVersuch = 0;
   const protokoll = [];
@@ -485,6 +485,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
       leiste.append(pruefKnopf);
 
       zeigen(
+        kopf?.() ?? null,
         el("h2", {}, titel),
         el("div", { class: "fortschritt" }, [untertitel, aufgaben.length > 1 ? `Aufgabe ${i + 1} von ${aufgaben.length}` : null].filter(Boolean).join(" · ")),
         lesetextElement(a.lesetext ?? lesetext),
@@ -519,9 +520,10 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
  * Probeprüfung wie im DSD: Jede Aufgabe hat genau einen Versuch, es gibt keine Rückmeldung
  * während der Prüfung. Jedes Item zählt einen Punkt (unbeantwortet = 0). Am Ende kommt die Auswertung
  * nach Prüfungsteilen (Feld `teil` der Aufgaben).
+ * kopf: optional eine Funktion, die ein Element über der Aufgabe liefert (z. B. den Bossbalken).
  * Liefert { punkte, max, bestanden, teile: [{ teil, punkte, max }] } oder { abgebrochen: true }.
  */
-export async function pruefungsFolge({ id, titel, untertitel, aufgaben: roh, bestehenAb = 0.5, hinweis }) {
+export async function pruefungsFolge({ id, titel, untertitel, aufgaben: roh, bestehenAb = 0.5, hinweis, kopf }) {
   const aufgaben = roh.map(aufgabeAufloesen);
   const protokoll = [];
   const teile = [];
@@ -544,6 +546,7 @@ export async function pruefungsFolge({ id, titel, untertitel, aufgaben: roh, bes
         fertig(r.punkte?.() ?? { punkte: 0, max: 0 });
       });
       zeigen(
+        kopf?.() ?? null,
         el("h2", {}, titel),
         el("div", { class: "fortschritt" }, [untertitel, a.teil, `Aufgabe ${i + 1} von ${aufgaben.length}`].filter(Boolean).join(" · ")),
         i === 0 && hinweis ? el("div", { class: "feedback info" }, hinweis) : null,

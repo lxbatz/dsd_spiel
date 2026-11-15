@@ -5,7 +5,7 @@
 //   - in der Brust ein glühender Riss (dort, wo er das Sprachsiegel zerbrochen hat)
 //   - ein zerrissener Umhang, der im Hitzewind weht, Glutfunken und dunkler Rauch um ihn herum
 //   - ein riesiger Streitkolben mit Flanschen und Stacheln
-// Posen: "stehen" (Standard, atmet, Umhang weht, Kolben pendelt) und "gefallen"
+// Posen: "stehen" (Standard, atmet, Umhang weht, Kolben pendelt), "taumeln" (getroffen, weicht zurück) und "gefallen"
 // (taumelt rückwärts, kippt nach hinten und stürzt in die Lava – danach unsichtbar).
 // Ursprung: zwischen den Füßen, Blick in Richtung +z. Höhe etwa 7,5 Einheiten.
 //
@@ -226,16 +226,18 @@ export function morgrathBauen() {
 
   aussen.traverse((m) => { if (m.isMesh && !m.material?.isMeshBasicMaterial) { m.castShadow = true; m.receiveShadow = true; } });
 
+  // Wie weit der Sturz fortgeschritten ist: stehen 0, taumeln (getroffen zurückweichen) 0.3, gefallen 1
+  const POSEN = { stehen: 0, taumeln: 0.3, gefallen: 1 };
   let ziel = "stehen", sturz = 0, redet = false;
   return {
     gruppe: aussen,
     kopf,
-    pose(name) { ziel = name === "gefallen" ? "gefallen" : "stehen"; },
-    sofort(name) { ziel = name === "gefallen" ? "gefallen" : "stehen"; sturz = ziel === "gefallen" ? 1 : 0; },
+    pose(name) { ziel = POSEN[name] !== undefined ? name : "stehen"; },
+    sofort(name) { ziel = POSEN[name] !== undefined ? name : "stehen"; sturz = POSEN[ziel]; },
     sprechen(an) { redet = Boolean(an); },
     animieren(zeit, _tempo = 0, dt = 0.016) {
-      const soll = ziel === "gefallen" ? 1 : 0;
-      sturz += Math.sign(soll - sturz) * Math.min(Math.abs(soll - sturz), dt / 4.5);
+      const soll = POSEN[ziel];
+      sturz += Math.sign(soll - sturz) * Math.min(Math.abs(soll - sturz), dt / (ziel === "taumeln" ? 2 : 4.5));
       // Sturz: taumeln, nach hinten kippen, in die Lava fallen und versinken
       const tau = Math.min(1, sturz / 0.35), kipp = Math.max(0, (sturz - 0.25) / 0.45), fall = Math.max(0, (sturz - 0.55) / 0.45);
       wurzel.position.set(Math.sin(zeit * 9) * 0.12 * tau * (1 - kipp), -fall * fall * 14, -tau * 1.4 - kipp * 3.5 - fall * 2);

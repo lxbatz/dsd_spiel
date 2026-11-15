@@ -106,9 +106,16 @@ export function spieleJingle(id, { danach = false, vorziehen = false } = {}) {
   abspielen(audio);
 }
 
-/** Musik leiser stellen, solange ein Hörtext läuft. */
+let stilleBeimHoeren = false;
+
+/** Musik leiser stellen, solange ein Hörtext läuft (in der Probeprüfung ganz still). */
 export function leiser(an) {
-  if (aktuell) aktuell.audio.volume = an ? LAUTSTAERKE * 0.15 : LAUTSTAERKE;
+  if (aktuell) aktuell.audio.volume = an ? (stilleBeimHoeren ? 0 : LAUTSTAERKE * 0.15) : LAUTSTAERKE;
+}
+
+/** In der Probeprüfung Hören: Während ein Hörtext läuft, schweigt die Musik ganz. */
+export function stilleBeiHoertexten(an) {
+  stilleBeimHoeren = Boolean(an);
 }
 
 export function istStumm() {

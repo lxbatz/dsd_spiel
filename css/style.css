@@ -197,6 +197,10 @@ textarea.freitext {
 .kampf-kopf { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
 .kampf-kopf .portrait { width: 96px; height: 96px; }
 .kampf-kopf .portrait.treffer { animation: wackeln .35s; }
+.boss-phase { padding-bottom: 10px; border-bottom: 2px solid #8e1f1f55; }
+.boss-phase .portrait { width: 64px; height: 64px; }
+.boss-phase h2 { margin: 0; font-size: 1.15em; }
+.boss-phase .lp-balken > div { transition: width 1.6s ease-in; }
 @keyframes wackeln { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .lp-balken { height: 16px; background: #0002; border: 2px solid var(--tinte); border-radius: 8px; overflow: hidden; }
 .lp-balken > div { height: 100%; background: linear-gradient(90deg, #8e1f1f, #d24a4a); transition: width .4s; }

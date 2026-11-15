@@ -9,12 +9,12 @@
 // In jeder Ebene stellt sich Morgrath zum Kampf. Jede bestandene Prüfung treibt ihn tiefer hinab.
 // Am Ende stürzt er in die Lava. Belohnung: das Sprachsiegel von Eldoria und der Titel „Meister der Vier Sprachkräfte“.
 
-import { dialog, frage } from "../ui/fenster.js";
+import { dialog, frage, el, zeigen, knopf, fokus } from "../ui/fenster.js";
 import { aufgabenFolge, pruefungsFolge, pruefungsAuswertung } from "../ui/aufgaben.js";
 import { kampf } from "../ui/kampf.js";
 import { belohnung } from "../ui/belohnung.js";
 import { bild } from "../ui/bilder.js";
-import { musik } from "../musik.js";
+import { musik, stilleBeiHoertexten } from "../musik.js";
 import { zustand, istErledigt, erledigen, speichern } from "../zustand.js";
 import { HOEREN, HOEREN_HINWEIS } from "../inhalte/schattenzahn_hoeren.js";
 import { LESEN, LESEN_HINWEIS } from "../inhalte/schattenzahn_lesen.js";
@@ -92,48 +92,95 @@ const runa = mentorTipp(RUNA, "npc_runa", [
   "Und in der Kaverne der Stimmen: Antworte nie nur mit einem Satz. Erzähl, gib Beispiele, begründe. Wenn du eine Frage nicht verstehst – frag nach!",
 ], "Hörst du? Ganz Eldoria singt!");
 
-// ---------- Morgrath in den vier Ebenen ----------
+// ---------- Morgrath: ein Bosskampf in fünf Phasen ----------
+// Phase 1–4 sind die vier Prüfungsteile, Phase 5 ist der Endkampf. Jede Phase nimmt ihm ein Fünftel seiner Lebenskraft.
+// Während einer Prüfung bleibt der Balken stehen (keine Rückmeldung wie in der echten Prüfung); erst nach dem Bestehen fällt er.
+
+const LEBENSKRAFT = 1200, PHASEN = 5, PRO_PHASE = LEBENSKRAFT / PHASEN;
+const lebenskraftVor = (phase) => LEBENSKRAFT - (phase - 1) * PRO_PHASE;     // Phase 1 → 1200, Phase 5 → 240
+
+/** Taumelt Morgrath gerade (nach einer bestandenen Phase, bevor er in die Tiefe flieht)? Nur für die Darstellung. */
+let taumelnd = null;
+
+function bossKopf(phase, lp = lebenskraftVor(phase), lpText = lp) {
+  const balken = el("div", { style: `width:${(lp / LEBENSKRAFT) * 100}%` });
+  const kopf = el("div", { class: "kampf-kopf boss-phase" },
+    el("img", { class: "portrait", src: bild("boss_morgrath"), alt: "" }),
+    el("div", { style: "flex:1" },
+      el("h2", {}, MORGRATH_NAME),
+      el("div", { class: "fortschritt" }, `Bosskampf · Phase ${phase} von ${PHASEN}`),
+      el("div", { class: "lp-balken" }, balken),
+      el("div", { class: "fortschritt" }, `Lebenskraft: ${lpText} / ${LEBENSKRAFT}`)));
+  return { kopf, balken };
+}
+
+/** Nach einer bestandenen Phase: Der Balken fällt um ein Fünftel. */
+function phaseGeschafft(phase) {
+  return new Promise((weiter) => {
+    const vorher = lebenskraftVor(phase), nachher = vorher - PRO_PHASE;
+    const { kopf, balken } = bossKopf(phase, vorher, nachher);
+    const k = knopf("Weiter ▸", weiter);
+    zeigen(kopf,
+      el("div", { class: "feedback gut" }, `Volltreffer! Morgrath verliert ${PRO_PHASE} Lebenskraft.`,
+        phase < PHASEN - 1 ? " Er taumelt zurück und flieht tiefer in die Feste." : " Er wankt – jetzt kommt der letzte Kampf!"),
+      el("div", { class: "knopfleiste" }, k));
+    fokus(k);
+    requestAnimationFrame(() => requestAnimationFrame(() => { balken.style.width = `${(nachher / LEBENSKRAFT) * 100}%`; }));
+  });
+}
 
 function morgrathAktion(t) {
   return async (welt) => {
     const B = bild("boss_morgrath");
     const worte = MORGRATH_WORTE[t.id];
-    const i = TEILE.indexOf(t);
+    const i = TEILE.indexOf(t), phase = i + 1;
     if (i > 0 && !istErledigt(TEILE[i - 1].flag)) return;
     // In der Kaverne: nach der mündlichen Prüfung folgt sofort der Endkampf
     if (t.id === "sprechen" && istErledigt(t.flag)) { await endkampf(welt); return; }
+    musik("kampf_morgrath");
     await dialog(MORGRATH_NAME, worte.vorher, B);
-    const bereit = await frage(MORGRATH_NAME, `Probeprüfung ${t.name} – ${t.dauer}. Bist du bereit?`, ["Ja, ich stelle mich der Prüfung!", "Noch nicht."], B);
-    if (bereit !== 0) return;
+    const bereit = await frage(MORGRATH_NAME, `Bosskampf, Phase ${phase} von ${PHASEN}: Probeprüfung ${t.name} – ${t.dauer}. Bist du bereit?`, ["Ja, ich stelle mich der Prüfung!", "Noch nicht."], B);
+    if (bereit !== 0) { musik("schattenzahn"); return; }
+    const kopf = () => bossKopf(phase).kopf;
 
     if (t.id === "hoeren" || t.id === "lesen") {
+      stilleBeiHoertexten(t.id === "hoeren");
       const e = await pruefungsFolge({
         id: `schattenzahn_${t.id}`, titel: `Probeprüfung ${t.name}`, untertitel: t.ort,
         aufgaben: t.id === "hoeren" ? HOEREN : LESEN, bestehenAb: BESTEHEN_AB,
-        hinweis: t.id === "hoeren" ? HOEREN_HINWEIS : LESEN_HINWEIS,
+        hinweis: t.id === "hoeren" ? HOEREN_HINWEIS : LESEN_HINWEIS, kopf,
       });
-      if (e.abgebrochen) { await dialog(MORGRATH_NAME, "„Du gibst schon auf? Wie erbärmlich. Komm wieder, wenn du Mut hast!“", B); return; }
+      stilleBeiHoertexten(false);
+      if (e.abgebrochen) { musik("schattenzahn"); await dialog(MORGRATH_NAME, "„Du gibst schon auf? Wie erbärmlich. Komm wieder, wenn du Mut hast!“", B); return; }
       ergebnisMerken(t.id, { punkte: e.punkte, max: e.max, bestanden: e.bestanden, teile: e.teile });
       await pruefungsAuswertung(`Probeprüfung ${t.name}`, e);
-      if (!e.bestanden) { await dialog(MORGRATH_NAME, worte.niederlage, B); return; }
+      if (!e.bestanden) { musik("schattenzahn"); await dialog(MORGRATH_NAME, worte.niederlage, B); return; }
     } else {
       const e = await aufgabenFolge({
         id: `schattenzahn_${t.id}`, titel: `Probeprüfung ${t.name}`, untertitel: `${t.ort} · ${t.id === "schreiben" ? SCHREIBEN_HINWEIS : SPRECHEN_HINWEIS}`,
-        aufgaben: t.id === "schreiben" ? SCHREIBEN : SPRECHEN,
+        aufgaben: t.id === "schreiben" ? SCHREIBEN : SPRECHEN, kopf,
       });
-      if (e.abgebrochen) { await dialog(MORGRATH_NAME, worte.niederlage, B); return; }
+      if (e.abgebrochen) { musik("schattenzahn"); await dialog(MORGRATH_NAME, worte.niederlage, B); return; }
       ergebnisMerken(t.id, { abgegeben: true, bestanden: true });
     }
 
+    // Morgrath taumelt zurück, der Balken fällt
+    taumelnd = t.id;
     erledigen(t.flag);
+    welt.aktualisieren();
+    await phaseGeschafft(phase);
     if (t.id === "sprechen") {
+      taumelnd = null;
       await belohnung({ xp: 250, grund: `Probeprüfung bestanden: ${t.name}`, gegenstaende: [t.splitter], fanfare: true });
       await dialog(MORGRATH_NAME, "„Du sprichst … zu laut. VIEL zu laut! Genug geredet – jetzt KÄMPFE!“", B);
       await endkampf(welt);
       return;
     }
-    welt.aktualisieren();
     await dialog(MORGRATH_NAME, worte.sieg, B);
+    // … und flieht in die Tiefe
+    taumelnd = null;
+    welt.aktualisieren();
+    musik("schattenzahn");
     await belohnung({ xp: 250, grund: `Probeprüfung bestanden: ${t.name}`, gegenstaende: [t.splitter], fanfare: true });
     await dialog("Fallgitter", `Hinter dir rasselt es: Das Fallgitter zum ${TEILE[i + 1].ort} hebt sich. Der Weg führt noch tiefer hinab.`);
   };
@@ -141,8 +188,9 @@ function morgrathAktion(t) {
 
 async function endkampf(welt) {
   const B = bild("boss_morgrath");
-  const sieg = await kampf({ ...MORGRATH, bild: B, quest: "schattenzahn_boss", musik: "kampf_morgrath" }, MORGRATH.fragen);
-  if (!sieg) return;
+  const sieg = await kampf({ ...MORGRATH, bild: B, quest: "schattenzahn_boss", musik: "kampf_morgrath",
+    lpVoll: LEBENSKRAFT, phase: `Bosskampf · Phase ${PHASEN} von ${PHASEN}: der letzte Kampf` }, MORGRATH.fragen);
+  if (!sieg) { musik("schattenzahn"); return; }
   erledigen("schattenzahn_boss");
   welt.aktualisieren();
   await belohnung({ xp: 300, grund: "Endkampf gewonnen: Morgrath, der Verschleierer" });
@@ -219,8 +267,9 @@ export default {
       id: `sz_morgrath_${t.id}`, art: "npc", name: MORGRATH_NAME, bild: "morgrath", x: MORGRATH_ORT[t.id][0], y: MORGRATH_ORT[t.id][1], breite: 2, hoehe: 2,
       aktion: morgrathAktion(t), hinweis: t.id === "sprechen" ? "Morgrath herausfordern" : `Probeprüfung ${t.name} beginnen`,
       // In den oberen Ebenen verschwindet er nach der bestandenen Prüfung in die Tiefe; in der Kaverne stürzt er in die Lava
-      sichtbar: (z) => t.id === "sprechen" || !z.erledigt[t.flag],
-      leuchtet: (z) => t.id === "sprechen" && Boolean(z.erledigt.schattenzahn_boss),
+      // Nach jeder bestandenen Phase taumelt er zurück; dann flieht er (löst sich auf). In der Kaverne stürzt er am Ende in die Lava.
+      sichtbar: (z) => t.id === "sprechen" || !z.erledigt[t.flag] || taumelnd === t.id,
+      leuchtet: (z) => (t.id === "sprechen" && z.erledigt.schattenzahn_boss ? "gefallen" : taumelnd === t.id ? "taumeln" : false),
       // Nach dem Sturz in die Lava kann man ihn nicht mehr ansprechen (und nicht mehr anstoßen)
       offen: (z) => t.id === "sprechen" && Boolean(z.erledigt.schattenzahn_boss),
       marker: (z) => Boolean(z.erledigt.schattenzahn_intro) && (i === 0 || Boolean(z.erledigt[TEILE[i - 1].flag])) && !z.erledigt[t.flag]
