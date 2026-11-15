@@ -11,90 +11,78 @@
     fieldset { border: 1px solid #b59a6a; border-radius: 8px; margin-bottom: 16px; }
     label { display: block; margin: 8px 0; }
     input, select { font: inherit; padding: 4px 6px; }
-    button { font: inherit; padding: 8px 16px; background: #d9a441; border: 2px solid #a8741d; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    textarea { width: 100%; min-height: 160px; font-family: monospace; font-size: 12px; }
+    button { font: inherit; padding: 8px 16px; background: #d9a441; border: 2px solid #a8741d; border-radius: 6px; cursor: pointer; font-weight: bold; color: #2b2116; }
     .karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-top: 12px; }
     .karte { border: 2px dashed #7a5a2e; border-radius: 8px; padding: 10px; text-align: center; background: white; }
     .karte b { font-family: monospace; font-size: 18px; letter-spacing: 1px; display: block; margin: 6px 0; }
     .hinweis { background: #fff8e1; border-left: 4px solid #d9a441; padding: 8px 12px; }
+    .pruefen { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    #ergebnis { font-weight: bold; }
     @media print {
       body { background: white; margin: 0; }
       .nicht-drucken { display: none; }
     }
+    @media (max-width: 520px) { body { margin: 12px auto; } }
   </style>
 </head>
 <body>
   <div class="nicht-drucken">
     <h1>🔑 Lehrercodes erzeugen</h1>
     <p class="hinweis">
-      So geht's: Belohnung wählen, Anzahl eingeben, „Codes erzeugen“ klicken.
-      Dann den Block unter <b>1.</b> in die Datei <code>src/inhalte/codes.js</code> einfügen (vor der letzten Zeile <code>};</code>), committen und veröffentlichen.
-      Die Codes unter <b>2.</b> ausdrucken oder einzeln an die Schülerinnen und Schüler geben.
+      So geht's: Belohnung wählen, Anzahl eingeben, „Codes erzeugen“ klicken, ausdrucken oder einzeln weitergeben.
+      Die Codes funktionieren <b>sofort</b> im Spiel – man muss nichts eintragen oder hochladen.
+      Die Schülerinnen und Schüler geben den Code im Spiel unter <b>☰ Menü → 🔑 Lehrercode einlösen</b> ein
+      (oder im Titelbildschirm unter „🔑 Code eingeben“).
       Jeder Code funktioniert pro Gerät einmal. Gib jeden Code nur an eine Person.
     </p>
     <fieldset>
       <legend>Belohnung</legend>
       <label>Art:
         <select id="art">
-          <option value="20|Teamarbeit">Teamarbeit (20 XP)</option>
-          <option value="10|Mündlicher Beitrag">Mündlicher Beitrag (10 XP)</option>
-          <option value="25|Bonusaufgabe">Bonusaufgabe (25 XP)</option>
-          <option value="50|Quest im Unterricht">Quest im Unterricht (50 XP)</option>
-          <option value="100|DSD-Mission">DSD-Mission (100 XP)</option>
-          <option value="50|Sprechsiegel|sprechsiegel">Sprechsiegel – öffnet den Weg zum Schweigekönig in Vocantia (50 XP)</option>
-          <option value="eigen">Eigene Belohnung …</option>
+          <option value="T">Teamarbeit (20 XP)</option>
+          <option value="M">Mündlicher Beitrag (10 XP)</option>
+          <option value="B">Bonusaufgabe (25 XP)</option>
+          <option value="Q">Quest im Unterricht (50 XP)</option>
+          <option value="D">DSD-Mission (100 XP)</option>
+          <option value="S">Sprechsiegel – öffnet den Weg zum Schweigekönig in Vocantia (50 XP)</option>
+          <option value="X">Eigene XP-Zahl …</option>
         </select>
       </label>
-      <label id="eigen" hidden>XP: <input id="xp" type="number" value="30" min="1" max="1000"> Grund: <input id="grund" value="Sehr guter Text"></label>
+      <label id="eigen" hidden>XP (1–1000): <input id="xp" type="number" value="30" min="1" max="1000"></label>
       <label>Anzahl Codes: <input id="anzahl" type="number" value="25" min="1" max="200"></label>
-      <button id="los">Codes erzeugen</button>
+      <button id="los" type="button">Codes erzeugen</button>
     </fieldset>
-    <h2>1. In <code>src/inhalte/codes.js</code> einfügen</h2>
-    <textarea id="ausgabe" readonly></textarea>
-    <h2>2. Codes zum Verteilen <button onclick="print()">🖨 Drucken</button></h2>
+    <fieldset>
+      <legend>Code prüfen</legend>
+      <div class="pruefen"><input id="pruefCode" placeholder="ELD-XXXX-XXXX" maxlength="20"> <button id="pruefKnopf" type="button">Prüfen</button> <span id="ergebnis"></span></div>
+    </fieldset>
+    <h2>Codes zum Verteilen <button type="button" onclick="print()">🖨 Drucken</button></h2>
   </div>
   <div class="karten" id="karten"></div>
-
-  <script>
-    const ZEICHEN = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // ohne 0/O und 1/I
+  <script type="module">
+    import { BELOHNUNGEN, codeErzeugen, codePruefen } from "../src/codesignatur.js";
     const art = document.getElementById("art");
-    art.addEventListener("change", () => { document.getElementById("eigen").hidden = art.value !== "eigen"; });
-
-    function block() {
-      const z = crypto.getRandomValues(new Uint32Array(4));
-      return [...z].map((n) => ZEICHEN[n % ZEICHEN.length]).join("");
-    }
-
-    async function sha256(text) {
-      const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-      return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-
+    art.addEventListener("change", () => { document.getElementById("eigen").hidden = art.value !== "X"; });
     document.getElementById("los").addEventListener("click", async () => {
-      let xp, grund, gegenstand = null;
-      if (art.value === "eigen") {
-        xp = Number(document.getElementById("xp").value);
-        grund = document.getElementById("grund").value.trim() || "Belohnung";
-      } else {
-        [xp, grund, gegenstand = null] = art.value.split("|");
-        xp = Number(xp);
-      }
-      const anzahl = Math.min(200, Math.max(1, Number(document.getElementById("anzahl").value)));
-      const datum = new Date().toLocaleDateString("de-DE");
-      const zeilen = [`  // ${grund} (${xp} XP), erzeugt am ${datum}`];
+      const a = art.value;
+      const xp = a === "X" ? Math.min(1000, Math.max(1, Math.round(Number(document.getElementById("xp").value) || 1))) : BELOHNUNGEN[a].xp;
+      const grund = BELOHNUNGEN[a].grund;
+      const anzahl = Math.min(200, Math.max(1, Number(document.getElementById("anzahl").value) || 1));
       const karten = document.getElementById("karten");
       karten.replaceChildren();
       for (let i = 0; i < anzahl; i++) {
-        const code = `ELD-${block()}-${block()}`;
-        zeilen.push(`  "${await sha256(code)}": { xp: ${xp}, grund: ${JSON.stringify(grund)}${gegenstand ? `, gegenstand: "${gegenstand}"` : ""} },`);
+        const code = await codeErzeugen(a, xp);
         const k = document.createElement("div");
         k.className = "karte";
-        k.innerHTML = `<small>Die Chroniken von Eldoria</small><b></b><small></small>`;
+        k.innerHTML = "<small>Die Chroniken von Eldoria</small><b></b><small></small>";
         k.querySelector("b").textContent = code;
         k.querySelectorAll("small")[1].textContent = `${grund} · +${xp} XP`;
         karten.append(k);
       }
-      document.getElementById("ausgabe").value = zeilen.join("\n");
+    });
+    document.getElementById("pruefKnopf").addEventListener("click", async () => {
+      const e = await codePruefen(document.getElementById("pruefCode").value);
+      document.getElementById("ergebnis").textContent = e ? `✔ gültig: ${e.grund}, +${e.xp} XP` : "✘ kein gültiger Code mit Prüfsumme (ältere Codes aus der Liste werden hier nicht erkannt)";
     });
   </script>
 </body>

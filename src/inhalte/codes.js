@@ -1,10 +1,10 @@
-  // Sprechsiegel (50 XP), erzeugt am 15.11.2026
-  "f66854bb6537e1bb6dc14f50b5905c34fd2c572e6112bcf316f9f282b1f6a80c": { xp: 50, grund: "Sprechsiegel", gegenstand: "sprechsiegel" },// Lehrercodes: Die Lehrkraft verteilt Codes für Leistungen im Unterricht
+// Lehrercodes: Die Lehrkraft verteilt Codes für Leistungen im Unterricht
 // (Teamarbeit, mündliche Beiträge, korrigierte Texte, ...).
 //
-// Hier stehen nur die SHA-256-Prüfsummen der Codes, nicht die Codes selbst.
-// Neue Codes erzeugt man mit tools/lehrercodes.html und fügt die
-// erzeugten Zeilen unten ein.
+// NEU: tools/lehrercodes.html erzeugt Codes mit eingebauter Prüfsumme (src/codesignatur.js).
+// Diese funktionieren sofort, hier muss nichts mehr eingetragen werden.
+// Die Liste unten enthält nur noch ältere Codes und die Sprungcodes – als SHA-256-Prüfsummen,
+// nicht die Codes selbst.
 //
 // Hinweis: Jeder Code kann pro Gerät nur einmal eingelöst werden.
 // Auf einem anderen Gerät funktioniert derselbe Code noch einmal –
@@ -18,6 +18,8 @@
 // Repository – die Lehrkraft hat die Liste.
 
 export const CODES = {
+  // Sprechsiegel (50 XP), erzeugt am 15.11.2026
+  "f66854bb6537e1bb6dc14f50b5905c34fd2c572e6112bcf316f9f282b1f6a80c": { xp: 50, grund: "Sprechsiegel", gegenstand: "sprechsiegel" },
   // Sprechsiegel (50 XP), erzeugt am 14.11.2026 – öffnet in Vocantia den Weg zum Schweigekönig
   "45e9f86d7980d7cd1f72a98cdd0bcf8d6d11808dcd8bad8c241aac4ba14f6a5c": { xp: 50, grund: "Sprechsiegel", gegenstand: "sprechsiegel" },
   "ffbe95abe6783f3199200f515257092b03452b8f2cdbcdd800da5e2382c93bdf": { xp: 50, grund: "Sprechsiegel", gegenstand: "sprechsiegel" },

@@ -21,7 +21,7 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `aurelia_q2.js` | Aurelia Quest 2: Gespräche am Markt (drei Händler, Gespräche mit zwei Stimmen), Ohrenprobe bei Ione |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
-| `codes.js` | Lehrercodes (nur Prüfsummen, siehe `tools/lehrercodes.html`) |
+| `codes.js` | Ältere Lehrercodes und Sprungcodes (nur Prüfsummen). Neue Lehrercodes erzeugt `tools/lehrercodes.html` mit eingebauter Prüfsumme (`src/codesignatur.js`), sie brauchen keinen Eintrag hier |
 | `klassen.js` | Heldenklassen im Heldenpass |
 
 Die Dialoge der Figuren stehen in `src/welt/dorf.js`, `src/welt/halle.js` und `src/welt/turm.js`.

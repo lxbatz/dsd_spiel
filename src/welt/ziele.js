@@ -77,7 +77,7 @@ function hauptziele(z) {
     ["vocantia_q5", "Die Bühne am See: Sprich für Spielleiterin Sigrun an der Bühne (Südosten)."],
   ]) liste.push({ text, erledigt: e(id) });
   if (!["vocantia_q1", "vocantia_q2", "vocantia_q3", "vocantia_q4", "vocantia_q5"].every(e)) return liste;
-  liste.push({ text: "Hol dir das Sprechsiegel: einen Code von deiner Lehrkraft für eine mündliche Leistung im Unterricht.", erledigt: (z.gegenstaende ?? []).includes("sprechsiegel") });
+  liste.push({ text: "Hol dir das Sprechsiegel: einen Code von deiner Lehrkraft für eine mündliche Leistung im Unterricht (einlösen unter ☰ Menü → Lehrercode einlösen).", erledigt: (z.gegenstaende ?? []).includes("sprechsiegel") });
   liste.push({ text: "Steig den Bergpfad hinauf und besiege den Schweigekönig auf dem Plateau.", erledigt: e("vocantia_boss") });
   if (e("vocantia_finale")) liste.push({ text: "Vocantia ist gerettet! Das Tal taut auf und blüht.", erledigt: true });
   return liste;

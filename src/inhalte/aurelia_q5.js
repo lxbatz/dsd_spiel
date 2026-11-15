@@ -177,7 +177,7 @@ export const DRACHENRICHTER = {
     },
     {
       typ: "auswahl",
-      frage: "„Wie oft hörst du in Teil 5 die Meinungen?“",
+      frage: "„Im letzten Teil der Hörprüfung sprechen mehrere Personen kurz über ein Thema, und du ordnest ihre Meinungen zu. Wie oft hörst du diese Meinungen?“",
       optionen: ["nur einmal", "zweimal", "so oft ich will"], richtig: 0,
     },
     {

@@ -130,11 +130,63 @@ async function aldric(welt) {
     return;
   }
   const offeneNeben = nebenquestsOffen() ? NEBENQUESTS.filter(([id]) => !istErledigt(id)) : [];
-  await dialog(S, offeneNeben.length
-    ? ["Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!",
-      `Übrigens: Ein paar Leute im Dorf könnten deine Hilfe brauchen. Achte auf die blauen Zeichen!\n${offeneNeben.map(([, t]) => "• " + t).join("\n")}`]
-    : "Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!", B);
+  const neben = offeneNeben.length
+    ? [`Übrigens: Ein paar Leute im Dorf könnten deine Hilfe brauchen. Achte auf die blauen Zeichen!\n${offeneNeben.map(([, t]) => "• " + t).join("\n")}`]
+    : [];
+  // Aldric als Mentor: Nach jedem geretteten Reich lobt er und sagt, wohin die Reise als Nächstes geht.
+  const reise = welt.dreiD ? REISE.find((r) => !istErledigt(r.fertig)) : null;
+  const zuletzt = welt.dreiD ? [...REISE].reverse().find((r) => istErledigt(r.fertig)) : null;
+  if (zuletzt && !istErledigt(zuletzt.lobFlag)) {
+    await dialog(S, zuletzt.lob(zustand.held?.name ?? "Held"), B);
+    for (const r of REISE) if (istErledigt(r.fertig)) erledigen(r.lobFlag);
+    welt.aktualisieren();
+  }
+  if (!reise) {
+    await dialog(S, welt.dreiD
+      ? [`${zustand.held?.name ?? "Held"}, du hast alle vier Reiche gerettet: Lythara, Aurelia, Scriptoria und Vocantia.`,
+        "Die vier Teile des Sprachsiegels leuchten wieder. Die Völker von Eldoria hören einander zu, lesen genau, schreiben klar und sprechen miteinander.",
+        "Morgrath hat verloren. Und du bist bereit für deine eigene große Prüfung. Der Rat ist stolz auf dich!", ...neben]
+      : ["Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!", ...neben], B);
+    return;
+  }
+  await dialog(S, [reise.weiter, ...neben], B);
 }
+
+/** Die Reise durch die Reiche: wann ein Reich fertig ist, was Aldric danach sagt, wohin es weitergeht */
+const REISE = [
+  {
+    fertig: "lythara_finale", lobFlag: "aldric_lob_lythara",
+    weiter: "Das Portal im Süden bringt dich nach Lythara, ins Reich des Schreibens. Meisterin Lyra wartet im Keller des Turms der Tausend Treppen. Der Rat glaubt an dich!",
+    lob: (n) => [
+      `${n}! Die Nachricht ist schon im ganzen Dorf: Das Buch der Stimmen ist wieder ganz. Lythara ist gerettet!`,
+      "Du kannst jetzt einen ganzen Text schreiben – mit Einleitung, Wiedergabe, Erfahrungen, Meinung und Schluss.",
+    ],
+  },
+  {
+    fertig: "aurelia_finale", lobFlag: "aldric_lob_aurelia",
+    weiter: "Deine nächste Reise führt nach Aurelia, in die Hafenstadt der Glocken – das Reich des Hörens. Ein Drache wacht dort über die Stadt, und der Himmel ist rot. Wähle Aurelia am Portal im Süden. Orpheon erwartet dich am Stadttor.",
+    lob: (n) => [
+      `Hörst du das, ${n}? Bis hierher klingen die Glocken von Aurelia! Die Stadt ist gerettet, und der Drachenrichter wacht wieder über sie.`,
+      "Du verstehst Durchsagen, Gespräche, Nachrichten und Meinungen – auch wenn du sie nur einmal hörst.",
+    ],
+  },
+  {
+    fertig: "scriptoria_finale", lobFlag: "aldric_lob_scriptoria",
+    weiter: "Als Nächstes wartet Scriptoria, das Reich der Tausend Bücher – das Reich des Lesens. Der Schwarze Nebel hat den Bücherwald verschluckt. Wähle Scriptoria am Portal im Süden. Lirien wartet am Großen Lesebaum.",
+    lob: (n) => [
+      `${n}, man erzählt sich, dass über Scriptoria wieder die Sonne scheint! Der Schwarze Nebel ist fort, und Meister Ambros ist wieder er selbst.`,
+      "Du liest Briefe, Regeln, Informationstexte und Anzeigen genau – bis zum letzten kleinen Wort.",
+    ],
+  },
+  {
+    fertig: "vocantia_finale", lobFlag: "aldric_lob_vocantia",
+    weiter: "Jetzt fehlt nur noch ein Reich: Vocantia, das Bergdorf im Schweigen – das Reich des Sprechens. Der Schweigekönig hat dort alle Stimmen eingefroren. Wähle Vocantia am Portal im Süden. Großmutter Runa wartet am gefrorenen Brunnen.",
+    lob: (n) => [
+      `${n}! In Vocantia ist der Frühling zurück. Man hört bis hierher, wie die Menschen dort lachen, streiten und singen.`,
+      "Du sprichst über dich, führst Gespräche, begründest deine Meinung und hältst eine Präsentation. Das war das letzte Reich!",
+    ],
+  },
+];
 
 async function wilma() {
   const S = "Händlerin Wilma";
@@ -351,8 +403,8 @@ async function portal(welt) {
     return;
   }
   // Mehrere Ziele (nur in der 3D-Version): die Inseln der Stimmen nach dem ersten Besuch, DAS NICHTS (Figurengalerie)
-  const ziele = [[welt.dreiD ? "In den Turm der Tausend Treppen" : "In die Halle der Tausend Tore", "halle"]];
-  if (welt.dreiD && istErledigt("lythara_turm_intro")) ziele.push(["Zu den Inseln der Stimmen", "turm"]);
+  // Lythara: ein Ziel. Wer schon auf den Inseln der Stimmen war, kommt direkt dorthin, sonst in den Turm.
+  const ziele = [["Nach Lythara, ins Reich des Schreibens", welt.dreiD && istErledigt("lythara_turm_intro") ? "turm" : "halle"]];
   if (welt.dreiD && istErledigt("lythara_finale")) ziele.push(["Nach Aurelia, ins Reich des Hörens", "aurelia"]);
   if (welt.dreiD && istErledigt("aurelia_finale")) ziele.push(["Nach Scriptoria, ins Reich des Lesens", "scriptoria"]);
   if (welt.dreiD && istErledigt("scriptoria_finale")) ziele.push(["Nach Vocantia, ins Reich des Sprechens", "vocantia"]);
@@ -362,7 +414,7 @@ async function portal(welt) {
     if (wahl >= 0 && wahl < ziele.length) welt.reisen(ziele[wahl][1], "eingang");
     return;
   }
-  const antwort = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Möchtest du nach Lythara reisen, ins Reich der Schreiber?", ["Ja, ich reise nach Lythara!", "Noch nicht."]);
+  const antwort = await frage("Portal nach Lythara", "Das Portal leuchtet blau. Möchtest du nach Lythara reisen, ins Reich des Schreibens?", ["Ja, ich reise nach Lythara!", "Noch nicht."]);
   if (antwort === 0) welt.reisen("halle", "eingang");
 }
 
@@ -399,7 +451,8 @@ export default {
   objekte: [
     { id: "aldric", art: "npc", name: "Ratsältester Aldric", bild: "npc_aldric", x: 16, y: 5, aktion: aldric,
       marker: (z) => !z.erledigt.dorf_heldenpass || (!z.erledigt.dorf_abschluss && DORF_QUESTS.every(([id]) => z.erledigt[id])) ? true
-        : mimiSchritt(z) === "aldric" ? "neben" : false },
+        : mimiSchritt(z) === "aldric" ? "neben"
+        : globalThis.eldoriaDreiD && REISE.some((r) => z.erledigt[r.fertig] && !z.erledigt[r.lobFlag]) ? true : false },
     { id: "wilma", art: "npc", name: "Händlerin Wilma", bild: "npc_wilma", x: 6, y: 9, aktion: wilma,
       marker: (z) => z.erledigt.dorf_heldenpass && !z.erledigt.dorf_wilma ? true
         : z.erledigt.dorf_wilma && nebenquestsOffen(z) && (!z.erledigt.dorf_markt || ["wilma", "wilma_ende"].includes(mimiSchritt(z))) ? "neben" : false },

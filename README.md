@@ -76,6 +76,8 @@ Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden 
 - **Effekte:** goldene Funken bei Belohnungen, eine Lichtsäule beim Stufenaufstieg, Treffer-Funken im Bosskampf, sanftes Leuchten (Bloom) auf starken Geräten.
 - **Grafikstufen:** Hoch, Mittel, Niedrig. Das Spiel wählt automatisch eine passende Stufe und schaltet selbst herunter, wenn es ruckelt. Im Menü kann man die Stufe auch selbst wählen.
 
+**Kompass:** Oben rechts im Spielbild zeigt ein Kompass, wo Norden ist – die Aufgabenliste nennt Orte mit Himmelsrichtungen.
+
 **Steuerung am PC:** W A S D oder Pfeiltasten · E oder Leertaste spricht an · Maus ziehen dreht die Kamera, Mausrad zoomt · Klick auf eine Stelle oder Figur läuft dorthin · C setzt die Kamera hinter die Figur · Q Aufgaben · I Inventar · P Heldenpass · M Musik · Esc Menü
 
 **Steuerung an Handy und Tablet:** Joystick links · runder Knopf rechts spricht an · auf eine Stelle oder Figur tippen läuft dorthin · wischen dreht die Kamera · zwei Finger zoomen
@@ -107,7 +109,7 @@ Dann im Browser `http://localhost:8000` öffnen.
   Alles wird nur im Browser ausgewertet. Mit „Beispielklasse zeigen“ kann man es ohne echte Daten ausprobieren.
 
 - **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Turm: vor dem Torwächter“ oder „Insel der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
-- **Lehrercodes** für Teamarbeit, mündliche Beiträge usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Anleitung steht auf der Seite.
+- **Lehrercodes** für Teamarbeit, mündliche Beiträge, das Sprechsiegel usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Die Codes haben eine eingebaute Prüfsumme (`src/codesignatur.js`) und funktionieren sofort im Spiel – in `codes.js` muss nichts eingetragen werden. Im Spiel: ☰ Menü → Lehrercode einlösen.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).
 

@@ -41,7 +41,7 @@ export async function kampf(gegner, roheFragen) {
   });
 
   while (lp > 0 && herzen > 0) {
-    if (!stapel.length) stapel = mischen(fragen);
+    if (!stapel.length) stapel = mischen(fragen);     // nur, falls alle Fragen schon richtig beantwortet sind
     const a = stapel.shift();
     runde++;
 
@@ -82,7 +82,9 @@ export async function kampf(gegner, roheFragen) {
           window.dispatchEvent(new CustomEvent("eldoria:schaden"));
           r.loesungZeigen();
           feedback.className = "feedback schlecht";
-          feedback.textContent = ["Der Gegner wehrt ab! Du verlierst ein Herz.", a.erklaerung].filter(Boolean).join(" ");
+          feedback.textContent = ["Der Gegner wehrt ab! Du verlierst ein Herz.", a.erklaerung, "Diese Frage kommt später noch einmal."].filter(Boolean).join(" ");
+          // Falsch beantwortete Fragen kommen am Ende wieder; richtig beantwortete nicht
+          stapel.push(a);
         }
         feedback.hidden = false;
         const w = knopf(lp <= 0 || herzen <= 0 ? "Weiter ▸" : "Nächste Runde ▸", weiter);

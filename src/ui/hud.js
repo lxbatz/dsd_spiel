@@ -10,6 +10,7 @@ import {
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
 import { KLASSEN } from "../inhalte/klassen.js";
 import { CODES } from "../inhalte/codes.js";
+import { codePruefen } from "../codesignatur.js";
 import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
@@ -106,10 +107,14 @@ export function codeAnzeigen({ zurueck } = {}) {
   const eingabe = el("input", { class: "code-eingabe", placeholder: "ELD-XXXX-XXXX", maxlength: 20, autocomplete: "off" });
   const meldung = el("div", { class: "feedback", hidden: true });
   const einloesen = async () => {
-    const code = eingabe.value.trim().toUpperCase();
+    let code = eingabe.value.trim().toUpperCase();
     if (!code) return;
+    // Schreibweise vereinheitlichen: „eld abcd efgh“ → „ELD-ABCD-EFGH“
+    const roh = code.replace(/[^A-Z0-9]/g, "");
+    if (/^(ELD|SPR)[A-Z0-9]{8}$/.test(roh)) code = `${roh.slice(0, 3)}-${roh.slice(3, 7)}-${roh.slice(7)}`;
     const hash = await sha256(code);
-    const eintrag = CODES[hash];
+    // Zuerst die Liste in codes.js (ältere Codes, Sprungcodes), dann Codes mit eingebauter Prüfsumme
+    const eintrag = CODES[hash] ?? (await codePruefen(code));
     meldung.hidden = false;
     if (!eintrag) {
       meldung.className = "feedback schlecht";

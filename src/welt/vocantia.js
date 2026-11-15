@@ -67,7 +67,7 @@ async function runa() {
       "Oben auf dem Plateau sitzt der Schweigekönig auf seinem Eisthron. Gegen ihn hilft nur eine starke Stimme.",
       hat("sprechsiegel")
         ? "Ich sehe, du trägst das Sprechsiegel. Deine Lehrkraft hat deine Stimme schon gehört. Dann geh – und sprich!"
-        : "Aber Vorsicht: Der König lässt nur Menschen vor, die schon einmal vor echten Menschen gesprochen haben. Dafür brauchst du das Sprechsiegel. Deine Lehrkraft gibt es dir für eine mündliche Leistung im Unterricht – als Code. Den gibst du im Menü unter „Code eingeben“ ein.",
+        : "Aber Vorsicht: Der König lässt nur Menschen vor, die schon einmal vor echten Menschen gesprochen haben. Dafür brauchst du das Sprechsiegel. Deine Lehrkraft gibt es dir für eine mündliche Leistung im Unterricht – als Code. Den gibst du im Menü (☰) unter „Lehrercode einlösen“ ein.",
     ], B);
     return;
   }
@@ -144,7 +144,7 @@ async function koenig(welt) {
     await dialog(KOENIG, [
       "„Hah. Du hast mit Eisfiguren geredet. Das ist leicht. Eisfiguren lachen nicht über Fehler.“",
       "„Hast du schon einmal vor echten Menschen gesprochen? Zeig mir das Sprechsiegel – sonst geh zurück ins Tal!“",
-      "(Das Sprechsiegel bekommst du von deiner Lehrkraft für eine mündliche Leistung im Unterricht. Gib den Code im Menü unter „Code eingeben“ ein.)",
+      "(Das Sprechsiegel bekommst du von deiner Lehrkraft für eine mündliche Leistung im Unterricht. Gib den Code im Menü (☰) unter „Lehrercode einlösen“ ein.)",
     ], B);
     return;
   }

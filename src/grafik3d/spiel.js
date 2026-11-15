@@ -270,7 +270,19 @@ export class Spiel3D {
     this.renderer.setAnimationLoop(() => this.bild());
   }
 
+  /** Kompass oben rechts: N zeigt immer nach Norden (die Ziele im Questlog nennen Himmelsrichtungen) */
+  kompassBauen() {
+    if (this.kompass) return;
+    const k = document.createElement("div");
+    k.className = "kompass";
+    k.setAttribute("aria-hidden", "true");
+    k.innerHTML = `<div class="kompass-rose"><span class="k-n">N</span><span class="k-o">O</span><span class="k-s">S</span><span class="k-w">W</span><i></i></div>`;
+    this.behaelter.append(k);
+    this.kompass = k.firstElementChild;
+  }
+
   starten() {
+    this.kompassBauen();
     let id = KARTEN[zustand.ort.karte] ? zustand.ort.karte : "dorf";
     let spawn = zustand.ort.spawn;
     if (!KARTEN[id].spawns[spawn]) spawn = "start";
@@ -638,6 +650,14 @@ export class Spiel3D {
     return d;
   }
 
+  /** Blickrichtung der Kamera (0 = nach Norden) als Drehwinkel für den Kompass */
+  kompassWinkel() {
+    const v = new THREE.Vector3();
+    this.kamera.getWorldDirection(v);
+    // Blick nach Norden (-z) → 0; Blick nach Westen → +90° im Uhrzeigersinn, N steht rechts
+    return Math.atan2(-v.x, -v.z);
+  }
+
   kameraFolgen(dt) {
     const p = this.held.gruppe.position;
     let ziel, blick;
@@ -717,6 +737,7 @@ export class Spiel3D {
       this.held.animieren(t, this.tempo / TEMPO, dt);
       karte.bau.licht?.(this.held.gruppe.position, t);
       this.kameraFolgen(dt);
+      if (this.kompass) this.kompass.style.transform = `rotate(${this.kompassWinkel()}rad)`;
       const obj = !this.beschaeftigt && !istOffen() ? this.naechstesObjekt() : null;
       const text = obj ? (obj.def.hinweis ?? `Mit ${obj.def.name} sprechen`) : null;
       if (obj) hinweis("E", text);

@@ -907,7 +907,7 @@ const Q5 = {
           frage: "Was macht die Schreiberin in ihrem Briefschluss? Verbinde.",
           paare: [
             ["Ich hoffe, euch hat mein Beitrag gefallen.", "Sie wünscht sich etwas."],
-            ["Was meint ihr? Schreibt mir!", "Sie spricht die Leser direkt an."],
+            ["Was meint ihr? Schreibt mir!", "Sie fordert die Leser zu etwas auf."],
             ["Ich bin gespannt auf eure Antworten.", "Sie freut sich auf etwas."],
             ["Viele Grüße", "Sie grüßt die Leser."],
             [z.held?.name || "Mira", "Sie schreibt ihren Namen."],
@@ -951,15 +951,15 @@ const Q5 = {
         {
           typ: "auswahl",
           frage: "Wie beginnt man einen Satz im Schluss am besten?",
-          optionen: ["Zum Schluss möchte ich sagen, dass …", "Am Anfang möchte ich sagen, dass …", "Ein weiteres Argument ist, dass …"],
+          optionen: ["Abschließend möchte ich sagen, dass …", "Am Anfang möchte ich sagen, dass …", "Ein weiteres Argument ist, dass …"],
           richtig: 0,
         },
         {
           typ: "auswahl",
           frage: "Ein Text in einem Forum für Jugendliche. Welcher Schluss passt?",
           optionen: [
-            "Ich hoffe, ihr schreibt mir eure Meinung! Viele Grüße, Sami",
-            "Mit freundlichen Grüßen, Ihr Herr Sami Yilmaz",
+            "Ich hoffe, ihr schreibt mir eure Meinung! Viele Grüße Sami",
+            "Mit freundlichen Grüßen Sami Yilmaz",
             "Tschüss!!!!!!!!",
           ],
           richtig: 0,
@@ -974,7 +974,7 @@ const Q5 = {
     id: "lythara_q5_text",
     frage: "Schreibe jetzt den Schluss deines Forumsbeitrags (3–4 Sätze): Fasse deine Meinung kurz zusammen, sprich die Leser an und verabschiede dich mit Gruß und Namen.",
     minWoerter: 25,
-    stichpunkte: (z) => `Redemittel: Aus diesen Gründen bin ich der Meinung, dass … · Zusammenfassend kann ich sagen, dass … · Ich hoffe, euch hat mein Beitrag gefallen. · Was meint ihr? · Ich bin gespannt auf eure Antworten. · Viele Grüße, ${z.held?.name || "…"}`,
+    stichpunkte: (z) => `Redemittel: Aus diesen Gründen bin ich der Meinung, dass … · Zusammenfassend kann ich sagen, dass … · Ich hoffe, euch hat mein Beitrag gefallen. · Was meint ihr? · Ich bin gespannt auf eure Antworten. · Viele Grüße ${z.held?.name || "…"} (nach dem Gruß kein Komma)`,
     muster: [
       { such: "aus diesen gründen|zusammenfassend|deshalb|deswegen|zum schluss|insgesamt|also", ok: "Du fasst deine Meinung zusammen.", fehlt: "Fasse deine Meinung zusammen: Aus diesen Gründen … / Zusammenfassend …" },
       { such: "ihr|euch|eure", ok: "Du sprichst die Leser an.", fehlt: "Sprich die Leser an: Was meint ihr? / Ich hoffe, euch …" },

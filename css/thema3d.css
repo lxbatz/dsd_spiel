@@ -72,3 +72,17 @@ body { background: #10121a; }
   .hud-knoepfe { gap: 4px; }
   .hud-knoepfe button { padding: 4px 8px; }
 }
+
+/* Kompass oben rechts im Spielbild */
+.kompass { position: absolute; top: 10px; right: 10px; width: 62px; height: 62px; border-radius: 50%; pointer-events: none; z-index: 4;
+  background: radial-gradient(circle, rgba(30, 26, 44, .82) 60%, rgba(20, 18, 30, .9)); border: 2px solid var(--goldrand); box-shadow: 0 2px 8px rgba(0, 0, 0, .5); }
+.kompass-rose { position: absolute; inset: 0; }
+.kompass-rose span { position: absolute; left: 50%; top: 50%; font: bold 12px/1 var(--titelschrift); color: #e8dcc0; }
+.kompass-rose .k-n { color: #ff6a5a; transform: translate(-50%, -26px); font-size: 14px; }
+.kompass-rose .k-s { transform: translate(-50%, 14px); }
+.kompass-rose .k-o { transform: translate(15px, -50%); }
+.kompass-rose .k-w { transform: translate(-25px, -50%); }
+.kompass-rose i { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: translate(-50%, -100%);
+  border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 16px solid #ff6a5a; }
+body:not(.im-spiel) .kompass { display: none; }
+@media (max-width: 640px) { .kompass { width: 50px; height: 50px; top: 8px; right: 8px; } .kompass-rose .k-n { transform: translate(-50%, -22px); } .kompass-rose .k-s { transform: translate(-50%, 11px); } .kompass-rose .k-o { transform: translate(11px, -50%); } .kompass-rose .k-w { transform: translate(-20px, -50%); } }

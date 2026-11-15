@@ -67,7 +67,7 @@ export const FINN_AUFGABEN = [
       ["der Lehrling", "jemand, der einen Beruf lernt"],
       ["das Praktikum", "eine kurze Zeit, in der man in einem Beruf mitarbeitet"],
       ["die Buchhandlung", "ein Geschäft, in dem man Bücher kauft"],
-      ["Angst haben", "sich nicht trauen, etwas zu tun"],
+      ["sich nicht trauen", "Angst haben, etwas zu tun"],
     ],
   },
   {

@@ -323,7 +323,7 @@ const brett = textStation({
 
 const ilka = textStation({
   id: "scriptoria_q4_t2", name: "Ilkas Praktikumsunterlagen", sprecher: ILKA, bildKey: "npc_ilka",
-  vorher: "Hallo! Ich bin Ilka. Nächste Woche fange ich ein Praktikum an … Hast du schon mit Corvin gesprochen?",
+  vorher: "Hallo! Ich bin Ilka. Nächste Woche fange ich ein Praktikum an … Hast du schon mit Ausbilder Corvin gesprochen? Er steht direkt vor dem Lehrlingshaus, gleich neben dem Schwarzen Brett – nur ein paar Schritte von hier nach Norden.",
   einleitung: "Hallo! Ich bin Ilka. Nächste Woche fange ich mein Praktikum in der Buchbinderei an. Aber die Unterlagen sind so lang! Muss ich eine Schürze kaufen? Bekomme ich danach sofort eine Stelle? Hilfst du mir?",
   titel: "Ihr Praktikum in der Buchbinderei",
   aufgaben: PRAKTIKUM,
