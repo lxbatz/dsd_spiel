@@ -11,4 +11,6 @@ titelZeigen({
   beimStart: () => spiel.starten(),
   titelBild: "boss_torwaechter",
   bildGroesse: 128,
+  // Zu den Tafeln des Prologs laufen kurze Szenen (Reiche, Siegel, Morgrath, Missverständnisse, Dorf)
+  intro: { szene: (nr) => spiel.introSzene(nr), ende: () => spiel.introEnde() },
 });

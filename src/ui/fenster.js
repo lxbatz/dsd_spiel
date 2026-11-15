@@ -66,12 +66,19 @@ function portrait(bildUrl) {
  * Zeigt eine oder mehrere Dialogzeilen nacheinander.
  * zeilen: Array von Strings.
  */
-export async function dialog(sprecher, zeilen, bildUrl) {
+/**
+ * Zeigt Sprechtext Seite für Seite. Optionen:
+ *   weiter:        Text des Knopfs auf der letzten Seite (Standard „OK“)
+ *   ueberspringen: Text eines zweiten Knopfs, der alles überspringt (dann liefert dialog false)
+ */
+export async function dialog(sprecher, zeilen, bildUrl, { weiter: weiterText = "OK", ueberspringen = null } = {}) {
   const liste = Array.isArray(zeilen) ? zeilen : [zeilen];
-  for (let i = 0; i < liste.length; i++) {
+  let abgebrochen = false;
+  for (let i = 0; i < liste.length && !abgebrochen; i++) {
     await new Promise((weiter) => {
       const letzte = i === liste.length - 1;
-      const k = knopf(letzte ? "OK" : "Weiter ▸", weiter);
+      const k = knopf(letzte ? weiterText : "Weiter ▸", weiter);
+      const ueber = ueberspringen ? knopf(ueberspringen, () => { abgebrochen = true; weiter(); }, "knopf zweitrangig") : null;
       zeigen(
         el("div", { class: "dialog" },
           portrait(bildUrl),
@@ -80,12 +87,13 @@ export async function dialog(sprecher, zeilen, bildUrl) {
             el("div", { class: "rede" }, liste[i]),
           ),
         ),
-        el("div", { class: "knopfleiste" }, k),
+        el("div", { class: "knopfleiste" }, ueber, k),
       );
       overlay.classList.add("gespraech");
       fokus(k);
     });
   }
+  return !abgebrochen;
 }
 
 /** Stellt eine Frage mit Antwortknöpfen und liefert den Index der Antwort. */

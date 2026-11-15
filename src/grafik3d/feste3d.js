@@ -11,6 +11,7 @@ import { textur, lichtTextur } from "./texturen.js";
 import { hash } from "../grafik16/pinsel.js";
 import { E } from "./welt.js";
 import { morgrathBauen } from "./morgrath.js";
+import { siegelBauen, SIEGEL_FARBEN } from "./siegel.js";
 import { zustand } from "../zustand.js";
 import { RASTER, BLOCKIERT, EBENEN_POS, TREPPEN, GANG, hoeheBeiZeile, ebeneBeiZeile } from "../welt/schattenzahn_layout.js";
 
@@ -812,7 +813,7 @@ export function festeBauen(szene, raster, kontext) {
   };
 
   // Die vier Splitter und das vereinte Sprachsiegel
-  const FARBEN = ["#5ab0ff", "#5ae07a", "#ffd04a", "#ff6a5a"];
+  const FARBEN = SIEGEL_FARBEN;
   const S = new THREE.Vector3(mitteX, K.h + 3.2, (K.y0 + 7) * E);
   const splitter = FARBEN.map((f) => {
     const g = new THREE.Group();
@@ -825,28 +826,10 @@ export function festeBauen(szene, raster, kontext) {
   });
   const lichtTraeger = new THREE.Group(); lichtTraeger.visible = false; szene.add(lichtTraeger);
   ankerFuer(lichtTraeger, new THREE.Vector3(), "#fff0c0", 30, 16, 1.4);
-  const siegel = new THREE.Group();
-  {
-    const gold = new THREE.MeshStandardMaterial({ color: "#e8b440", emissive: "#8a5a08", emissiveIntensity: 0.5, metalness: 0.6, roughness: 0.35 });
-    const rand = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.1, 10, 40), gold);
-    siegel.add(rand);
-    FARBEN.forEach((f, i) => {
-      const geo = new THREE.CylinderGeometry(0.9, 0.9, 0.08, 16, 1, false, i * Math.PI / 2 + 0.04, Math.PI / 2 - 0.08).rotateX(Math.PI / 2);
-      siegel.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: new THREE.Color(f).multiplyScalar(0.85) })));
-    });
-    const mitte = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 10), new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: "#fff6d8", emissiveIntensity: 1.2 }));
-    mitte.position.z = 0.08;
-    siegel.add(mitte);
-    // Ein sanfter Schein hinter dem Siegel (davor würde er die vier Farben überstrahlen)
-    const schein = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: "#ffd890", transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
-    schein.scale.setScalar(4);
-    schein.position.z = -0.4;
-    schein.renderOrder = -1;
-    siegel.add(schein);
-    siegel.visible = false;
-    szene.add(siegel);
-    ankerFuer(siegel, new THREE.Vector3(0, 0, 0.5), "#ffe08a", 45, 16, 1.4);
-  }
+  const siegel = siegelBauen().gruppe;
+  siegel.visible = false;
+  szene.add(siegel);
+  ankerFuer(siegel, new THREE.Vector3(0, 0, 0.5), "#ffe08a", 45, 16, 1.4);
 
   // Was nach dem Einsturz bleibt: ein Schuttberg vor dem Hinterland, Turmstümpfe, Felsbrocken
   const truemmerG = new THREE.Group();

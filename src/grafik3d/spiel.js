@@ -26,6 +26,7 @@ import { vocantiaBauen } from "./vocantia3d.js";
 import { treppenturmBauen } from "./treppenturm3d.js";
 import { festeBauen } from "./feste3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
+import { Intro } from "./intro.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
@@ -77,6 +78,10 @@ export class Spiel3D {
     this.blende = document.createElement("div");
     this.blende.id = "blende";
     document.getElementById("buehne").append(this.blende);
+    // Standbild für echtes Überblenden zwischen zwei Szenen (Intro)
+    this.standbild = document.createElement("canvas");
+    this.standbild.id = "standbild";
+    behaelter.append(this.standbild);
 
     this.touch = new Touchsteuerung({
       aktiv: () => this.gestartet && !this.beschaeftigt && !istOffen(),
@@ -267,6 +272,43 @@ export class Spiel3D {
   }
 
   // ---------- Ablauf ----------
+
+  // ---------- Intro ----------
+
+  /** Zeigt Szene nr des Intros hinter der Prolog-Tafel (siehe intro.js). */
+  async introSzene(nr) {
+    if (this.gestartet) return;
+    this.intro ??= new Intro(this);
+    await this.intro.zeigen(nr);
+  }
+
+  introEnde() {
+    this.intro?.ende();
+    this.intro = null;
+  }
+
+  /**
+   * Echtes Überblenden: Das letzte Bild wird als Standbild festgehalten, dann wechselt fn die Szene,
+   * und das Standbild blendet langsam aus. Liefert ein Promise, sobald fn ausgeführt ist.
+   */
+  ueberblenden(fn) {
+    return new Promise((fertig) => { this.ueberblendAuftrag = { fn, fertig }; });
+  }
+
+  ueberblendenAusfuehren() {
+    const a = this.ueberblendAuftrag;
+    this.ueberblendAuftrag = null;
+    const c = this.standbild, quelle = this.renderer.domElement;
+    try {
+      c.width = quelle.width; c.height = quelle.height;
+      c.getContext("2d").drawImage(quelle, 0, 0);
+      c.style.transition = "none";
+      c.style.opacity = "1";
+    } catch { /* ohne Standbild wechselt es eben hart */ }
+    try { a.fn(); } catch (fehler) { console.error(fehler); }
+    requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transition = "opacity 1s ease"; c.style.opacity = "0"; }));
+    a.fertig();
+  }
 
   vorbereiten() {
     this.portraitsErzeugen();
@@ -832,6 +874,8 @@ export class Spiel3D {
         karte.ring.scale.setScalar(groesse * (1 + Math.sin(t * 4) * 0.05));
         karte.ring.material.opacity = 0.5 + Math.sin(t * 4) * 0.2;
       }
+    } else if (this.intro?.bild(t, dt)) {
+      // Intro: die Szene führt die Kamera selbst
     } else {
       // Titelbild: Kamera kreist langsam über dem Dorf
       const m = new THREE.Vector3(karte.raster[0].length, 0, karte.raster.length);
@@ -846,6 +890,7 @@ export class Spiel3D {
     } else {
       this.renderer.render(karte.szene, this.kamera);
     }
+    if (this.ueberblendAuftrag) this.ueberblendenAusfuehren();
     // Läuft es zu langsam? Dann automatisch eine Stufe tiefer.
     const jetzt = performance.now();
     const roh = jetzt - (this.letztesBild ?? jetzt);

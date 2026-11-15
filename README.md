@@ -59,6 +59,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Sprechaufgaben ohne Mikrofon mit der **Sprechuhr** oder mit Mikrofon über den **Stimmkristall** (zeigt nur, ob man spricht; die Stimme verlässt das Gerät nicht). Viele Aufgaben als Partnerübung
    - Sind alle fünf frei, schmilzt die Eiswand am Bergpfad. Für den Endkampf braucht man zusätzlich das **Sprechsiegel**: einen Lehrercode für eine echte mündliche Leistung im Unterricht (`tools/lehrercodes.html`, Art „Sprechsiegel“)
    - Endkampf: **der Schweigekönig** – kurze Sprechaufgaben zu Prüfungsthemen und Strategiefragen; nach dem Sieg zerspringen die Ketten, er zieht sich geschlagen auf den Gipfel zurück, und das Tal taut auf und blüht → *Diamant-Abzeichen*
+**Intro (3D):** Zu den fünf Tafeln des Prologs zeigt der Hintergrund kurze Szenen: ein Überflug durch die vier befreiten Reiche (mit Überblendungen), das Sprachsiegel in der hellen Leere, Morgrath zerschlägt das Siegel vor der Feste Schattenzahn (die Teile fallen zu Boden und fliegen davon, dahinter der Vulkan), Figuren aus allen Reichen laufen durcheinander und verstehen sich nicht, zum Schluss das Dorf der Ankömmlinge. Das Intro lässt sich überspringen.
+
 8. **Die Feste Schattenzahn – die finale Kampagne** (Probeprüfung DSD I PRO, nur 3D; über das Portal im Dorf, nachdem Aldric alle vier Reiche gelobt hat)
    - Morgrath lebt noch und hat sich in einer schwarzen Burg vor einem aktiven Vulkan verschanzt. Draußen: roter Himmel, Ascheregen, Fledermäuse, Goblins mit Speeren, tote Bäume und das Lagerfeuer der Mentoren (Lyra, Orpheon, Lirien, Runa)
    - Jeder Prüfungsteil ist ein Dungeon, und mit jedem geht es tiefer hinab, beleuchtet von Fackeln und Lava: **Dungeon des Hörens** (Kerker mit Zellen und Ketten) → **Katakomben des Lesens** (Knochennischen, Kerzen, Spinnweben) → **Grotte der Schreiber** (Tropfsteinhöhle mit Schreibpulten) → **Kaverne der Stimmen** (riesige Höhle mit Lavasee)
@@ -132,7 +134,7 @@ index.html             Einstiegspunkt (3D)
 css/style.css          Fenster, Kopfleiste, Touch-Steuerung
 css/thema3d.css        Aussehen der 3D-Version
 src/main3d.js          Start der 3D-Version
-src/start.js           Titelbildschirm und Prolog
+src/start.js           Titelbildschirm und Prolog (in 3D mit Intro-Szenen aus src/grafik3d/intro.js)
 src/zustand.js         Spielstand, XP, Stufen, Speichern, Spielstand-Datei
 src/welt/              Karten und Story-Logik (Dorf, Turm der Tausend Treppen/Halle, Inseln der Stimmen, Aurelia, Scriptoria, Vocantia)
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes

@@ -228,13 +228,15 @@ export function morgrathBauen() {
 
   // Wie weit der Sturz fortgeschritten ist: stehen 0, taumeln (getroffen zurückweichen) 0.3, gefallen 1
   const POSEN = { stehen: 0, taumeln: 0.3, gefallen: 1 };
-  let ziel = "stehen", sturz = 0, redet = false;
+  let ziel = "stehen", sturz = 0, redet = false, schlag = 0;
   return {
     gruppe: aussen,
     kopf,
     pose(name) { ziel = POSEN[name] !== undefined ? name : "stehen"; },
     sofort(name) { ziel = POSEN[name] !== undefined ? name : "stehen"; sturz = POSEN[ziel]; },
     sprechen(an) { redet = Boolean(an); },
+    /** Schlag mit dem Streitkolben (für das Intro): 0 Ruhe … 0.6 ausgeholt … 0.72 zugeschlagen … 1 gehalten */
+    schlagen(u) { schlag = Math.max(0, Math.min(1, u)); },
     animieren(zeit, _tempo = 0, dt = 0.016) {
       const soll = POSEN[ziel];
       sturz += Math.sign(soll - sturz) * Math.min(Math.abs(soll - sturz), dt / (ziel === "taumeln" ? 2 : 4.5));
@@ -256,6 +258,14 @@ export function morgrathBauen() {
       arme[0].schulter.rotation.z = 0.15 + tau * 0.4;
       arme[0].unter.rotation.x = -0.4 - (redet ? 0.4 + Math.sin(zeit * 3) * 0.1 : 0);
       beine[0].rotation.x = tau * 0.3; beine[1].rotation.x = -tau * 0.2;
+      if (schlag > 0) {
+        const hoch = Math.min(1, schlag / 0.6), runter = Math.max(0, Math.min(1, (schlag - 0.6) / 0.12));
+        const ausgeholt = -0.35 - hoch * 2.6;
+        arme[1].schulter.rotation.x = ausgeholt + (-1.0 - ausgeholt) * runter;
+        arme[1].unter.rotation.x = -0.6 * (1 - hoch) + runter * -0.3;
+        rumpf.rotation.x += runter * 0.35 - hoch * (1 - runter) * 0.15;
+        kopf.rotation.x += runter * 0.2;
+      }
       kolben.rune.material.opacity = 0.6 + Math.sin(zeit * 3) * 0.3;
       // Glühen pulsiert
       const glut = 0.75 + Math.sin(zeit * 2.3) * 0.2 + Math.sin(zeit * 7.1) * 0.05;

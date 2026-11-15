@@ -45,8 +45,9 @@ function spielzeitMessen() {
  * untertitel:  optionaler Zusatz (z. B. „16-Bit-Demo“)
  * titelBild:   Schlüssel des Bildes über dem Titel
  * bildGroesse: Anzeigegröße des Bildes in Pixeln
+ * intro:       optional { szene(nr), ende() } – zeigt zu jeder Prolog-Tafel eine Szene im Hintergrund (3D)
  */
-export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_torwaechter", bildGroesse = 96 }) {
+export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_torwaechter", bildGroesse = 96, intro = null }) {
   const starten = () => {
     schliessen();
     hudZeigen();
@@ -57,7 +58,18 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
   const neuesSpiel = async () => {
     zuruecksetzen();
     musik("intro");
-    await dialog("Die Chroniken von Eldoria", PROLOG);
+    if (intro) {
+      // Zu jeder Tafel eine kurze Szene; das Intro lässt sich überspringen
+      for (let i = 0; i < PROLOG.length; i++) {
+        await intro.szene(i);
+        const weiter = await dialog("Die Chroniken von Eldoria", PROLOG[i], null,
+          { weiter: i < PROLOG.length - 1 ? "Weiter ▸" : "Los geht's!", ueberspringen: i < PROLOG.length - 1 ? "Intro überspringen" : null });
+        if (!weiter) break;
+      }
+      intro.ende();
+    } else {
+      await dialog("Die Chroniken von Eldoria", PROLOG);
+    }
     starten();
   };
 
@@ -71,7 +83,7 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
     ? [knopf("▶ Weiterspielen", starten), knopf("Neues Spiel", async () => {
         const ja = await bestaetigen("Neues Spiel?", "Dein bisheriger Fortschritt auf diesem Gerät wird gelöscht.", "Ja, neu beginnen");
         if (ja) neuesSpiel();
-        else titelZeigen({ beimStart, untertitel, titelBild, bildGroesse });
+        else titelZeigen({ beimStart, untertitel, titelBild, bildGroesse, intro });
       }, "knopf zweitrangig")]
     : [knopf("▶ Das Abenteuer beginnt", neuesSpiel)];
 
@@ -89,7 +101,7 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
     el("p", { class: "titel-steuerung" }, "Steuerung: Pfeiltasten oder WASD · E oder Leertaste zum Sprechen"),
     el("p", { class: "titel-code" }, el("button", {
       type: "button", class: "link-knopf",
-      onclick: () => codeAnzeigen({ zurueck: () => titelZeigen({ beimStart, untertitel, titelBild, bildGroesse }) }),
+      onclick: () => codeAnzeigen({ zurueck: () => titelZeigen({ beimStart, untertitel, titelBild, bildGroesse, intro }) }),
     }, "🔑 Code eingeben")),
   );
   fokus(knoepfe[0]);
