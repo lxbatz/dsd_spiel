@@ -21,3 +21,11 @@
   font-display: swap;
   src: url("atkinson-hyperlegible-700.woff2") format("woff2");
 }
+/* Pixelify Sans (ältere 16-Bit-Version snes.html): variable Schrift, eine Datei für 400–600 */
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("pixelify-sans.woff2") format("woff2");
+}
