@@ -128,6 +128,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 - [Three.js r170](https://threejs.org) (lokal in `vendor/`, keine Internetverbindung nötig), Vanilla JavaScript als ES-Module, kein Build-Schritt
 - Alle Texte und Aufgaben als HTML-Fenster über der 3D-Szene (gut lesbar, Umlaut-Tasten, auch am Handy bedienbar)
 - Spielstand im `localStorage` des Browsers, ein Spielstand pro Gerät, Sicherung als Datei
+- Keine Verbindungen nach außen: Auch die Schriften (Cinzel, Atkinson Hyperlegible, SIL Open Font License) liegen lokal in `fonts/`
 
 ```
 index.html             Einstiegspunkt (3D)
