@@ -19,6 +19,9 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `aurelia_q4.js` | Aurelia Quest 4: Werft – Szenen am Arbeitsplatz, Interview (R/F), Bericht (Block mit 6 Aufgaben), Abnahme im Prüfungsmodus |
 | `aurelia_q3.js` | Aurelia Quest 3: Telefonnachrichten auf drei Klangperlen (mit Piepton), Talos' Notizbuch |
 | `aurelia_q2.js` | Aurelia Quest 2: Gespräche am Markt (drei Händler, Gespräche mit zwei Stimmen), Ohrenprobe bei Ione |
+| `schattenzahn_hoeren.js` | Feste Schattenzahn: Probeprüfung Hörverstehen (5 Teile, 24 Items) |
+| `schattenzahn_lesen.js` | Feste Schattenzahn: Probeprüfung Leseverstehen (5 Teile, 24 Items) |
+| `schattenzahn_finale.js` | Feste Schattenzahn: Schriftliche Kommunikation (Forumsbeitrag), Mündliche Kommunikation (Gespräch, Präsentation, Nachfragen), Morgraths Worte und der Endkampf |
 | `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
 | `codes.js` | Ältere Lehrercodes und Sprungcodes (nur Prüfsummen). Neue Lehrercodes erzeugt `tools/lehrercodes.html` mit eingebauter Prüfsumme (`src/codesignatur.js`), sie brauchen keinen Eintrag hier |
@@ -244,5 +247,7 @@ Ein Echo-Kristall (`bild: "kristall"`, `farbe`) glimmt schwach und leuchtet hell
 Der Turm der Tausend Treppen (`src/welt/treppenturm.js`, Raster und Höhen in `src/welt/treppenturm_layout.js`, 3D in `src/grafik3d/treppenturm3d.js`) ersetzt in 3D die Halle der Tausend Tore: Wer in 3D zur Karte `halle` reist, landet im Turm (gleiche Startpunkte und Fortschrittsmarken). Eine Welt kann mit `boden(x, z)` eine Bodenhöhe liefern; dann steigen Figur, Kamera, Objekte und Marker Treppen und Etagen hinauf (ohne `boden` bleibt alles auf Höhe 0).
 
 Vocantia (`src/welt/vocantia.js`, 3D in `src/grafik3d/vocantia3d.js`, Raster in `src/welt/vocantia_layout.js`): Eingefrorene Figuren haben `eis: true` und tauen auf, sobald `leuchtet(zustand)` wahr wird. Das ganze Tal taut nach `vocantia_finale` auf. Der Schweigekönig steht in `src/grafik3d/eistroll.js` (Posen „thron“ und „gipfel“). Eine Welt kann mit `aktiv(an)` erfahren, ob sie gerade sichtbar ist (hier für den Frost-Rand).
+
+Die Feste Schattenzahn (`src/welt/schattenzahn.js`, Raster und Höhen in `src/welt/schattenzahn_layout.js`, 3D in `src/grafik3d/feste3d.js`, Morgrath in `src/grafik3d/morgrath.js`) ist die finale Kampagne: Vom Vorhof vor der Burg geht es über Treppen und Fallgitter immer tiefer hinab, durch das Dungeon des Hörens, die Katakomben des Lesens, die Grotte der Schreiber und die Kaverne der Stimmen. Hören und Lesen laufen mit `pruefungsFolge` (`src/ui/aufgaben.js`): ein Versuch je Aufgabe, keine Rückmeldung, Punkte je Teil und am Ende eine Auswertung (`pruefungsAuswertung`). Die Ergebnisse stehen in `zustand.pruefung` und im Heldenpass. Morgrath hat die Posen „stehen“ und „gefallen“ (er stürzt in den Lavasee).
 
 Ein Tor (`art: "tor"`) öffnet sich in 3D von selbst mit Staub und Funken, sobald `offen(zustand)` wahr wird. Ein Gegner, dessen `sichtbar(zustand)` nach dem Sieg falsch wird, löst sich in Funken auf.

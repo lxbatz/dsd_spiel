@@ -109,4 +109,11 @@ export const CODES = {
   "4018cd9508f6e376ca0316e6b1a41caae73f0d4385f03ced82a6d9e9dab529ca": { sprung: "vocantia_pfad", grund: "Sprungcode" },
   "50d6a9baffda834c29566b5c4aaf48fcbc630a64442cdacffe08a18ed8f5302c": { sprung: "vocantia_boss", grund: "Sprungcode" },
   "ae72f38bd1735a4f09cced7a797708002a4d44918ee765ce634a7cef6986e547": { sprung: "vocantia_ende", grund: "Sprungcode" },
+  "8802790cfa1f083f9cdafce6dd901beb1c72bd28b7d0b5c391ee3d1acc39a097": { sprung: "schattenzahn", grund: "Sprungcode" },
+  "434eaf5039a1e138ecd01732b68ee0b49227c4eae1754538c2adf838633ef9ec": { sprung: "schattenzahn_hoeren", grund: "Sprungcode" },
+  "a3e57fec62d834f35d38dd6661ff721ab444e6bacb8c35dd76d1f64acd0494f6": { sprung: "schattenzahn_lesen", grund: "Sprungcode" },
+  "bae919c465a77fc7473fc891d59a4960e761d22bc8a9a821996da60cbe6d1c0f": { sprung: "schattenzahn_schreiben", grund: "Sprungcode" },
+  "d6da00a989b72165d9446b5c3412ba56d08e74c5ae76f62d7c63026cd47a44e5": { sprung: "schattenzahn_sprechen", grund: "Sprungcode" },
+  "69db7e7ed0f180bbba3781b8af2cd044c4a95794f73718b3055d5705f79d7732": { sprung: "schattenzahn_boss", grund: "Sprungcode" },
+  "a081f275740f15a7e6d9e788fc046101de82bb437ea5535dd130ed38dfb2af96": { sprung: "schattenzahn_ende", grund: "Sprungcode" },
 };

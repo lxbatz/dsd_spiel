@@ -9,6 +9,7 @@ import { zustand, istErledigt, erledigen, heldSetzen, geben } from "../zustand.j
 import { VORSTELLEN, FRAGEN_STELLEN, PERSONEN_BESCHREIBEN, AUSHANG } from "../inhalte/dorf.js";
 import { FINN_AUFGABEN, MARKT_AUFGABEN, WERKSTATT_AUFGABEN, MIMI_WILMA, MIMI_ALDRIC, MIMI_BORIN, MIMI_FINN } from "../inhalte/dorf_neben.js";
 import { aufgabenFolge } from "../ui/aufgaben.js";
+import { TITEL_MEISTER } from "./schattenzahn.js";
 import { NICHTS_OFFEN } from "./nichts.js";
 
 const DORF_QUESTS = [
@@ -143,13 +144,17 @@ async function aldric(welt) {
   }
   if (!reise) {
     await dialog(S, welt.dreiD
-      ? [`${zustand.held?.name ?? "Held"}, du hast alle vier Reiche gerettet: Lythara, Aurelia, Scriptoria und Vocantia.`,
-        "Die vier Teile des Sprachsiegels leuchten wieder. Die Völker von Eldoria hören einander zu, lesen genau, schreiben klar und sprechen miteinander.",
-        "Morgrath hat verloren. Und du bist bereit für deine eigene große Prüfung. Der Rat ist stolz auf dich!", ...neben]
+      ? [`${zustand.held?.name ?? "Held"}, ${TITEL_MEISTER} – so nennt man dich jetzt in ganz Eldoria.`,
+        "Die Völker hören einander zu, lesen genau, schreiben klar und sprechen miteinander. Das Sprachsiegel leuchtet wieder, und Morgrath ist für immer in der Lava versunken.",
+        "Du hast eine ganze Probeprüfung bestanden. Jetzt bist du bereit für deine echte DSD-Prüfung. Der Rat ist stolz auf dich – viel Erfolg!", ...neben]
       : ["Das Portal im Süden bringt dich nach Lythara. Der Rat glaubt an dich!", ...neben], B);
     return;
   }
   await dialog(S, [reise.weiter, ...neben], B);
+  if (reise.fertig === "schattenzahn_finale" && !istErledigt("schattenzahn_auftrag")) {
+    erledigen("schattenzahn_auftrag");
+    welt.aktualisieren();
+  }
 }
 
 /** Die Reise durch die Reiche: wann ein Reich fertig ist, was Aldric danach sagt, wohin es weitergeht */
@@ -184,6 +189,14 @@ const REISE = [
     lob: (n) => [
       `${n}! In Vocantia ist der Frühling zurück. Man hört bis hierher, wie die Menschen dort lachen, streiten und singen.`,
       "Du sprichst über dich, führst Gespräche, begründest deine Meinung und hältst eine Präsentation. Das war das letzte Reich!",
+    ],
+  },
+  {
+    fertig: "schattenzahn_finale", lobFlag: "aldric_lob_schattenzahn",
+    weiter: "Doch hör mir gut zu: Unsere Späher bringen schlimme Nachrichten. Morgrath lebt! Er hat sich in der Feste Schattenzahn verschanzt, vor einem feuerspeienden Vulkan – und er hat die vier Splitter des Sprachsiegels gestohlen. Um ihn zu besiegen, musst du alles zeigen, was du gelernt hast: eine ganze Prüfung, so wie deine echte DSD-Prüfung. Das Portal im Süden bringt dich hin. Deine Mentoren warten dort schon auf dich.",
+    lob: (n) => [
+      `${n}! Die Erde hat gebebt, und dann ist über dem Vulkan die Sonne aufgegangen. Morgrath ist besiegt!`,
+      "Du hast Hören, Lesen, Schreiben und Sprechen gemeistert – in einer ganzen Probeprüfung.",
     ],
   },
 ];
@@ -408,6 +421,7 @@ async function portal(welt) {
   if (welt.dreiD && istErledigt("lythara_finale")) ziele.push(["Nach Aurelia, ins Reich des Hörens", "aurelia"]);
   if (welt.dreiD && istErledigt("aurelia_finale")) ziele.push(["Nach Scriptoria, ins Reich des Lesens", "scriptoria"]);
   if (welt.dreiD && istErledigt("scriptoria_finale")) ziele.push(["Nach Vocantia, ins Reich des Sprechens", "vocantia"]);
+  if (welt.dreiD && istErledigt("schattenzahn_auftrag")) ziele.push(["Zur Feste Schattenzahn", "schattenzahn"]);
   if (welt.dreiD && NICHTS_OFFEN) ziele.push(["In DAS NICHTS (alle Figuren ansehen)", "nichts"]);
   if (ziele.length > 1) {
     const wahl = await frage("Portal", "Das Portal leuchtet blau. Wohin möchtest du reisen?", [...ziele.map(([t]) => t), "Noch nicht."]);

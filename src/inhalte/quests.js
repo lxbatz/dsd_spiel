@@ -76,6 +76,11 @@ export const QUESTS = [
   { id: "vocantia_q4", titel: "Die Ratsrunde", ort: "Vocantia", fertigkeit: "sprechen", thema: "Meinung sagen, begründen, höflich widersprechen" },
   { id: "vocantia_q5", titel: "Die Bühne am See", ort: "Vocantia", fertigkeit: "sprechen", thema: "Präsentation gliedern und halten, Nachfragen beantworten (wie DSD Mündlich Teil 2)" },
   { id: "vocantia_boss", titel: "Der Schweigekönig", ort: "Vocantia", fertigkeit: "sprechen", thema: "Endkampf: kurze Sprechaufgaben zu Prüfungsthemen (Sprechsiegel nötig)", kampf: true },
+  { id: "schattenzahn_hoeren", titel: "Probeprüfung Hörverstehen", ort: "Feste Schattenzahn", fertigkeit: "hoeren", thema: "Vollständige Probeprüfung: 5 Teile, 24 Items, bestanden ab 12" },
+  { id: "schattenzahn_lesen", titel: "Probeprüfung Leseverstehen", ort: "Feste Schattenzahn", fertigkeit: "lesen", thema: "Vollständige Probeprüfung: 5 Teile, 24 Items, bestanden ab 12" },
+  { id: "schattenzahn_schreiben", titel: "Probeprüfung Schriftliche Kommunikation", ort: "Feste Schattenzahn", fertigkeit: "schreiben", thema: "Forumsbeitrag: Wiedergabe, Erfahrungen, Meinung (Lehrkraft bewertet)" },
+  { id: "schattenzahn_sprechen", titel: "Probeprüfung Mündliche Kommunikation", ort: "Feste Schattenzahn", fertigkeit: "sprechen", thema: "Teil 1 Gespräch, Teil 2 Präsentation mit Nachfragen" },
+  { id: "schattenzahn_boss", titel: "Morgrath, der Verschleierer", ort: "Feste Schattenzahn", fertigkeit: "sprechen", thema: "Endkampf: Fragen aus allen vier Prüfungsteilen", kampf: true },
   { id: "dorf_finn", titel: "Finns Geheimnis", ort: "Dorf: Nebenquests", fertigkeit: "lesen", thema: "Einen persönlichen Brief verstehen, Rat geben" },
   { id: "dorf_markt", titel: "Am Marktstand", ort: "Dorf: Nebenquests", fertigkeit: "sprechen", thema: "Verkaufsgespräche, Preise, Höflichkeit" },
   { id: "dorf_mimi_start", titel: "Mimi: Wilmas Nachricht", ort: "Dorf: Nebenquests", fertigkeit: "hoeren", thema: "Eine Nachricht verstehen (Details)" },
@@ -94,4 +99,6 @@ export const TEXT_NAMEN = {
   lythara_q5_text: "Mein Schluss (Rolle der Vollendung)",
   lythara_buch: "Mein ganzer Forumsbeitrag (Buch der Stimmen)",
   vocantia_stichworte: "Meine Stichwörter für die Präsentation (Bühne am See)",
+  pruefung_schreiben: "Probeprüfung: Mein Forumsbeitrag (Grotte der Schreiber)",
+  pruefung_stichworte: "Probeprüfung: Stichwörter für die Präsentation (Kaverne der Stimmen)",
 };

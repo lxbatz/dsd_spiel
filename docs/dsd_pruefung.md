@@ -211,3 +211,24 @@ Grundsätze der Bewertung:
 - Quest 5 Sigrun: Präsentation wie Teil 2 (Gliederung, Stichwortzettel als `freitext`, 90 Sekunden frei sprechen, Nachfragen beantworten).
 - Endkampf Schweigekönig: kurze Sprechaufgaben zu Prüfungsthemen (Schule, Zukunft, Feste, Praktikum, Arbeitsplatz, Berufswahl) und Strategiefragen.
 - Das Sprechsiegel (Lehrercode) stellt sicher, dass vor dem Endkampf mindestens einmal vor echten Menschen gesprochen wurde. Die Bewertung der mündlichen Leistung bleibt bei der Lehrkraft.
+
+**Feste Schattenzahn (finale Kampagne, Probeprüfung):**
+- Eine vollständige Probeprüfung in vier Dungeons, mit eigenen Texten zu Ausbildung, Praktikum, Arbeitsplatz, Kunden und Terminen.
+- **Hörverstehen** (24 Items):
+  - Teil 1: fünf kurze Szenen, je eine Aufgabe A/B/C.
+  - Teil 2: drei Telefonnachrichten (Piepton) und eine Durchsage (Gong).
+  - Teil 3: Interview, 5 × richtig/falsch.
+  - Teil 4: Bericht, 6 Aufgaben auf einem Blatt.
+  - Teil 5: Meinungen zuordnen, nur einmal hören.
+- **Leseverstehen** (24 Items):
+  - Teil 1: E-Mail mit Wortliste und Betreff.
+  - Teil 2: Zuordnen mit Beispiel, vier Abschnitte bleiben übrig.
+  - Teil 3: Regeln, richtig/falsch.
+  - Teil 4: Informationstext, 6 Aufgaben.
+  - Teil 5: Anzeigen zuordnen, vier bleiben übrig.
+- **Prüfungsmodus:** ein Versuch je Aufgabe, keine Rückmeldung während der Prüfung, Auswertung mit Punkten je Teil am Ende. Die Ablenker nehmen Lockwörter auf, die Lösungen sind umschrieben, mit Korrekturen am Ende, Verneinungen und Mengenwörtern.
+- **Bestehensgrenze im Spiel:** 50 % (12 von 24). Die offiziellen Grenzen stehen nicht in den Unterlagen; die Lehrkraft kann die Punkte im Heldenpass und im Lehrerzimmer sehen.
+- **Schriftliche Kommunikation:** Forumsbeitrag mit Wiedergabe, Erfahrungen und Meinung, mindestens 150 Wörter, mit Checkliste nach der Handreichung.
+- **Mündliche Kommunikation:** vier Gesprächsfragen (Teil 1), Stichwortzettel, Präsentation (2 Minuten) und zwei Nachfragen.
+- Schreiben und Sprechen gelten im Spiel als bestanden, sobald sie abgegeben sind. Die Bewertung macht die Lehrkraft.
+- **Endkampf gegen Morgrath:** gemischte Aufgaben aus allen vier Prüfungsteilen.

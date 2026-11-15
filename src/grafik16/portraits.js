@@ -50,6 +50,7 @@ export const PORTRAITS = {
   npc_halvar: { hintergrund: "#4a6a8a", augen: "#4a6a9a", ausdruck: "weise", alt: true, szene: "schnee", amulett: true, licht: { farbe: "#ffc060", seite: 1 } },
   npc_sigrun: { hintergrund: "#6a7aaa", augen: "#6a3a8a", ausdruck: "froh", szene: "schnee", blume: true, licht: { farbe: "#ffe0f0", seite: -1 } },
   boss_schweigekoenig: { hintergrund: "#2a4a6a", troll: true },
+  boss_morgrath: { hintergrund: "#3a0c08", morgrath: true },
   boss_echo: { hintergrund: "#22183a", szene: "runen", waechter: { stein: "#70608e", dunkel: "#40345a", glut: "#ecdcff", rune: "#b48aff" } },
 };
 
@@ -631,6 +632,48 @@ function schweigekoenig(b, p) {
   b.ueber(f);
 }
 
+function morgrath(b, p) {
+  // Hintergrund: glühender Höhlenhimmel, unten Lava
+  b.verlauf(0, 0, G, G, R5(p.hintergrund), { dither: 0.9 });
+  for (let x = 0; x < G; x++) {
+    const oben = 54 + Math.round(Math.sin(x * 0.4) * 1.5);
+    for (let y = oben; y < G; y++) b.set(x, y, (x + y) % 5 ? "#ff7a1a" : "#ffd060");
+    b.set(x, oben, "#ffe8a0");
+  }
+  for (let i = 0; i < 14; i++) b.set((i * 23) % G, 6 + ((i * 37) % 44), i % 2 ? "#ff9a3a" : "#ffd060");   // Glutfunken
+  const f = new Bild(G, G);
+  const eisen = R5("#4a4652"), schwarz = R5("#24202a"), glut = R("#ff6a1a");
+  const ton = (r, hx, hy, s = 700) => (x, y) => tonAus(r, 0.75 - ((x - hx) ** 2 + (y - hy) ** 2) / s, x, y, 0.5);
+  // Gewaltige Schulterplatten mit Dornen
+  f.poly([[0, 64], [0, 46], [12, 38], [24, 42], [40, 42], [52, 38], [64, 46], [64, 64]], ton(schwarz, 20, 44, 900));
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 4; i++) { const x = 32 + s * (16 + i * 4); f.poly([[x - 2, 44 - i], [x + 2, 44 - i], [x + s * 2, 30 - i * 2]], eisen[3 - (i % 2)]); }
+    f.linie(32 + s * 12, 44, 32 + s * 28, 52, eisen[4]);
+  }
+  // Brustpanzer mit glühendem Riss
+  f.poly([[22, 64], [22, 46], [32, 42], [42, 46], [42, 64]], ton(eisen, 28, 48, 500));
+  f.linie(32, 46, 30, 52, glut[2]); f.linie(30, 52, 33, 57, glut[2]); f.linie(33, 57, 31, 63, glut[1]);
+  f.set(31, 52, "#ffe8a0"); f.set(32, 56, "#ffe8a0");
+  // Helm: hoch, schmal, mit spitzem Kinn
+  f.poly([[20, 14], [44, 14], [46, 30], [40, 42], [32, 46], [24, 42], [18, 30]], ton(schwarz, 26, 20, 600));
+  f.poly([[22, 16], [32, 14], [32, 44], [25, 40], [20, 30]], ton(eisen, 24, 22, 500));
+  // T-förmiger Sehschlitz, der glüht
+  f.rect(23, 25, 18, 3, "#ff7a1a"); f.rect(31, 25, 2, 13, "#ff7a1a");
+  f.rect(24, 26, 16, 1, "#ffe8a0"); f.rect(31, 27, 2, 9, "#ffd060");
+  for (const s of [-1, 1]) f.set(32 + s * 6, 26, "#ffffff");
+  // Dornenkrone
+  for (let i = 0; i < 7; i++) {
+    const x = 19 + i * 4.3, h = 8 + (i === 3 ? 10 : i === 2 || i === 4 ? 6 : 2) + (i % 2) * 2;
+    f.poly([[x, 16], [x + 3, 16], [x + 1.5, 16 - h]], i % 2 ? eisen[2] : schwarz[3]);
+  }
+  f.rect(18, 14, 28, 3, eisen[1]);
+  f.set(32, 15, "#ff7a1a"); f.set(26, 15, "#ff7a1a"); f.set(38, 15, "#ff7a1a");
+  f.umriss(null, { staerke: 0.35 });
+  b.ueber(f);
+  // Glutschein von unten am Rand der Figur
+  for (let y = 40; y < 54; y++) for (let x = 0; x < G; x++) if (f.get?.(x, y) && !f.get?.(x, y + 2)) b.set(x, y, "#ff9a3a");
+}
+
 /** Malt das Porträt einer Figur (64×64). */
 export function portraitBild(schluessel) {
   const p = PORTRAITS[schluessel];
@@ -639,6 +682,7 @@ export function portraitBild(schluessel) {
   if (p?.drache) { drachenrichter(b, p); return b; }
   if (p?.werwolf) { werwolf(b, p); return b; }
   if (p?.troll) { schweigekoenig(b, p); return b; }
+  if (p?.morgrath) { morgrath(b, p); return b; }
   const d = AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);

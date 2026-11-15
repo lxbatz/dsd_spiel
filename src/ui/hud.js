@@ -28,7 +28,9 @@ function hudAktualisieren() {
   const s = stufeVon(zustand.xp);
   const h = zustand.held;
   document.getElementById("hud-name").textContent = h?.name ?? "Unbekannter Gast";
-  document.getElementById("hud-stufe").textContent = `Stufe ${s.stufe} · ${s.titel}`;
+  // Nach dem Sieg über Morgrath trägt man den Ehrentitel statt des Stufentitels
+  const titel = zustand.erledigt.schattenzahn_finale ? "Meister der Vier Sprachkräfte" : s.titel;
+  document.getElementById("hud-stufe").textContent = `Stufe ${s.stufe} · ${titel}`;
   document.getElementById("hud-bild").src = bild(h ? KLASSEN[h.klasse]?.textur : "held_neu");
   const anteil = s.bis ? (zustand.xp - s.ab) / (s.bis - s.ab) : 1;
   document.getElementById("hud-xp-fuellung").style.width = `${Math.round(anteil * 100)}%`;

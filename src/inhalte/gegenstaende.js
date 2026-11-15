@@ -168,6 +168,31 @@ export const GEGENSTAENDE = {
     icon: "💎",
     text: "Du hast das Reich Vocantia gerettet. Du sprichst über dich, führst Gespräche, erklärst Dinge, begründest deine Meinung und hältst eine Präsentation – so wie in der DSD-Prüfung.",
   },
+  siegel_hoeren: {
+    name: "Siegelsplitter des Hörens",
+    icon: "🔶",
+    text: "Ein glühender Splitter, den Morgrath im Dungeon des Hörens verloren hat. Du hast die Probeprüfung Hörverstehen bestanden.",
+  },
+  siegel_lesen: {
+    name: "Siegelsplitter des Lesens",
+    icon: "🔶",
+    text: "Ein glühender Splitter aus den Katakomben des Lesens. Du hast die Probeprüfung Leseverstehen bestanden.",
+  },
+  siegel_schreiben: {
+    name: "Siegelsplitter des Schreibens",
+    icon: "🔶",
+    text: "Ein glühender Splitter aus der Grotte der Schreiber. Du hast in der Probeprüfung einen ganzen Forumsbeitrag geschrieben.",
+  },
+  siegel_sprechen: {
+    name: "Siegelsplitter des Sprechens",
+    icon: "🔶",
+    text: "Ein glühender Splitter aus der Kaverne der Stimmen. Du hast in der Probeprüfung Gespräch und Präsentation gemeistert.",
+  },
+  sprachsiegel_eldoria: {
+    name: "Das Sprachsiegel von Eldoria",
+    icon: "🌟",
+    text: "Die vier Splitter sind wieder eins. Das Sprachsiegel verbindet alle Völker von Eldoria. Du bist Meisterin oder Meister der Vier Sprachkräfte – bereit für deine DSD-Prüfung!",
+  },
   sprechsiegel: {
     name: "Sprechsiegel",
     icon: "🗣️",

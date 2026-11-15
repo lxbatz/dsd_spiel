@@ -80,6 +80,19 @@ function hauptziele(z) {
   liste.push({ text: "Hol dir das Sprechsiegel: einen Code von deiner Lehrkraft für eine mündliche Leistung im Unterricht (einlösen unter ☰ Menü → Lehrercode einlösen).", erledigt: (z.gegenstaende ?? []).includes("sprechsiegel") });
   liste.push({ text: "Steig den Bergpfad hinauf und besiege den Schweigekönig auf dem Plateau.", erledigt: e("vocantia_boss") });
   if (e("vocantia_finale")) liste.push({ text: "Vocantia ist gerettet! Das Tal taut auf und blüht.", erledigt: true });
+  if (!e("vocantia_finale")) return liste;
+  // Die finale Kampagne: die Feste Schattenzahn
+  liste.push({ text: "Sprich mit Ratsältestem Aldric im Dorf. Er hat beunruhigende Nachrichten.", erledigt: e("schattenzahn_auftrag") });
+  if (!e("schattenzahn_auftrag")) return liste;
+  liste.push({ text: "Reise durch das Portal zur Feste Schattenzahn und sprich mit Lyra am Lagerfeuer.", erledigt: e("schattenzahn_intro") });
+  if (!e("schattenzahn_intro")) return liste;
+  const p = z.pruefung ?? {};
+  const pkt = (t) => (p[t]?.max ? ` – zuletzt ${p[t].punkte}/${p[t].max} Punkte` : "");
+  liste.push({ text: `Dungeon des Hörens: Besteh die Probeprüfung Hörverstehen (ab 12 von 24 Punkten)${pkt("hoeren")}.`, erledigt: e("schattenzahn_hoeren") });
+  if (e("schattenzahn_hoeren")) liste.push({ text: `Katakomben des Lesens: Besteh die Probeprüfung Leseverstehen (ab 12 von 24 Punkten)${pkt("lesen")}.`, erledigt: e("schattenzahn_lesen") });
+  if (e("schattenzahn_lesen")) liste.push({ text: "Grotte der Schreiber: Schreib in der Probeprüfung einen ganzen Forumsbeitrag.", erledigt: e("schattenzahn_schreiben") });
+  if (e("schattenzahn_schreiben")) liste.push({ text: "Kaverne der Stimmen: Gespräch und Präsentation – und dann der letzte Kampf gegen Morgrath.", erledigt: e("schattenzahn_boss") });
+  if (e("schattenzahn_finale")) liste.push({ text: "Morgrath ist besiegt! Du bist Meister der Vier Sprachkräfte. Erzähl es Aldric im Dorf!", erledigt: e("aldric_lob_schattenzahn") });
   return liste;
 }
 

@@ -35,6 +35,7 @@ function neu() {
     protokoll: [],       // XP-Verlauf: { xp, grund, datum }
     spielerId: neueId(), // zufällige Kennung, damit das Dashboard Dateien derselben Person erkennt
     statistik: neueStatistik(),
+    pruefung: {},        // Probeprüfung in der Feste Schattenzahn: teil -> { punkte, max, bestanden, versuche, datum }
   };
 }
 

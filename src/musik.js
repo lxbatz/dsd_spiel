@@ -18,6 +18,8 @@ export const MUSIK = {
   scriptoria: "Sound/forest_02.mp3",
   vocantia: "Sound/vocantia_snow_02.mp3",
   vocantia_fruehling: "Sound/vocantia_town_02.mp3",
+  schattenzahn: "Sound/evil_03.mp3",
+  schattenzahn_sieg: "Sound/opening_03.mp3",
   kampf: "Sound/battle_02.mp3",
 };
 

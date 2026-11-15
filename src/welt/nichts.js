@@ -10,7 +10,7 @@ import { posen } from "./nichts_posen.js";
 export const NICHTS_OFFEN = true;
 
 /**
- * Alle Figuren. typ: "figur" (Menschen), "boss" (Wächter), "werwolf", "troll", "drache", "tier".
+ * Alle Figuren. typ: "figur" (Menschen), "boss" (Wächter), "werwolf", "troll", "drache", "morgrath", "tier".
  * reihe: 0 = vorne (Helden), 1 = Dorf und Lythara, 4 = Aurelia und Scriptoria, 2 = Wächter und Endgegner,
  * 5 = Vocantia, 3 = hinten (Drache).
  */
@@ -63,6 +63,13 @@ export const GALERIE = [
     text: ["Endgegner von Vocantia: ein Eistroll mit gefrorener Krone, Eiszapfenbart und schweren Ketten.", "Nach dem Sieg zerspringen die Ketten, und er zieht sich geschlagen auf den Gipfel zurück."],
     posen: [["thron", "In Ketten (vor dem Kampf)"], ["gipfel", "Besiegt: Ketten gesprengt, sitzt im Schnee"]],
   },
+  {
+    key: "boss_morgrath", typ: "morgrath", reihe: 3, name: "Morgrath, der Schattenfürst",
+    text: [
+      "Der letzte Gegner: ein riesiger Fürst in schwarzer Rüstung, mit Dornenkrone, glühendem Sehschlitz, Glutriss in der Brust, zerfetztem Umhang und einem Streitkolben.",
+      "In der Feste Schattenzahn treiben ihn die Helden mit jeder bestandenen Prüfung tiefer hinab, bis er in der Kaverne der Stimmen in den Lavasee stürzt.",
+    ],
+  },
   { key: "boss_echo", typ: "boss", reihe: 2, name: "Das Endlose Echo", text: "Wächter der Insel des Siegels (Schluss)." },
   {
     key: "boss_drachenrichter", typ: "drache", reihe: 3, name: "Der Drachenrichter",
@@ -79,8 +86,8 @@ export const GALERIE = [
 
 const BREITE = 44, HOEHE = 42;
 const REIHEN_Y = [30, 23, 15, 4, 19, 10];
-const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5, werwolf: 2, troll: 2 };
-const ABSTAND = { 0: 5, 1: 4.5, 2: 5.5, 3: 0, 4: 2.5, 5: 4 };
+const GROESSE = { figur: 1, tier: 1, boss: 2, drache: 5, werwolf: 2, troll: 2, morgrath: 3 };
+const ABSTAND = { 0: 5, 1: 4.5, 2: 5.5, 3: 13, 4: 2.5, 5: 4 };
 
 function platzieren() {
   const objekte = [];

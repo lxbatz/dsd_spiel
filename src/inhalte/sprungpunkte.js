@@ -77,6 +77,15 @@ const SCHRITTE = [
   ["vocantia_siegel", 50, "sprechsiegel"],   // steht für einen eingelösten Sprechsiegel-Code
   ["vocantia_boss", 200],
   ["vocantia_finale", 250, "diamant_abzeichen"],
+  ["aldric_lob_vocantia", 0],
+  ["schattenzahn_auftrag", 0],
+  ["schattenzahn_intro", 0],
+  ["schattenzahn_hoeren", 250, "siegel_hoeren"],
+  ["schattenzahn_lesen", 250, "siegel_lesen"],
+  ["schattenzahn_schreiben", 250, "siegel_schreiben"],
+  ["schattenzahn_sprechen", 250, "siegel_sprechen"],
+  ["schattenzahn_boss", 300],
+  ["schattenzahn_finale", 500, "sprachsiegel_eldoria"],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -140,6 +149,13 @@ export const SPRUNGPUNKTE = [
   { id: "vocantia_pfad", name: "Vocantia: alle frei, Eiswand geschmolzen, ohne Sprechsiegel", bis: "vocantia_q5", karte: "vocantia", spawn: "pfad" },
   { id: "vocantia_boss", name: "Vocantia: vor dem Schweigekönig (Endkampf, mit Sprechsiegel)", bis: "vocantia_siegel", karte: "vocantia", spawn: "gipfel" },
   { id: "vocantia_ende", name: "Vocantia gerettet (Ende von Vocantia)", bis: "vocantia_finale", karte: "vocantia", spawn: "mitte" },
+  { id: "schattenzahn", name: "Schattenzahn: Ankunft vor der Feste (Mentoren am Lagerfeuer)", bis: "schattenzahn_auftrag", karte: "schattenzahn", spawn: "eingang" },
+  { id: "schattenzahn_hoeren", name: "Schattenzahn: Dungeon des Hörens (Probeprüfung Hörverstehen)", bis: "schattenzahn_intro", karte: "schattenzahn", spawn: "hoeren" },
+  { id: "schattenzahn_lesen", name: "Schattenzahn: Katakomben des Lesens (Probeprüfung Leseverstehen)", bis: "schattenzahn_hoeren", karte: "schattenzahn", spawn: "lesen" },
+  { id: "schattenzahn_schreiben", name: "Schattenzahn: Grotte der Schreiber (Probeprüfung Schreiben)", bis: "schattenzahn_lesen", karte: "schattenzahn", spawn: "schreiben" },
+  { id: "schattenzahn_sprechen", name: "Schattenzahn: Kaverne der Stimmen (Probeprüfung Sprechen + Endkampf)", bis: "schattenzahn_schreiben", karte: "schattenzahn", spawn: "sprechen" },
+  { id: "schattenzahn_boss", name: "Schattenzahn: vor dem Endkampf gegen Morgrath", bis: "schattenzahn_sprechen", karte: "schattenzahn", spawn: "sprechen" },
+  { id: "schattenzahn_ende", name: "Eldoria gerettet (Ende des Spiels)", bis: "schattenzahn_finale", karte: "schattenzahn", spawn: "sprechen" },
 ];
 
 const TESTHELD = {

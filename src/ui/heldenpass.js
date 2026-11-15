@@ -87,6 +87,23 @@ export function heldenpassFormular() {
   });
 }
 
+/** Ergebnisse der Probeprüfung in der Feste Schattenzahn (für Schülerin, Schüler und Lehrkraft) */
+function probepruefung() {
+  const p = zustand.pruefung ?? {};
+  if (!Object.keys(p).length) return null;
+  const zeile = (teil, name) => {
+    const e = p[teil];
+    if (!e) return el("tr", {}, el("td", {}, name), el("td", {}, "–"));
+    const wert = e.max ? `${e.punkte} / ${e.max} Punkte ${e.bestanden ? "✔" : "✘"}` : "abgegeben ✔ (bewertet die Lehrkraft)";
+    return el("tr", {}, el("td", {}, name), el("td", {}, `${wert} · ${e.versuche} ${e.versuche === 1 ? "Versuch" : "Versuche"}`));
+  };
+  return [
+    el("h3", {}, "🏰 Probeprüfung (Feste Schattenzahn)"),
+    el("table", { class: "auswertung" }, el("tbody", {},
+      zeile("hoeren", "Hörverstehen"), zeile("lesen", "Leseverstehen"), zeile("schreiben", "Schriftliche Kommunikation"), zeile("sprechen", "Mündliche Kommunikation"))),
+  ];
+}
+
 /** Zeigt den Heldenpass und die eigenen Texte. */
 export function heldenpassAnzeigen() {
   const h = zustand.held;
@@ -104,9 +121,11 @@ export function heldenpassAnzeigen() {
       el("img", { class: "portrait", src: bild(k?.textur), alt: "" }),
       el("div", {},
         el("h2", {}, h.name),
-        el("div", { class: "untertitel" }, `${k?.name ?? ""} · Stufe ${s.stufe}: ${s.titel} · ${zustand.xp} XP`))),
+        el("div", { class: "untertitel" }, `${k?.name ?? ""} · Stufe ${s.stufe}: ${s.titel} · ${zustand.xp} XP`),
+        zustand.erledigt.schattenzahn_finale ? el("div", { class: "ehrentitel" }, "🌟 Meister der Vier Sprachkräfte") : null)),
     el("dl", { class: "pass-ansicht" },
       FELDER.slice(1).map(([id, label]) => el("div", {}, el("dt", {}, label), el("dd", {}, h[id] || "–")))),
+    probepruefung(),
     el("h3", {}, "📝 Meine Texte"),
     texte.length
       ? texte.map(([id, t]) => el("details", { style: "margin-bottom:8px" },

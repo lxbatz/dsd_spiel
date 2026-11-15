@@ -7,6 +7,7 @@ import { figurBauen, torwaechterBauen, Teile, ZYL, RING, KASTEN } from "./figure
 import { drachenrichterBauen } from "./drache.js";
 import { bibliothekarBauen } from "./werwolf.js";
 import { eistrollBauen } from "./eistroll.js";
+import { morgrathBauen } from "./morgrath.js";
 import { katzeBauen } from "./katze.js";
 import { WAECHTER } from "./halle3d.js";
 import { textur } from "./texturen.js";
@@ -17,7 +18,7 @@ import { E } from "./welt.js";
 import { posen } from "../welt/nichts_posen.js";
 
 const WEISS = "#f3f1ec";
-const SOCKEL_H = { figur: 0.35, tier: 0.35, boss: 0.45, werwolf: 0.45, troll: 0.45, drache: 0.6 };
+const SOCKEL_H = { figur: 0.35, tier: 0.35, boss: 0.45, werwolf: 0.45, troll: 0.45, drache: 0.6, morgrath: 0.6 };
 
 function leinwand(w, h) {
   const c = document.createElement("canvas");
@@ -74,6 +75,7 @@ function galerieModell(o, animationen) {
   else if (typ === "boss") { figur = torwaechterBauen(WAECHTER[key]); figur.gruppe.scale.setScalar(1.25); }
   else if (typ === "werwolf") { figur = bibliothekarBauen(); posen.set(key, figur.pose); }
   else if (typ === "troll") { figur = eistrollBauen({ thron: false, ziel: new THREE.Vector3(0, 0, 0) }); figur.gruppe.scale.setScalar(0.8); posen.set(key, figur.pose); }
+  else if (typ === "morgrath") { figur = morgrathBauen(); figur.gruppe.scale.setScalar(0.62); }
   else { figur = drachenrichterBauen(); figur.gruppe.scale.setScalar(1.2); posen.set(key, figur.pose); }
   dreh.add(figur.gruppe);
   g.traverse((m) => { if (m.isMesh) { m.castShadow = m.castShadow || m.userData.figur; m.receiveShadow = true; } });
@@ -96,13 +98,13 @@ function galerieModell(o, animationen) {
       figur.sprechen?.(an, zeit);
     },
   };
-  const gross = typ === "boss" || typ === "drache" || typ === "troll";
+  const gross = typ === "boss" || typ === "drache" || typ === "troll" || typ === "morgrath";
   return {
     modell: g, figur: wrapper, boss: gross,
     // Der Drache ist groß: Kamera weiter weg und tiefer blicken, damit er über dem Dialogfenster ganz zu sehen ist
-    kopfY: h + (typ === "drache" ? 1.4 : typ === "boss" || typ === "troll" ? 3.0 : typ === "tier" ? 0.8 : 1.75),
-    weit: typ === "drache" ? 11 : undefined,
-    kameraY: typ === "drache" ? 3.4 : undefined,
+    kopfY: h + (typ === "drache" ? 1.4 : typ === "morgrath" ? 4.0 : typ === "boss" || typ === "troll" ? 3.0 : typ === "tier" ? 0.8 : 1.75),
+    weit: typ === "drache" ? 11 : typ === "morgrath" ? 9 : undefined,
+    kameraY: typ === "drache" || typ === "morgrath" ? 3.4 : undefined,
   };
 }
 

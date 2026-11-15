@@ -15,7 +15,7 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 
 | Datei | Verwendung im Spiel | Herkunft |
 |---|---|---|
-| `opening_03` | Intro-Text (Prolog) | MIDI von einer Website für RPG-Maker-Spiele, frei verwendbar (Platzhalter) |
+| `opening_03` | Intro-Text (Prolog); auch nach dem Sieg über Morgrath in der Feste Schattenzahn | MIDI von einer Website für RPG-Maker-Spiele, frei verwendbar (Platzhalter) |
 | `town_03` | Dorf der Ankömmlinge | wie oben (Platzhalter) |
 | `fanfare_01` | Quest abgeschlossen | wie oben (Platzhalter) |
 | `castle_01` | Halle der Tausend Tore | wie oben (Platzhalter) |
@@ -25,7 +25,7 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 | `battle_02` | Bosskampf | wie oben (Platzhalter) |
 | `fanfare_03` | Sieg im Bosskampf | wie oben (Platzhalter) |
 | `fanfare_02` | Levelaufstieg | wie oben (Platzhalter) |
-| `evil_03` | noch nicht verwendet | wie oben (Platzhalter) |
+| `evil_03` | Feste Schattenzahn (finale Kampagne) | wie oben (Platzhalter) |
 
 Die `.mid`-Dateien sind die Originale. Die `.mp3`-Dateien daraus wurden mit FluidSynth und dem Klangsatz „FluidR3 GM“ (MIT-Lizenz, Frank Wen) erzeugt; die Stille am Ende wurde abgeschnitten, damit die Musik ohne Lücke in Schleife läuft.
 

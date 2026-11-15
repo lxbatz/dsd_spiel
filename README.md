@@ -59,6 +59,12 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Sprechaufgaben ohne Mikrofon mit der **Sprechuhr** oder mit Mikrofon über den **Stimmkristall** (zeigt nur, ob man spricht; die Stimme verlässt das Gerät nicht). Viele Aufgaben als Partnerübung
    - Sind alle fünf frei, schmilzt die Eiswand am Bergpfad. Für den Endkampf braucht man zusätzlich das **Sprechsiegel**: einen Lehrercode für eine echte mündliche Leistung im Unterricht (`tools/lehrercodes.html`, Art „Sprechsiegel“)
    - Endkampf: **der Schweigekönig** – kurze Sprechaufgaben zu Prüfungsthemen und Strategiefragen; nach dem Sieg zerspringen die Ketten, er zieht sich geschlagen auf den Gipfel zurück, und das Tal taut auf und blüht → *Diamant-Abzeichen*
+8. **Die Feste Schattenzahn – die finale Kampagne** (Probeprüfung DSD I PRO, nur 3D; über das Portal im Dorf, nachdem Aldric alle vier Reiche gelobt hat)
+   - Morgrath lebt noch und hat sich in einer schwarzen Burg vor einem aktiven Vulkan verschanzt. Draußen: roter Himmel, Ascheregen, Fledermäuse, Goblins mit Speeren, tote Bäume und das Lagerfeuer der Mentoren (Lyra, Orpheon, Lirien, Runa)
+   - Jeder Prüfungsteil ist ein Dungeon, und mit jedem geht es tiefer hinab, beleuchtet von Fackeln und Lava: **Dungeon des Hörens** (Kerker mit Zellen und Ketten) → **Katakomben des Lesens** (Knochennischen, Kerzen, Spinnweben) → **Grotte der Schreiber** (Tropfsteinhöhle mit Schreibpulten) → **Kaverne der Stimmen** (riesige Höhle mit Lavasee)
+   - In jedem Dungeon wartet Morgrath. Hören (24 Items) und Lesen (24 Items) laufen im **Prüfungsmodus**: ein Versuch je Aufgabe, keine Rückmeldung, am Ende Punkte je Teil; bestanden ab 50 %. Schreiben (Forumsbeitrag, mindestens 150 Wörter) und Sprechen (Gespräch, Präsentation, Nachfragen) bewertet die Lehrkraft. Nach jedem bestandenen Teil flieht Morgrath eine Ebene tiefer, und das Fallgitter zur nächsten Treppe hebt sich
+   - Endkampf in der Kaverne: gemischte Aufgaben aus allen Prüfungsteilen. Besiegt stürzt Morgrath in den Lavasee, und Eldoria ist gerettet → **Das Sprachsiegel von Eldoria** und der Titel **Meister der Vier Sprachkräfte**
+   - Die Ergebnisse der Probeprüfung stehen im Heldenpass
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
 

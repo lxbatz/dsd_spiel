@@ -24,12 +24,13 @@ import { aureliaBauen } from "./aurelia3d.js";
 import { scriptoriaBauen } from "./scriptoria3d.js";
 import { vocantiaBauen } from "./vocantia3d.js";
 import { treppenturmBauen } from "./treppenturm3d.js";
+import { festeBauen } from "./feste3d.js";
 import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
-const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen, treppenturm: treppenturmBauen };
+const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen, treppenturm: treppenturmBauen, schattenzahn: festeBauen };
 const TEMPO = 5.2;
 const RADIUS = 0.38;
 const REICHWEITE = 1.5;

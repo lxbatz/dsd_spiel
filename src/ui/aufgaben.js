@@ -119,6 +119,7 @@ function auswahl(a) {
       return { ok, meldung: ok ? "" : (a.tipp ?? "Das stimmt leider nicht.") };
     },
     loesungZeigen() { knoepfe.get(a.richtig).classList.add("richtig"); },
+    punkte: () => ({ punkte: gewaehlt === a.richtig ? 1 : 0, max: 1 }),
     sperren() { knoepfe.forEach((k) => { k.disabled = true; }); },
   };
 }
@@ -184,6 +185,7 @@ function luecke(a) {
         feld.classList.add("richtig");
       });
     },
+    punkte: () => ({ punkte: felder.filter(({ feld, loesungen }) => vergleiche(feld.value, loesungen).ok).length, max: felder.length }),
     sperren() { felder.forEach(({ feld }) => { feld.disabled = true; }); },
   };
 }
@@ -233,6 +235,7 @@ function ordnen(a) {
       ziel.classList.remove("falsch");
       ziel.classList.add("richtig");
     },
+    punkte: () => ({ punkte: !quelle.children.length && loesungen.includes(satz()) ? 1 : 0, max: 1 }),
     sperren() { gesperrt = true; },
   };
 }
@@ -269,6 +272,7 @@ function zuordnen(a) {
     loesungZeigen() {
       selects.forEach((s, i) => { s.value = a.paare[i][1]; s.classList.remove("falsch"); s.classList.add("richtig"); });
     },
+    punkte: () => ({ punkte: selects.filter((s, i) => s.value === a.paare[i][1]).length, max: selects.length }),
     sperren() { selects.forEach((s) => { s.disabled = true; }); },
   };
 }
@@ -313,6 +317,7 @@ function richtigfalsch(a) {
         z.zeile.classList.add("richtig");
       });
     },
+    punkte: () => ({ punkte: antworten.filter((x, i) => x === a.aussagen[i][1]).length, max: zeilen.length }),
     sperren() { zeilen.forEach((z) => { z.r.disabled = true; z.f.disabled = true; }); },
   };
 }
@@ -396,6 +401,7 @@ function block(a) {
       return { ok, meldung: ok ? "" : `${richtig} von ${teile.length} Aufgaben sind richtig.` };
     },
     loesungZeigen() { teile.forEach(({ r }) => r.loesungZeigen()); kaesten.forEach((k) => k.classList.remove("falsch")); },
+    punkte: () => teile.map(({ r }) => r.punkte?.() ?? { punkte: 0, max: 0 }).reduce((x, y) => ({ punkte: x.punkte + y.punkte, max: x.max + y.max }), { punkte: 0, max: 0 }),
     sperren() { teile.forEach(({ r }) => r.sperren()); },
   };
 }
@@ -505,4 +511,85 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
   }
   questErgebnis(id, protokoll);
   return { gesamt: aufgaben.length, ersterVersuch };
+}
+
+// ---------- Prüfungsmodus (Probeprüfung) ----------
+
+/**
+ * Probeprüfung wie im DSD: Jede Aufgabe hat genau einen Versuch, es gibt keine Rückmeldung
+ * während der Prüfung. Jedes Item zählt einen Punkt (unbeantwortet = 0). Am Ende kommt die Auswertung
+ * nach Prüfungsteilen (Feld `teil` der Aufgaben).
+ * Liefert { punkte, max, bestanden, teile: [{ teil, punkte, max }] } oder { abgebrochen: true }.
+ */
+export async function pruefungsFolge({ id, titel, untertitel, aufgaben: roh, bestehenAb = 0.5, hinweis }) {
+  const aufgaben = roh.map(aufgabeAufloesen);
+  const protokoll = [];
+  const teile = [];
+  for (let i = 0; i < aufgaben.length; i++) {
+    const a = aufgaben[i];
+    const start = performance.now();
+    const ergebnis = await new Promise((fertig) => {
+      const r = aufgabeErstellen(a);
+      const abbruch = knopf("Prüfung abbrechen", () => fertig(ABBRUCH), "knopf zweitrangig abbrechen");
+      const meldung = el("div", { class: "feedback info", hidden: true });
+      let gewarnt = false;
+      const abgeben = knopf(i === aufgaben.length - 1 ? "Antwort abgeben und auswerten ✔" : "Antwort abgeben ▸", () => {
+        const e = r.pruefen?.() ?? { ok: true };
+        if (e.leer && !gewarnt) {
+          gewarnt = true;
+          meldung.textContent = "Du hast noch nicht alles beantwortet. In der Prüfung zählt jede Antwort – rate lieber, als etwas leer zu lassen! Klicke noch einmal, wenn du trotzdem abgeben willst.";
+          meldung.hidden = false;
+          return;
+        }
+        fertig(r.punkte?.() ?? { punkte: 0, max: 0 });
+      });
+      zeigen(
+        el("h2", {}, titel),
+        el("div", { class: "fortschritt" }, [untertitel, a.teil, `Aufgabe ${i + 1} von ${aufgaben.length}`].filter(Boolean).join(" · ")),
+        i === 0 && hinweis ? el("div", { class: "feedback info" }, hinweis) : null,
+        lesetextElement(a.lesetext),
+        hoertextElement(a.hoertext),
+        el("div", { class: "frage" }, a.frage),
+        r.element,
+        meldung,
+        el("div", { class: "knopfzeile" }, abbruch, el("div", { class: "knopfleiste" }, abgeben)),
+      );
+      fokus(r.erstesFeld);
+    });
+    hoerenStoppen();
+    sprechenStoppen();
+    if (ergebnis === ABBRUCH) {
+      questErgebnis(id, protokoll, { abgebrochen: true });
+      return { abgebrochen: true };
+    }
+    const t = teile.find((x) => x.teil === (a.teil ?? "")) ?? teile[teile.push({ teil: a.teil ?? "", punkte: 0, max: 0 }) - 1];
+    t.punkte += ergebnis.punkte; t.max += ergebnis.max;
+    protokoll.push({
+      nr: i + 1, frage: a.frage, typ: a.typ, teil: a.teil, punkte: ergebnis.punkte, max: ergebnis.max,
+      ersterVersuch: ergebnis.punkte === ergebnis.max, fehler: ergebnis.max - ergebnis.punkte, loesungGezeigt: false,
+      sekunden: Math.round((performance.now() - start) / 1000),
+    });
+  }
+  questErgebnis(id, protokoll);
+  const punkte = teile.reduce((x, t) => x + t.punkte, 0), max = teile.reduce((x, t) => x + t.max, 0);
+  return { punkte, max, bestanden: punkte >= Math.ceil(max * bestehenAb), grenze: Math.ceil(max * bestehenAb), teile };
+}
+
+/** Zeigt die Auswertung einer Probeprüfung. */
+export function pruefungsAuswertung(titel, e) {
+  return new Promise((weiter) => {
+    const k = knopf("Weiter ▸", weiter);
+    zeigen(
+      el("h2", {}, titel),
+      el("div", { class: `feedback ${e.bestanden ? "gut" : "schlecht"}` },
+        e.bestanden ? `Bestanden! ${e.punkte} von ${e.max} Punkten.` : `Noch nicht bestanden: ${e.punkte} von ${e.max} Punkten. Zum Bestehen brauchst du ${e.grenze} Punkte.`),
+      el("table", { class: "auswertung" },
+        el("tbody", {},
+          e.teile.map((t) => el("tr", {}, el("td", {}, t.teil), el("td", {}, `${t.punkte} / ${t.max}`))),
+          el("tr", { class: "summe" }, el("td", {}, "Gesamt"), el("td", {}, `${e.punkte} / ${e.max}`)))),
+      el("p", { class: "untertitel" }, "Dein Ergebnis steht im Heldenpass. Schau dir die Teile mit wenigen Punkten noch einmal in den Reichen an."),
+      el("div", { class: "knopfleiste" }, k),
+    );
+    fokus(k);
+  });
 }
