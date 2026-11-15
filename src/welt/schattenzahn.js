@@ -221,6 +221,8 @@ export default {
       // In den oberen Ebenen verschwindet er nach der bestandenen Prüfung in die Tiefe; in der Kaverne stürzt er in die Lava
       sichtbar: (z) => t.id === "sprechen" || !z.erledigt[t.flag],
       leuchtet: (z) => t.id === "sprechen" && Boolean(z.erledigt.schattenzahn_boss),
+      // Nach dem Sturz in die Lava kann man ihn nicht mehr ansprechen (und nicht mehr anstoßen)
+      offen: (z) => t.id === "sprechen" && Boolean(z.erledigt.schattenzahn_boss),
       marker: (z) => Boolean(z.erledigt.schattenzahn_intro) && (i === 0 || Boolean(z.erledigt[TEILE[i - 1].flag])) && !z.erledigt[t.flag]
         || (t.id === "sprechen" && Boolean(z.erledigt[t.flag]) && !z.erledigt.schattenzahn_boss),
     })),
