@@ -205,7 +205,7 @@ async function endkampf(welt) {
 async function siegelUndBeben(welt) {
   await dialog("Die Kaverne der Stimmen", "Die Lava beruhigt sich. Wo Morgrath versunken ist, steigen vier helle Lichter auf – die Splitter des Sprachsiegels.");
   schliessen();
-  musik("schattenzahn_sieg");
+  musik("sprachsiegel");
   await welt.szene?.("siegel");
   await dialog("Das Sprachsiegel", [
     "Die vier Splitter drehen sich umeinander … und verschmelzen mit einem hellen Klang zu einem einzigen, leuchtenden Siegel.",

@@ -15,7 +15,8 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 
 | Datei | Verwendung im Spiel | Herkunft |
 |---|---|---|
-| `opening_03` | Intro-Text (Prolog); auch nach dem Sieg über Morgrath in der Feste Schattenzahn | MIDI von einer Website für RPG-Maker-Spiele, frei verwendbar (Platzhalter) |
+| `opening_03` | Intro-Text (Prolog); auch wenn sich in der Kaverne das Sprachsiegel vereint | MIDI von einer Website für RPG-Maker-Spiele, frei verwendbar (Platzhalter) |
+| `opening_02_spielsieg` | Spielende: nach dem Einsturz der Feste Schattenzahn und danach im Vorhof | hochgeladen von der Lehrkraft (MIDI) |
 | `town_03` | Dorf der Ankömmlinge | wie oben (Platzhalter) |
 | `fanfare_01` | Quest abgeschlossen | wie oben (Platzhalter) |
 | `castle_01` | Halle der Tausend Tore | wie oben (Platzhalter) |

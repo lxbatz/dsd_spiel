@@ -20,7 +20,8 @@ export const MUSIK = {
   vocantia: "Sound/vocantia_snow_02.mp3",
   vocantia_fruehling: "Sound/vocantia_town_02.mp3",
   schattenzahn: "Sound/dungeon_schattenzahn.mp3",
-  schattenzahn_sieg: "Sound/opening_03.mp3",
+  sprachsiegel: "Sound/opening_03.mp3",
+  schattenzahn_sieg: "Sound/opening_02_spielsieg.mp3",
   kampf: "Sound/battle_02.mp3",
   kampf_morgrath: "Sound/boss_morgrath.mp3",
 };
