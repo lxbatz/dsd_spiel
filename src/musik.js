@@ -139,3 +139,45 @@ export function stummSchalten(wert = !stumm) {
 export function beimStummschalten(fn) {
   beobachter.add(fn);
 }
+
+// ---------- Grollen (Erdbeben) ----------
+// Tiefes Rauschen aus der Web-Audio-API (ohne Datei). Die Stärke 0–1 wird jedes Bild gesetzt.
+let grollKontext = null, grollGain = null, grollStaerke = 0;
+
+function grollenBauen() {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return false;
+  grollKontext = new Ctx();
+  const laenge = grollKontext.sampleRate * 3;
+  const puffer = grollKontext.createBuffer(1, laenge, grollKontext.sampleRate);
+  const d = puffer.getChannelData(0);
+  let letzter = 0;
+  for (let i = 0; i < laenge; i++) {
+    // braunes Rauschen: tief und dumpf
+    letzter = (letzter + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+    d[i] = letzter * 3.5;
+  }
+  const quelle = grollKontext.createBufferSource();
+  quelle.buffer = puffer;
+  quelle.loop = true;
+  const filter = grollKontext.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 140;
+  grollGain = grollKontext.createGain();
+  grollGain.gain.value = 0;
+  quelle.connect(filter).connect(grollGain).connect(grollKontext.destination);
+  quelle.start();
+  return true;
+}
+
+/** Stärke des Grollens (0 = still). Wird jedes Bild aufgerufen; schweigt, wenn der Ton aus ist. */
+export function grollen(staerke) {
+  const ziel = stumm ? 0 : Math.max(0, Math.min(1, staerke));
+  if (Math.abs(ziel - grollStaerke) < 0.01) return;
+  grollStaerke = ziel;
+  if (!grollKontext) {
+    if (ziel <= 0.01 || !grollenBauen()) return;
+  }
+  if (grollKontext.state === "suspended") grollKontext.resume().catch(() => { /* egal */ });
+  grollGain.gain.setTargetAtTime(ziel * 0.9, grollKontext.currentTime, 0.15);
+}

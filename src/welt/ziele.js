@@ -92,6 +92,7 @@ function hauptziele(z) {
   if (e("schattenzahn_hoeren")) liste.push({ text: `Katakomben des Lesens: Besteh die Probeprüfung Leseverstehen (ab 12 von 24 Punkten)${pkt("lesen")}.`, erledigt: e("schattenzahn_lesen") });
   if (e("schattenzahn_lesen")) liste.push({ text: "Grotte der Schreiber: Schreib in der Probeprüfung einen ganzen Forumsbeitrag.", erledigt: e("schattenzahn_schreiben") });
   if (e("schattenzahn_schreiben")) liste.push({ text: "Kaverne der Stimmen: Gespräch und Präsentation – und dann der letzte Kampf gegen Morgrath.", erledigt: e("schattenzahn_boss") });
+  if (e("schattenzahn_boss")) liste.push({ text: "Die Feste Schattenzahn stürzt ein! Flieh durch alle Ebenen nach oben und hinaus zu den Mentoren.", erledigt: e("schattenzahn_finale") });
   if (e("schattenzahn_finale")) liste.push({ text: "Morgrath ist besiegt! Du bist Meister der Vier Sprachkräfte. Erzähl es Aldric im Dorf!", erledigt: e("aldric_lob_schattenzahn") });
   return liste;
 }

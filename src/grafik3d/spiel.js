@@ -12,7 +12,7 @@ import { zustand, ortSetzen } from "../zustand.js";
 import { istOffen, schliessen, hinweis, toast, beimSchliessen, el, knopf } from "../ui/fenster.js";
 import { hudSperreSetzen, hudEinstellungen } from "../ui/hud.js";
 import { bildSetzen } from "../ui/bilder.js";
-import { musik } from "../musik.js";
+import { musik, grollen } from "../musik.js";
 import { AUSSEHEN } from "../grafik16/figuren.js";
 import { PORTRAITS, portraitBild } from "../grafik16/portraits.js";
 import { figurBauen } from "./figuren.js";
@@ -181,8 +181,11 @@ export class Spiel3D {
     const def = KARTEN[id];
     const szene = new THREE.Scene();
     const animationen = [];
-    const bau = BAUER[id](szene, def.raster, { animationen, qualitaet: this.q, def });
+    // kino(pos, blick): Zwischensequenzen führen die Kamera selbst (null gibt sie zurück)
+    const kino = (pos, blick) => { this.kino = pos ? { pos: pos.clone(), blick: blick.clone() } : null; };
+    const bau = BAUER[id](szene, def.raster, { animationen, qualitaet: this.q, def, kino });
     const effekte = new Effekte(szene, this.q.partikel);
+    bau.effekteSetzen?.(effekte);
     const karte = { id, def, szene, animationen, bau, effekte, raster: def.raster, objekte: [] };
 
     for (const o of def.objekte) {
@@ -197,6 +200,7 @@ export class Spiel3D {
       const versatz = res.versatz ?? [0, 0];
       const bodenY = bau.boden?.(cx, cz) ?? 0;
       res.modell.position.set(cx + versatz[0], bodenY, cz + versatz[1]);
+      if (o.drehung) res.modell.rotation.y = o.drehung;
       szene.add(res.modell);
       const marker = this.markerBauen();
       const markerY = bodenY + (res.boss ? 5.2 : o.art === "tor" ? 7.9 : o.art === "npc" ? 2.95 : 2.8);
@@ -209,7 +213,7 @@ export class Spiel3D {
         kopfY: res.kopfY, weit: res.weit, kameraY: res.kameraY,
         rechteck: { x0: o.x * E + rand, z0: o.y * E + rand, x1: (o.x + b) * E - rand, z1: (o.y + h) * E - rand },
         fest: o.art !== "portal",
-        grundDrehung: 0,
+        grundDrehung: o.drehung ?? 0,
         blick: null,
       });
     }
@@ -519,17 +523,10 @@ export class Spiel3D {
     this.gespraech = obj;
     this.gespraechSeite = this.freieSeite(obj);
     obj.figur?.sprechen?.(true, this.uhr.elapsedTime);
-    let reiseZiel = null;
-    const karte = this.karte;
-    const weltApi = {
-      aktualisieren: () => this.aktualisieren(),
-      reisen: (k, spawn) => { reiseZiel = [k, spawn]; },
-      erschuettern: () => { this.wackelnBis = performance.now() + 450; },
-      dreiD: true,
-      effekte: karte.effekte,
-    };
+    const reise = {};
     try {
-      await (obj.aktion ? obj.aktion(weltApi) : obj.def.aktion(weltApi));
+      const api = this.weltApi(this.karte, reise);
+      await (obj.aktion ? obj.aktion(api) : obj.def.aktion(api));
     } catch (fehler) {
       console.error(fehler);
       toast("Hoppla, da ist etwas schiefgelaufen.");
@@ -537,10 +534,54 @@ export class Spiel3D {
     obj.figur?.sprechen?.(false);
     if (obj.figur && !obj.boss) obj.blick = obj.grundDrehung;
     this.gespraech = null;
+    await this.ablaufEnde(reise);
+  }
+
+  /** Was Aktionen und Auslöser mit der Welt tun dürfen. */
+  weltApi(karte, reise) {
+    return {
+      aktualisieren: () => this.aktualisieren(),
+      reisen: (k, spawn) => { reise.ziel = [k, spawn]; },
+      erschuettern: () => { this.wackelnBis = performance.now() + 450; },
+      dreiD: true,
+      effekte: karte.effekte,
+      // Zwischensequenzen der 3D-Welt (z. B. das Sprachsiegel und der Einsturz in Schattenzahn)
+      szene: (name) => karte.bau.ereignis?.(name) ?? Promise.resolve(),
+      // Die Spielfigur läuft von selbst zu einer Kachel (für Zwischensequenzen)
+      laufen: (tx, ty) => new Promise((fertig) => {
+        this.heldBlick = null;
+        this.skriptLauf = { punkt: new THREE.Vector3(welt(tx), 0, welt(ty)), fertig, zeit: 0, fest: 0 };
+      }),
+      blicken: (tx, ty) => { const p = this.held.gruppe.position; this.heldBlick = Math.atan2(welt(tx) - p.x, welt(ty) - p.z); },
+    };
+  }
+
+  /** Ein Auslöser der Karte (z. B. „die Figur betritt den Vorhof“) startet einen Ablauf wie ein Gespräch. */
+  async ausloesen(a) {
+    if (this.beschaeftigt) return;
+    this.beschaeftigt = true;
+    this.tasten.clear();
+    this.touch.zuruecksetzen();
+    this.laufZiel = null;
+    this.touch.aktionZeigen(null);
+    hinweis(null);
+    const reise = {};
+    try {
+      await a.aktion(this.weltApi(this.karte, reise));
+    } catch (fehler) {
+      console.error(fehler);
+      toast("Hoppla, da ist etwas schiefgelaufen.");
+    }
+    await this.ablaufEnde(reise);
+  }
+
+  async ablaufEnde(reise) {
     this.heldBlick = null;
+    this.kino = null;
+    if (this.skriptLauf) { this.skriptLauf.fertig(); this.skriptLauf = null; }
     schliessen();
     this.aktualisieren();
-    if (reiseZiel && KARTEN[reiseZiel[0]]) await this.wechseln(reiseZiel[0], reiseZiel[1]);
+    if (reise.ziel && KARTEN[reise.ziel[0]]) await this.wechseln(reise.ziel[0], reise.ziel[1]);
     this.beschaeftigt = false;
   }
 
@@ -567,6 +608,17 @@ export class Spiel3D {
 
     // Automatisch laufen (Tippen/Klicken)
     let automatisch = false;
+    if (this.skriptLauf) {
+      // In einer Zwischensequenz läuft die Figur selbst; hängt sie fest, steht sie einfach am Ziel
+      const s = this.skriptLauf;
+      richtung.set(s.punkt.x - g.position.x, 0, s.punkt.z - g.position.z);
+      s.zeit += dt;
+      if (richtung.length() < 0.25 || s.fest > 1.0 || s.zeit > 15) {
+        if (richtung.length() >= 0.25) g.position.set(s.punkt.x, g.position.y, s.punkt.z);
+        this.skriptLauf = null;
+        s.fertig();
+      } else { staerke = 1; automatisch = true; }
+    }
     if (frei && this.laufZiel && !staerke) {
       const z = this.laufZiel;
       if (z.obj && this.abstandZu(z.obj) < REICHWEITE * 0.8) {
@@ -592,7 +644,9 @@ export class Spiel3D {
       if (!this.blockiert(nx, nz)) g.position.set(nx, g.position.y, nz);
       else if (!this.blockiert(nx, g.position.z)) g.position.x = nx;
       else if (!this.blockiert(g.position.x, nz)) g.position.z = nz;
-      if (automatisch) {
+      if (automatisch && this.skriptLauf) {
+        this.skriptLauf.fest = g.position.distanceTo(vorher) < schritt * 0.2 ? this.skriptLauf.fest + dt : 0;
+      } else if (automatisch) {
         // Hängt die Figur fest, wird das automatische Laufen beendet
         this.laufZiel.festSeit = g.position.distanceTo(vorher) < schritt * 0.2 ? this.laufZiel.festSeit + dt : 0;
         if (this.laufZiel.festSeit > 0.4) this.laufZiel = null;
@@ -663,7 +717,16 @@ export class Spiel3D {
     const p = this.held.gruppe.position;
     let ziel, blick;
     const o = this.gespraech;
-    if (o && o.modell.visible) {
+    const kino = this.kino;
+    if (kino !== this.kinoVorher) {
+      // Zwischensequenz: schwarze Balken oben und unten, keine Bedienelemente
+      document.body.classList.toggle("kino", Boolean(kino));
+      this.kinoVorher = kino;
+    }
+    if (kino) {
+      this.kamera.position.lerp(kino.pos, 1 - Math.exp(-dt * 2.4));
+      blick = kino.blick.clone();
+    } else if (o && o.modell.visible) {
       // Gesprächskamera: über die Schulter auf das Gegenüber
       const m = o.modell.position;
       const richtung = new THREE.Vector3(p.x - m.x, 0, p.z - m.z);
@@ -697,8 +760,16 @@ export class Spiel3D {
       blick = new THREE.Vector3(p.x, p.y + 1.55, p.z).addScaledVector(rechts, 0.42);
     }
     if (this.wackelnBis > performance.now()) blick.add(new THREE.Vector3((Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2, 0));
-    this.blickPunkt = this.blickPunkt ? this.blickPunkt.lerp(blick, 1 - Math.exp(-dt * 8)) : blick.clone();
+    this.blickPunkt = this.blickPunkt ? this.blickPunkt.lerp(blick, 1 - Math.exp(-dt * (kino ? 2.6 : 8))) : blick.clone();
     this.kamera.lookAt(this.blickPunkt);
+    // Die Erde bebt (Stärke 0–1 kommt von der Welt): Die Kamera zittert mit
+    const beben = this.karte.bau.beben?.() ?? 0;
+    if (beben > 0.01) {
+      const s = beben * 0.022;
+      this.kamera.rotation.x += (Math.random() - 0.5) * s;
+      this.kamera.rotation.y += (Math.random() - 0.5) * s;
+      this.kamera.rotation.z += (Math.random() - 0.5) * s * 0.5;
+    }
   }
 
   // ---------- Bildschleife ----------
@@ -738,6 +809,13 @@ export class Spiel3D {
       this.held.animieren(t, this.tempo / TEMPO, dt);
       karte.bau.licht?.(this.held.gruppe.position, t);
       this.kameraFolgen(dt);
+      grollen(karte.bau.beben?.() ?? 0);
+      // Auslöser der Karte (z. B. Betreten eines Bereichs)
+      if (karte.def.ausloeser && !this.beschaeftigt && !istOffen()) {
+        const p = this.held.gruppe.position;
+        const a = karte.def.ausloeser.find((x) => x.wenn(zustand, Math.floor(p.x / E), Math.floor(p.z / E)));
+        if (a) this.ausloesen(a);
+      }
       if (this.kompass) this.kompass.style.transform = `rotate(${this.kompassWinkel()}rad)`;
       const obj = !this.beschaeftigt && !istOffen() ? this.naechstesObjekt() : null;
       const text = obj ? (obj.def.hinweis ?? `Mit ${obj.def.name} sprechen`) : null;

@@ -86,3 +86,11 @@ body { background: #10121a; }
   border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 16px solid #ff6a5a; }
 body:not(.im-spiel) .kompass { display: none; }
 @media (max-width: 640px) { .kompass { width: 50px; height: 50px; top: 8px; right: 8px; } .kompass-rose .k-n { transform: translate(-50%, -22px); } .kompass-rose .k-s { transform: translate(-50%, 11px); } .kompass-rose .k-o { transform: translate(11px, -50%); } .kompass-rose .k-w { transform: translate(-20px, -50%); } }
+
+/* Zwischensequenz: schwarze Kinobalken, Bedienelemente ausgeblendet */
+#spiel::before, #spiel::after { content: ""; position: absolute; left: 0; right: 0; height: 0; background: #000; z-index: 5; pointer-events: none; transition: height .9s ease; }
+#spiel::before { top: 0; }
+#spiel::after { bottom: 0; }
+body.kino #spiel::before, body.kino #spiel::after { height: 11vh; }
+#hud, .kompass, #joystick, #aktion-knopf { transition: opacity .6s; }
+body.kino #hud, body.kino .kompass, body.kino #joystick, body.kino #aktion-knopf, body.kino #hinweis { opacity: 0; pointer-events: none; }

@@ -64,7 +64,8 @@ Die Spielenden reisen als Sprachwächterinnen und Sprachwächter durch Eldoria. 
    - Jeder Prüfungsteil ist ein Dungeon, und mit jedem geht es tiefer hinab, beleuchtet von Fackeln und Lava: **Dungeon des Hörens** (Kerker mit Zellen und Ketten) → **Katakomben des Lesens** (Knochennischen, Kerzen, Spinnweben) → **Grotte der Schreiber** (Tropfsteinhöhle mit Schreibpulten) → **Kaverne der Stimmen** (riesige Höhle mit Lavasee)
    - Der Kampf gegen Morgrath ist ein **Bosskampf in fünf Phasen** mit Bossmusik und Lebensbalken: Jede bestandene Prüfung nimmt ihm ein Fünftel seiner Kraft, er taumelt zurück und flieht tiefer in die Feste. Während der Prüfung bewegt sich der Balken nicht (keine Rückmeldung wie in der echten Prüfung)
    - In jedem Dungeon wartet Morgrath. Hören (24 Items) und Lesen (24 Items) laufen im **Prüfungsmodus**: ein Versuch je Aufgabe, keine Rückmeldung, am Ende Punkte je Teil; bestanden ab 50 %. Schreiben (Forumsbeitrag, mindestens 150 Wörter) und Sprechen (Gespräch, Präsentation, Nachfragen) bewertet die Lehrkraft. Nach jedem bestandenen Teil flieht Morgrath eine Ebene tiefer, und das Fallgitter zur nächsten Treppe hebt sich
-   - Endkampf in der Kaverne: gemischte Aufgaben aus allen Prüfungsteilen. Besiegt stürzt Morgrath in den Lavasee, und Eldoria ist gerettet → **Das Sprachsiegel von Eldoria** und der Titel **Meister der Vier Sprachkräfte**
+   - Endkampf in der Kaverne: gemischte Aufgaben aus allen Prüfungsteilen. Besiegt stürzt Morgrath in den Lavasee. In einer Zwischensequenz steigen die vier Splitter aus der Lava und verschmelzen zum **Sprachsiegel von Eldoria**
+   - Dann bebt der Berg: Auf der Flucht nach oben fallen Steine von den Decken. Draußen warten die Mentoren, die Feste zerfällt zu Staub, der Vulkan erlischt, der Himmel wird blau, Gras wächst, und die Goblins setzen sich gemütlich auf den Boden → Titel **Meister der Vier Sprachkräfte**. Nach Hause geht es durch das Portal im Vorhof
    - Die Ergebnisse der Probeprüfung stehen im Heldenpass
 
 Die Quests in Lythara folgen dem Aufbau des Readers (Teil B, Aufgaben B1–B64); die Übungen sind eigene Texte.
@@ -85,7 +86,7 @@ Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden 
 
 **Kompass:** Oben rechts im Spielbild zeigt ein Kompass, wo Norden ist – die Aufgabenliste nennt Orte mit Himmelsrichtungen.
 
-**Steuerung am PC:** W A S D oder Pfeiltasten · E oder Leertaste spricht an · Maus ziehen dreht die Kamera, Mausrad zoomt · Klick auf eine Stelle oder Figur läuft dorthin · C setzt die Kamera hinter die Figur · Q Aufgaben · I Inventar · P Heldenpass · M Musik · Esc Menü
+**Steuerung am PC:** W A S D oder Pfeiltasten · E oder Leertaste spricht an · Maus ziehen dreht die Kamera, Mausrad zoomt · Klick auf eine Stelle oder Figur läuft dorthin · C setzt die Kamera hinter die Figur · Q Aufgaben · I Inventar · P Heldenpass · M Musik (in Kämpfen und Prüfungen auch über den Knopf „Musik an/aus“ oben im Fenster) · Esc Menü
 
 **Steuerung an Handy und Tablet:** Joystick links · runder Knopf rechts spricht an · auf eine Stelle oder Figur tippen läuft dorthin · wischen dreht die Kamera · zwei Finger zoomen
 

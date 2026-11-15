@@ -85,7 +85,8 @@ const SCHRITTE = [
   ["schattenzahn_schreiben", 250, "siegel_schreiben"],
   ["schattenzahn_sprechen", 250, "siegel_sprechen"],
   ["schattenzahn_boss", 300],
-  ["schattenzahn_finale", 500, "sprachsiegel_eldoria"],
+  ["schattenzahn_flucht", 0, "sprachsiegel_eldoria"],
+  ["schattenzahn_finale", 500],
 ];
 
 /** Beispieltexte für die freien Texte, damit spätere Stellen (z. B. das Buch der Stimmen) etwas zeigen. */
@@ -155,7 +156,7 @@ export const SPRUNGPUNKTE = [
   { id: "schattenzahn_schreiben", name: "Schattenzahn: Grotte der Schreiber (Probeprüfung Schreiben)", bis: "schattenzahn_lesen", karte: "schattenzahn", spawn: "schreiben" },
   { id: "schattenzahn_sprechen", name: "Schattenzahn: Kaverne der Stimmen (Probeprüfung Sprechen + Endkampf)", bis: "schattenzahn_schreiben", karte: "schattenzahn", spawn: "sprechen" },
   { id: "schattenzahn_boss", name: "Schattenzahn: vor dem Endkampf gegen Morgrath", bis: "schattenzahn_sprechen", karte: "schattenzahn", spawn: "sprechen" },
-  { id: "schattenzahn_ende", name: "Eldoria gerettet (Ende des Spiels)", bis: "schattenzahn_finale", karte: "schattenzahn", spawn: "sprechen" },
+  { id: "schattenzahn_ende", name: "Eldoria gerettet (Ende des Spiels)", bis: "schattenzahn_finale", karte: "schattenzahn", spawn: "start" },
 ];
 
 const TESTHELD = {

@@ -142,8 +142,14 @@ function fallgitterBauen(animationen) {
   return { modell: g, setzeOffen };
 }
 
-function objektModell(o, animationen, ankerFuer) {
-  if (o.bild === "fallgitter") return fallgitterBauen(animationen);
+function objektModell(o, animationen, ankerFuer, merk) {
+  if (o.bild === "fallgitter") {
+    const r = fallgitterBauen(animationen);
+    if (o.id === "sz_tor1") merk.tor = r.modell;
+    return r;
+  }
+  // Der Schuttberg am ehemaligen Burgtor wird mit den übrigen Trümmern gebaut; das Objekt sperrt nur den Weg
+  if (o.bild === "truemmer") return { modell: new THREE.Group() };
   if (o.bild === "morgrath") {
     const f = morgrathBauen();
     // Sein Brustlicht läuft über den Lichter-Pool der Welt (sonst wären es zu viele Lichtquellen)
@@ -215,6 +221,7 @@ function fledermaeuse(szene, mitte, anzahl, radius, hoehe, animationen) {
       b.fl[0].rotation.z = f; b.fl[1].rotation.z = -f;
     }
   });
+  return tiere;
 }
 
 /** Ratten, die an Wänden entlang huschen */
@@ -244,11 +251,28 @@ function ratten(szene, wege, animationen) {
   });
 }
 
-/** Goblin: kleiner grüner Kerl mit Speer und Helm; patrouilliert zwischen zwei Punkten */
-function goblinBauen() {
+/** Goblin: kleiner grüner Kerl mit Speer und Helm; patrouilliert zwischen zwei Punkten (oder sitzt nach dem Ende gemütlich am Boden) */
+function goblinBauen(sitzend = false) {
   const g = new THREE.Group();
   const t = new Teile();
   const haut = "#5a7a3a", leder = "#4a3022";
+  if (sitzend) {
+    t.add(KAPSEL(), leder, [0, 0.42, -0.05], [-0.25, 0, 0], [0.28, 0.22, 0.22]);
+    t.add(KUGEL(), haut, [0, 0.95, 0.08], [0, 0, 0], [0.3, 0.27, 0.28]);
+    for (const s of [-1, 1]) {
+      t.add(KEGEL(4), haut, [s * 0.36, 1.0, 0.05], [0, 0, -s * 1.35], [0.08, 0.36, 0.05]);           // Ohren hängen entspannt
+      t.add(KUGEL_K(), "#ffd23a", [s * 0.1, 0.97, 0.33], [0, 0, 0], 0.045, { art: "leucht" });
+      t.add(KAPSEL(), haut, [s * 0.13, 0.14, 0.28], [Math.PI / 2, 0, 0], [0.08, 0.17, 0.08]);        // Beine nach vorn
+      t.add(KAPSEL(), haut, [s * 0.3, 0.38, 0.12], [0.9, 0, s * 0.2], [0.07, 0.18, 0.07]);          // Arme auf den Knien
+    }
+    t.add(KEGEL(4), haut, [0, 0.9, 0.37], [Math.PI / 2, 0, 0], [0.06, 0.18, 0.06]);
+    t.add(KUGEL(), "#5a5a62", [-0.42, 0.12, -0.25], [0.4, 0, 1.2], [0.31, 0.15, 0.3], { art: "glanz" });  // Helm liegt daneben
+    t.add(ZYL(1, 1, 6), leder, [0.55, 0.04, 0], [Math.PI / 2, 0.3, 0], [0.03, 2.0, 0.03]);               // Speer liegt am Boden
+    t.add(KEGEL(4), "#8a8a92", [0.86, 0.04, 1.05], [Math.PI / 2, 0.3, 0], [0.06, 0.3, 0.04], { art: "glanz" });
+    t.in(g);
+    g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
+    return g;
+  }
   t.add(KAPSEL(), leder, [0, 0.75, 0], [0, 0, 0], [0.28, 0.22, 0.22]);
   t.add(KUGEL(), haut, [0, 1.3, 0.05], [0, 0, 0], [0.3, 0.27, 0.28]);
   for (const s of [-1, 1]) {
@@ -311,6 +335,7 @@ export function festeBauen(szene, raster, kontext) {
   const ebeneId = (ty) => EBENEN_POS[Math.max(0, Math.min(4, ebeneBeiZeile(ty)))].id;
 
   // --- Böden (zeilenweise, damit der Lavasee frei bleibt; UV in Weltkoordinaten) ---
+  let vorhofBoden = null;   // nach dem Ende verschwinden die glühenden Risse im Vorhof
   for (const e of EBENEN_POS) {
     const [hell, dunkel] = STEIN[e.id];
     const t = textur(bodenTextur(hell, dunkel, e.id !== "lesen"), { wiederholen: true });
@@ -332,6 +357,7 @@ export function festeBauen(szene, raster, kontext) {
     const m = new THREE.Mesh(mergeGeos(liste), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }));
     m.receiveShadow = true;
     szene.add(m);
+    if (e.id === "vorhof") vorhofBoden = { mat: m.material, glut: t, tag: null, bauen: () => textur(bodenTextur(hell, dunkel, false), { wiederholen: true }) };
   }
   // Ascheboden rund um den Vorhof (hinter den Klippen)
   // (nur südlich der Burgmauer auf Höhe 0; dahinter liegt das Land höher, damit es die Dungeons darunter nicht schneidet)
@@ -381,10 +407,12 @@ export function festeBauen(szene, raster, kontext) {
     const h = Math.max(hoeheBeiZeile(ty), hoeheBeiZeile(ty + 1));
     (geos[id] ??= []).push(boxGeo((tx + 0.5) * E, h + (WAND_H[id] || 10) + 0.25, (ty + 0.5) * E, E, 0.5, E));
   }));
+  const wandMeshes = {};
   for (const [id, liste] of Object.entries(geos)) {
     const m = new THREE.Mesh(mergeGeos(liste), wandMat[id]);
     m.receiveShadow = true;
     szene.add(m);
+    wandMeshes[id] = m;
   }
   klippen.in(szene);
 
@@ -402,13 +430,15 @@ export function festeBauen(szene, raster, kontext) {
     const ta = (tr.y1 + 1) * E, tb = (tr.y1 + 2) * E;
     stufen.add(KASTEN(), STEIN[EBENEN_POS[i - 1].id][0], [(GX0 + GX1) / 2, (tr.oben + tr.unten - 0.8) / 2, (ta + tb) / 2], [0, 0, 0], [GX1 - GX0, tr.oben - tr.unten + 0.8, tb - ta + 0.04]);
   }
-  stufen.in(szene);
+  const stufenG = new THREE.Group();
+  szene.add(stufenG);
+  stufen.in(stufenG);
 
   // --- Fackeln (an den Seitenwänden jeder Ebene) und Lavalicht ---
   const flammen = [];
-  const flamme = (x, y, z, g = 0.9, f = "#ff8a30") => {
+  const flamme = (x, y, z, g = 0.9, f = "#ff8a30", eltern = szene) => {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: f, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-    s.position.set(x, y, z); s.scale.setScalar(g); szene.add(s); flammen.push(s);
+    s.position.set(x, y, z); s.scale.setScalar(g); eltern.add(s); flammen.push(s);
   };
   const deko = new Teile();
   const fackel = (x, y, z, s) => {
@@ -575,37 +605,55 @@ export function festeBauen(szene, raster, kontext) {
   }
 
   // --- Vorhof: die schwarze Burg, der Vulkan, Banner, Feuerschalen ---
-  const burg = new Teile();
   const wandZ = (V.y0 - 1) * E, mitteX = (GX0 + GX1) / 2;
   const MAUER = "#4a4048", DUNKEL = "#2a2228";
+  // Die Burg besteht aus Teilen, die beim Einsturz einzeln versinken und kippen (Drehpunkt am Fuß des Teils)
+  const teile = {};
+  const teil = (name, bx, bz, tiefe, boden = 1) => {
+    if (!teile[name]) {
+      const aussen = new THREE.Group(); aussen.position.set(bx, 0, bz);
+      const innen = new THREE.Group(); innen.position.set(-bx, 0, -bz);
+      aussen.add(innen); szene.add(aussen);
+      teile[name] = { aussen, innen, t: new Teile(), bx, bz, tiefe, boden };
+    }
+    return teile[name].t;
+  };
+  const mauer = teil("mauer", mitteX, wandZ - 2, 16), torhaus = teil("torhaus", mitteX, wandZ, 22);
   // Ringmauer mit einer Lücke für das Burgtor (der Gang hinab bleibt frei)
   const links = GX0 - 0.3 - (mitteX - 35), rechts = mitteX + 35 - GX1 - 0.3;
-  burg.add(KASTEN(), MAUER, [mitteX - 35 + links / 2, 6.5, wandZ - 2], [0, 0, 0], [links, 13, 4], { verlauf: 0.5 });
-  burg.add(KASTEN(), MAUER, [GX1 + 0.3 + rechts / 2, 6.5, wandZ - 2], [0, 0, 0], [rechts, 13, 4], { verlauf: 0.5 });
-  burg.add(KASTEN(), MAUER, [mitteX, 10.25, wandZ - 2], [0, 0, 0], [GX1 - GX0 + 1, 5.5, 4]);                 // Sturz über dem Tor
-  for (let i = 0; i < 24; i++) burg.add(KASTEN(), MAUER, [mitteX - 34 + i * 3, 13.8, wandZ - 0.6], [0, 0, 0], [1.6, 1.6, 1.2]);    // Zinnen
+  mauer.add(KASTEN(), MAUER, [mitteX - 35 + links / 2, 6.5, wandZ - 2], [0, 0, 0], [links, 13, 4], { verlauf: 0.5 });
+  mauer.add(KASTEN(), MAUER, [GX1 + 0.3 + rechts / 2, 6.5, wandZ - 2], [0, 0, 0], [rechts, 13, 4], { verlauf: 0.5 });
+  mauer.add(KASTEN(), MAUER, [mitteX, 10.25, wandZ - 2], [0, 0, 0], [GX1 - GX0 + 1, 5.5, 4]);                 // Sturz über dem Tor
+  for (let i = 0; i < 24; i++) mauer.add(KASTEN(), MAUER, [mitteX - 34 + i * 3, 13.8, wandZ - 0.6], [0, 0, 0], [1.6, 1.6, 1.2]);    // Zinnen
   // Torhaus: zwei vorspringende Türme mit Schießscharten, darüber ein gezackter Bogen
   for (const s of [-1, 1]) {
-    burg.add(KASTEN(), DUNKEL, [mitteX + s * 3.8, 8.5, wandZ + 0.2], [0, 0, 0], [3.2, 17, 3.2], { verlauf: 0.5 });
-    for (let k = 0; k < 3; k++) burg.add(KEGEL(4), DUNKEL, [mitteX + s * 3.8 + (k - 1) * 1.0, 18.2, wandZ + 0.2], [0, Math.PI / 4, 0], [0.5, 2.6 + (k === 1) * 1.6, 0.5]);
-    for (let k = 0; k < 3; k++) burg.add(KASTEN(), "#ff6a1a", [mitteX + s * 3.8, 7 + k * 3.5, wandZ + 1.82], [0, 0, 0], [0.25, 1.4, 0.05], { art: "leucht" });
+    torhaus.add(KASTEN(), DUNKEL, [mitteX + s * 3.8, 8.5, wandZ + 0.2], [0, 0, 0], [3.2, 17, 3.2], { verlauf: 0.5 });
+    for (let k = 0; k < 3; k++) torhaus.add(KEGEL(4), DUNKEL, [mitteX + s * 3.8 + (k - 1) * 1.0, 18.2, wandZ + 0.2], [0, Math.PI / 4, 0], [0.5, 2.6 + (k === 1) * 1.6, 0.5]);
+    for (let k = 0; k < 3; k++) torhaus.add(KASTEN(), "#ff6a1a", [mitteX + s * 3.8, 7 + k * 3.5, wandZ + 1.82], [0, 0, 0], [0.25, 1.4, 0.05], { art: "leucht" });
   }
-  for (let k = 0; k < 7; k++) burg.add(KEGEL(4), DUNKEL, [mitteX - 2.1 + k * 0.7, 8.3 - Math.sin((k / 6) * Math.PI) * 0.8, wandZ + 0.1], [Math.PI, 0, 0], [0.18, 1.0, 0.18]);   // Zähne des Tors
+  for (let k = 0; k < 7; k++) torhaus.add(KEGEL(4), DUNKEL, [mitteX - 2.1 + k * 0.7, 8.3 - Math.sin((k / 6) * Math.PI) * 0.8, wandZ + 0.1], [Math.PI, 0, 0], [0.18, 1.0, 0.18]);   // Zähne des Tors
   for (const s of [-1, 1]) {
     // Flankentürme mit Dornendächern
-    burg.add(ZYL(0.9, 1, 12), "#3a3238", [mitteX + s * 9, 13, wandZ - 1], [0, 0, 0], [3.4, 26, 3.4]);
-    burg.add(KEGEL(8), "#140e10", [mitteX + s * 9, 30, wandZ - 1], [0, 0, 0], [4.2, 8, 4.2]);
-    for (let k = 0; k < 6; k++) burg.add(KEGEL(4), "#140e10", [mitteX + s * 9 + Math.cos(k) * 3.6, 26.5, wandZ - 1 + Math.sin(k) * 3.6], [Math.sin(k) * 0.5, 0, -Math.cos(k) * 0.5], [0.3, 2.5, 0.3]);
-    burg.add(ZYL(0.9, 1, 12), "#3a3238", [mitteX + s * 26, 11, wandZ - 1], [0, 0, 0], [3, 22, 3]);
-    burg.add(KEGEL(8), "#140e10", [mitteX + s * 26, 25, wandZ - 1], [0, 0, 0], [3.6, 7, 3.6]);
+    const fl = teil(`flanke${s}`, mitteX + s * 9, wandZ - 1, 38);
+    fl.add(ZYL(0.9, 1, 12), "#3a3238", [mitteX + s * 9, 13, wandZ - 1], [0, 0, 0], [3.4, 26, 3.4]);
+    fl.add(KEGEL(8), "#140e10", [mitteX + s * 9, 30, wandZ - 1], [0, 0, 0], [4.2, 8, 4.2]);
+    for (let k = 0; k < 6; k++) fl.add(KEGEL(4), "#140e10", [mitteX + s * 9 + Math.cos(k) * 3.6, 26.5, wandZ - 1 + Math.sin(k) * 3.6], [Math.sin(k) * 0.5, 0, -Math.cos(k) * 0.5], [0.3, 2.5, 0.3]);
+    const tu = teil(`turm${s}`, mitteX + s * 26, wandZ - 1, 32);
+    tu.add(ZYL(0.9, 1, 12), "#3a3238", [mitteX + s * 26, 11, wandZ - 1], [0, 0, 0], [3, 22, 3]);
+    tu.add(KEGEL(8), "#140e10", [mitteX + s * 26, 25, wandZ - 1], [0, 0, 0], [3.6, 7, 3.6]);
   }
   // Der Bergfried: ein riesiger, schwarzer Turm mit gezackter Krone (er erinnert an Morgraths Helm)
-  burg.add(ZYL(0.8, 1, 10), "#2a2228", [mitteX - 12, 26, wandZ - 26], [0, 0, 0], [9, 52, 9]);
-  for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2; burg.add(KEGEL(4), "#140e10", [mitteX - 12 + Math.cos(a) * 6, 56 + (k % 2) * 3, wandZ - 26 + Math.sin(a) * 6], [Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3], [0.9, 9 + (k % 3) * 4, 0.9]); }
+  const bf = teil("bergfried", mitteX - 12, wandZ - 26, 72, 11);
+  bf.add(ZYL(0.8, 1, 10), "#2a2228", [mitteX - 12, 26, wandZ - 26], [0, 0, 0], [9, 52, 9]);
+  for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2; bf.add(KEGEL(4), "#140e10", [mitteX - 12 + Math.cos(a) * 6, 56 + (k % 2) * 3, wandZ - 26 + Math.sin(a) * 6], [Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3], [0.9, 9 + (k % 3) * 4, 0.9]); }
+  for (const tl of Object.values(teile)) tl.t.in(tl.innen);
+  // Die Innenwand am Tor gehört zur Mauer
+  if (wandMeshes.vorhof) teile.mauer.innen.add(wandMeshes.vorhof);
   // Der Vulkan
   const VX = mitteX + 40, VZ = wandZ - 520, VR = 260, VH = 250, VB = -10;
-  burg.add(KEGEL(14), "#1a1210", [VX, VB + VH / 2, VZ], [0, 0, 0], [VR, VH, VR], { verlauf: 0.6 });
-  burg.in(szene);
+  const vulkan = new Teile();
+  vulkan.add(KEGEL(14), "#1a1210", [VX, VB + VH / 2, VZ], [0, 0, 0], [VR, VH, VR], { verlauf: 0.6 });
+  vulkan.in(szene);
   // Himmel: oben fast schwarz, am Horizont glühend rot (vom Vulkan)
   let himmel;
   {
@@ -632,7 +680,7 @@ export function festeBauen(szene, raster, kontext) {
     const a = -0.6 + (k % 4) * 0.4;
     f.position.set(mitteX - 12 + Math.sin(a) * 6.9, 22 + Math.floor(k / 4) * 9, wandZ - 26 + Math.cos(a) * 6.9);
     f.rotation.y = a;
-    szene.add(f);
+    teile.bergfried.innen.add(f);
   }
   // Lavaströme am Vulkan und Glut im Krater
   const stromTex = tex.lava.clone(); stromTex.needsUpdate = true; stromTex.repeat.set(0.25, 3);
@@ -660,20 +708,20 @@ export function festeBauen(szene, raster, kontext) {
   for (const s of [-1, 1]) for (const x of [4.5, 15]) {
     const b = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 6), new THREE.MeshStandardMaterial({ map: tex.banner, side: THREE.DoubleSide, roughness: 1 }));
     b.position.set(mitteX + s * x, 7.5, wandZ + 0.05);
-    szene.add(b);
+    teile.mauer.innen.add(b);
   }
   const schalen = new Teile();
   for (const s of [-1, 1]) {
     const x = mitteX + s * 4.2, z = wandZ + 2.2;
     schalen.add(ZYL(0.5, 0.8, 8), EISEN, [x, 1.0, z], [0, 0, 0], [0.25, 2.0, 0.25], { art: "glanz" });
     schalen.add(ZYL(1, 0.5, 10), EISEN, [x, 2.2, z], [0, 0, 0], [0.7, 0.45, 0.7], { art: "glanz" });
-    for (let k = 0; k < 4; k++) flamme(x + Math.sin(k * 2) * 0.2, 2.6 + k * 0.3, z, 1.2 - k * 0.15, k % 2 ? "#ffb040" : "#ff6a20");
-    lichtPunkt("#ff8a3a", 40, 22, 1.3, x, 3.5, z + 0.5);
+    for (let k = 0; k < 4; k++) flamme(x + Math.sin(k * 2) * 0.2, 2.6 + k * 0.3, z, 1.2 - k * 0.15, k % 2 ? "#ffb040" : "#ff6a20", teile.torhaus.innen);
+    ankerFuer(teile.torhaus.innen, new THREE.Vector3(x, 3.5, z + 0.5), "#ff8a3a", 40, 22, 1.3);
   }
-  schalen.in(szene);
+  schalen.in(teile.torhaus.innen);
 
   // --- Getier: Fledermäuse, Ratten, Goblins ---
-  fledermaeuse(szene, new THREE.Vector3(mitteX, 0, wandZ - 6), Math.round(14 * qualitaet.partikel) || 5, 16, 16, animationen);
+  const fledermaeuseDraussen = fledermaeuse(szene, new THREE.Vector3(mitteX, 0, wandZ - 6), Math.round(14 * qualitaet.partikel) || 5, 16, 16, animationen);
   fledermaeuse(szene, new THREE.Vector3(mitteX, 0, (EBENEN_POS[2].y0 + 4) * E), 6, 6, EBENEN_POS[2].h + 6, animationen);
   const rWege = [];
   for (const e of [EBENEN_POS[1], EBENEN_POS[2]]) {
@@ -683,9 +731,10 @@ export function festeBauen(szene, raster, kontext) {
   ratten(szene, rWege.map(([a, b, h]) => [a, b, h]), animationen);
   const goblins = [];
   for (const [x0, z0, x1, z1] of [[6, V.y0 + 2, 15, V.y0 + 2], [26, V.y0 + 3, 34, V.y0 + 3], [5, V.y0 + 9, 5, V.y0 + 16], [34, V.y0 + 8, 34, V.y0 + 15]]) {
-    const g = goblinBauen();
-    szene.add(g);
-    goblins.push({ g, a: new THREE.Vector3((x0 + 0.5) * E, 0, (z0 + 0.5) * E), b: new THREE.Vector3((x1 + 0.5) * E, 0, (z1 + 0.5) * E), p: hash(x0, z0, 95) * 10 });
+    const g = goblinBauen(), sitz = goblinBauen(true);
+    sitz.visible = false;
+    szene.add(g, sitz);
+    goblins.push({ g, sitz, a: new THREE.Vector3((x0 + 0.5) * E, 0, (z0 + 0.5) * E), b: new THREE.Vector3((x1 + 0.5) * E, 0, (z1 + 0.5) * E), p: hash(x0, z0, 95) * 10 });
   }
 
   // --- Asche und Glut in der Luft ---
@@ -707,8 +756,8 @@ export function festeBauen(szene, raster, kontext) {
       s.scale.setScalar(0.5 + (1 - h) * 0.6);
       s.material.opacity = (1 - h) * 0.9;
     }
-    rauch.forEach((s) => { const h = (zeit * 0.03 + s.userData.p) % 1; s.position.set(VX + Math.sin(h * 6) * 8 + h * 50, VB + VH + 10 + h * 160, VZ + h * 10); s.scale.setScalar(40 + h * 90); s.material.opacity = 0.75 * (1 - h); });
-    krater.material.opacity = 0.75 + Math.sin(zeit * 1.3) * 0.15;
+    rauch.forEach((s) => { const h = (zeit * 0.03 + s.userData.p) % 1; s.position.set(VX + Math.sin(h * 6) * 8 + h * 50, VB + VH + 10 + h * 160, VZ + h * 10); s.scale.setScalar((40 + h * 90) * (1 - lavaAus * 0.5)); s.material.opacity = 0.75 * (1 - h) * (1 - lavaAus * 0.8); });
+    krater.material.opacity = (0.75 + Math.sin(zeit * 1.3) * 0.15) * (1 - lavaAus);
     for (let i = 0; i < ascheN; i++) {
       const y = (abasis[i * 3 + 1] - zeit * (0.5 + (i % 4) * 0.12)) % 14;
       apos[i * 3] = abasis[i * 3] + Math.sin(zeit * 0.4 + i) * 1.2;
@@ -717,6 +766,7 @@ export function festeBauen(szene, raster, kontext) {
     }
     ageo.attributes.position.needsUpdate = true;
     for (const gb of goblins) {
+      if (gb.sitzt) { gb.sitz.rotation.z = Math.sin(zeit * 0.8 + gb.p) * 0.05; continue; }
       const d = gb.a.distanceTo(gb.b), s = (zeit * 1.1 + gb.p) % (2 * d + 4);
       const u = s < d ? s / d : s < d + 2 ? 1 : s < 2 * d + 2 ? 1 - (s - d - 2) / d : 0;
       gb.g.position.lerpVectors(gb.a, gb.b, u);
@@ -726,10 +776,394 @@ export function festeBauen(szene, raster, kontext) {
     }
   });
 
+  // ---------- Das Ende: Sprachsiegel, Beben, Flucht, Einsturz, blauer Himmel ----------
+  // Zustände: schattenzahn_boss (Morgrath in der Lava) → schattenzahn_flucht (Siegel vereint, die Feste bebt)
+  //           → schattenzahn_finale (draußen bei den Mentoren: Die Feste zerfällt, der Vulkan erlischt).
+  const merk = {};
+  let effekte = null;
+  const heldPos = new THREE.Vector3(mitteX, 0, (V.y0 + 10) * E);
+  let lavaAus = 0, tag = 0, einsturzFertig = false, bebenWert = 0, naechstesBeben = 3, ablauf = null;
+  const glatt = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
+
+  // Herabfallende Steine (Flucht und Einsturz)
+  const steinMat = new THREE.MeshStandardMaterial({ color: "#3a3034", roughness: 1, flatShading: true });
+  const steine = Array.from({ length: 18 }, () => {
+    const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5, 0), steinMat);
+    m.visible = false; m.castShadow = true; szene.add(m);
+    return { m, v: new THREE.Vector3(), leben: 0, boden: 0 };
+  });
+  const steinFallen = (x, y, z, groesse = 1, vx = 0, vz = 0) => {
+    const st = steine.find((s) => !s.m.visible);
+    if (!st) return;
+    st.m.visible = true; st.m.position.set(x, y, z); st.m.scale.setScalar(groesse);
+    st.v.set(vx, 0, vz); st.leben = 5; st.boden = hoeheBeiZeile(z / E);
+    st.groesse = groesse;
+  };
+  // Große Staubwolken (eigene Sprites, weil sie viel größer sind als die normalen Effekte)
+  const wolken = Array.from({ length: 56 }, () => {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: "#8a7e72", transparent: true, opacity: 0, depthWrite: false }));
+    s.visible = false; szene.add(s);
+    return { s, t: 0, dauer: 1, g: 1 };
+  });
+  const staubWolke = (x, y, z, g = 8, dauer = 4) => {
+    const w = wolken.find((x2) => !x2.s.visible) ?? wolken.reduce((a, b) => (a.t / a.dauer > b.t / b.dauer ? a : b));
+    w.s.visible = true; w.s.position.set(x, y, z); w.t = 0; w.dauer = dauer; w.g = g;
+    w.s.material.color.set(hash(x, z, 7) > 0.5 ? "#8a7e72" : "#6a6058");
+  };
+
+  // Die vier Splitter und das vereinte Sprachsiegel
+  const FARBEN = ["#5ab0ff", "#5ae07a", "#ffd04a", "#ff6a5a"];
+  const S = new THREE.Vector3(mitteX, K.h + 3.2, (K.y0 + 7) * E);
+  const splitter = FARBEN.map((f) => {
+    const g = new THREE.Group();
+    const kristall = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 0), new THREE.MeshStandardMaterial({ color: f, emissive: f, emissiveIntensity: 1.6, roughness: 0.2, toneMapped: false }));
+    kristall.scale.set(0.7, 1.5, 0.7);
+    const schein = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: f, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }));
+    schein.scale.setScalar(1.8);
+    g.add(kristall, schein); g.visible = false; szene.add(g);
+    return { g, kristall, farbe: new THREE.Color(f) };
+  });
+  const lichtTraeger = new THREE.Group(); lichtTraeger.visible = false; szene.add(lichtTraeger);
+  ankerFuer(lichtTraeger, new THREE.Vector3(), "#fff0c0", 30, 16, 1.4);
+  const siegel = new THREE.Group();
+  {
+    const gold = new THREE.MeshStandardMaterial({ color: "#e8b440", emissive: "#8a5a08", emissiveIntensity: 0.5, metalness: 0.6, roughness: 0.35 });
+    const rand = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.1, 10, 40), gold);
+    siegel.add(rand);
+    FARBEN.forEach((f, i) => {
+      const geo = new THREE.CylinderGeometry(0.9, 0.9, 0.08, 16, 1, false, i * Math.PI / 2 + 0.04, Math.PI / 2 - 0.08).rotateX(Math.PI / 2);
+      siegel.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: new THREE.Color(f).multiplyScalar(0.85) })));
+    });
+    const mitte = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 10), new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: "#fff6d8", emissiveIntensity: 1.2 }));
+    mitte.position.z = 0.08;
+    siegel.add(mitte);
+    // Ein sanfter Schein hinter dem Siegel (davor würde er die vier Farben überstrahlen)
+    const schein = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: "#ffd890", transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
+    schein.scale.setScalar(4);
+    schein.position.z = -0.4;
+    schein.renderOrder = -1;
+    siegel.add(schein);
+    siegel.visible = false;
+    szene.add(siegel);
+    ankerFuer(siegel, new THREE.Vector3(0, 0, 0.5), "#ffe08a", 45, 16, 1.4);
+  }
+
+  // Was nach dem Einsturz bleibt: ein Schuttberg vor dem Hinterland, Turmstümpfe, Felsbrocken
+  const truemmerG = new THREE.Group();
+  {
+    const tiefe = 18, breite = 300;
+    const geo = new THREE.PlaneGeometry(breite, tiefe, 100, 12).rotateX(-Math.PI / 2);
+    const p = geo.attributes.position, farben = [];
+    const c = new THREE.Color();
+    for (let i = 0; i < p.count; i++) {
+      const z = p.getZ(i), x = p.getX(i);
+      const u = (tiefe / 2 - z) / tiefe;            // 0 vorne (Süden) … 1 hinten
+      const rau = Math.sin(Math.PI * u) * (hash(Math.round(x * 3), Math.round(z * 3), 5) - 0.5) * 1.6;
+      p.setY(i, -0.3 + 11.6 * glatt(u) + rau);
+      c.set(hash(Math.round(x), Math.round(z), 6) > 0.5 ? "#3a3436" : "#2e2a2c").offsetHSL(0, 0, (hash(i, 2, 6) - 0.5) * 0.06);
+      farben.push(c.r, c.g, c.b);
+    }
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(farben, 3));
+    geo.computeVertexNormals();
+    const halde = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true }));
+    halde.position.set(mitteX, 0, wandZ + 2 - tiefe / 2);
+    halde.receiveShadow = true;
+    truemmerG.add(halde);
+    const t = new Teile();
+    // Stümpfe der Türme und des Torhauses
+    for (const [x, z, r, h] of [[mitteX - 9, wandZ - 1, 3.4, 5], [mitteX + 9, wandZ - 1, 3.4, 3.5], [mitteX - 26, wandZ - 1, 3, 2.5], [mitteX + 26, wandZ - 1, 3, 4.5]]) {
+      t.add(ZYL(0.95, 1, 12), "#3a3238", [x, h / 2, z], [0, 0, 0], [r, h, r]);
+      for (let k = 0; k < 5; k++) t.add(KEGEL(4), "#3a3238", [x + Math.cos(k * 1.3) * r * 0.8, h + 0.6, z + Math.sin(k * 1.3) * r * 0.8], [Math.sin(k) * 0.3, k, 0], [0.5, 1.2 + (k % 3) * 0.6, 0.5]);
+    }
+    for (const sx of [-1, 1]) {
+      t.add(KASTEN(), DUNKEL, [mitteX + sx * 3.8, 1.6, wandZ + 0.2], [0, 0, sx * 0.08], [3.2, 3.2, 3.2]);
+      t.add(KEGEL(4), DUNKEL, [mitteX + sx * 3.4, 3.6, wandZ + 0.4], [0.2, 0.4, sx * 0.3], [0.8, 1.8, 0.8]);
+    }
+    // Der Schuttberg im Burgtor (hier geht es nicht mehr hinein)
+    for (let k = 0; k < 14; k++) {
+      const g = 0.6 + hash(k, 1, 3) * 0.9;
+      t.add(KUGEL_K(), hash(k, 2, 3) > 0.5 ? "#3a3436" : "#4a4048", [GX0 + hash(k, 3, 3) * (GX1 - GX0), g * 0.5 + (k > 8 ? 1 : 0), wandZ + 0.4 + hash(k, 4, 3) * 1.4], [k, k * 2, 0], [g, g * 0.7, g]);
+    }
+    for (let k = 0; k < 4; k++) t.add(ZYL(1, 1, 6), EISEN, [GX0 + 0.6 + k * 0.9, 0.9, wandZ + 1.2], [0.3 + k * 0.2, 0, (k - 1.5) * 0.5], [0.07, 2.4, 0.07], { art: "glanz" });   // verbogene Gitterstäbe
+    // Felsbrocken auf der Halde
+    for (let k = 0; k < 46; k++) {
+      const x = mitteX - 60 + hash(k, 5, 3) * 120, u = 0.1 + hash(k, 6, 3) * 0.75, g = 0.6 + hash(k, 7, 3) * 1.6;
+      t.add(KUGEL_K(), hash(k, 8, 3) > 0.5 ? "#3a3436" : "#2a2426", [x, -0.3 + 11.6 * glatt(u) + g * 0.3, wandZ + 2 - u * 18], [k, k, 0], [g, g * 0.6, g]);
+    }
+    t.in(truemmerG);
+  }
+  truemmerG.visible = false;
+  szene.add(truemmerG);
+  // Nach dem Ende wächst im Vorhof wieder Gras
+  const grasG = new THREE.Group();
+  {
+    const t = new Teile();
+    for (let i = 0, n = 0; i < 900 && n < 140; i++) {
+      const tx = V.x0 + Math.floor(hash(i, 1, 44) * (V.x1 - V.x0 + 1)), ty = V.y0 + Math.floor(hash(i, 2, 44) * (V.y1 - V.y0 + 1));
+      if (raster[ty]?.[tx] !== "_" || (tx >= 15 && tx <= 24 && ty <= V.y0 + 9)) continue;
+      n++;
+      const x = (tx + hash(i, 3, 44)) * E, z = (ty + hash(i, 4, 44)) * E;
+      for (let k = 0; k < 4; k++) t.add(KEGEL(4), k % 2 ? "#5a8a3a" : "#4a7a2e", [x + (k - 1.5) * 0.12, 0.18, z + Math.sin(k * 2) * 0.1], [Math.sin(k) * 0.3, k, Math.cos(k) * 0.3], [0.06, 0.4 + hash(i, k, 45) * 0.3, 0.06]);
+    }
+    for (let k = 0; k < 30; k++) {
+      const u = 0.05 + hash(k, 9, 3) * 0.6, x = mitteX - 40 + hash(k, 10, 3) * 80;
+      t.add(KEGEL(4), "#5a8a3a", [x, -0.3 + 11.6 * glatt(u) + 0.2, wandZ + 2 - u * 18], [0, k, 0], [0.1, 0.5, 0.1]);
+    }
+    t.in(grasG, { schatten: false });
+  }
+  grasG.visible = false;
+  szene.add(grasG);
+
+  // Die Sonne (erst nach dem Ende sichtbar)
+  const sonnenScheibe = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.licht, color: "#fff4d0", transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  sonnenScheibe.scale.setScalar(160);
+  sonnenScheibe.visible = false;
+  szene.add(sonnenScheibe);
+
+  // Himmel und Licht im Vorhof: von Blutrot (Nacht) zu Blau (Tag)
+  const himmelFarben = himmel.geometry.attributes.color;
+  const nachtHimmel = Float32Array.from(himmelFarben.array);
+  const tagHimmel = new Float32Array(nachtHimmel.length);
+  {
+    const oben = new THREE.Color("#2f6cc0"), mitte = new THREE.Color("#78ace0"), unten = new THREE.Color("#d4e6f2"), c = new THREE.Color();
+    const p = himmel.geometry.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const u = Math.max(0, p.getY(i) / 800);
+      c.copy(unten).lerp(mitte, Math.min(1, u * 4)).lerp(oben, Math.max(0, (u - 0.25) * 1.6));
+      tagHimmel[i * 3] = c.r; tagHimmel[i * 3 + 1] = c.g; tagHimmel[i * 3 + 2] = c.b;
+    }
+  }
+  const sonneNacht = new THREE.Color("#ff9a6a"), sonneTag = new THREE.Color("#fff0dc");
+  const F2 = (a) => new THREE.Color(a);
+  const vorhofNacht = { bg: F2("#2a0c0a"), nebel: F2("#4a160c"), hemi: F2("#ffa070"), boden: F2("#3a1408"), i: 1.9, sonne: 2.4, nah: 120, weit: 1100 };
+  const vorhofTag = { bg: F2("#8cc0ec"), nebel: F2("#b4cce4"), hemi: F2("#eaf2ff"), boden: F2("#6a5a44"), i: 1.7, sonne: 2.7, nah: 160, weit: 1200 };
+  const vorhofStufe = { bg: new THREE.Color(), nebel: new THREE.Color(), hemi: new THREE.Color(), boden: new THREE.Color(), i: 0, sonne: 0, nah: 0, weit: 0 };
+  const tagSetzen = (u) => {
+    tag = u;
+    for (let i = 0; i < nachtHimmel.length; i++) himmelFarben.array[i] = nachtHimmel[i] + (tagHimmel[i] - nachtHimmel[i]) * u;
+    himmelFarben.needsUpdate = true;
+    for (const k of ["bg", "nebel", "hemi", "boden"]) vorhofStufe[k].copy(vorhofNacht[k]).lerp(vorhofTag[k], u);
+    for (const k of ["i", "sonne", "nah", "weit"]) vorhofStufe[k] = vorhofNacht[k] + (vorhofTag[k] - vorhofNacht[k]) * u;
+    sonne.color.copy(sonneNacht).lerp(sonneTag, u);
+    sonnenScheibe.visible = u > 0.01;
+    sonnenScheibe.material.opacity = u;
+    if (vorhofBoden) {
+      if (u > 0.5) vorhofBoden.tag ??= vorhofBoden.bauen();
+      const map = u > 0.5 ? vorhofBoden.tag : vorhofBoden.glut;
+      if (vorhofBoden.mat.map !== map) { vorhofBoden.mat.map = map; vorhofBoden.mat.needsUpdate = true; }
+    }
+    grasG.visible = u > 0.3; grasG.scale.y = Math.max(0.01, (u - 0.3) / 0.7);
+    asche.material.opacity = 0.7 * (1 - u);
+    for (const b of fledermaeuseDraussen) b.g.visible = u < 0.5;
+  };
+  const lavaSetzen = (u) => { lavaAus = u; stromMat.opacity = 0.9 * (1 - u); for (const s of rauch) s.material.color.set("#1a0e0c").lerp(new THREE.Color("#c8c8cc"), u); };
+  const goblinsSetzen = (an, amPlatz) => {
+    // Die Goblins setzen sich gemütlich im Kreis auf den Boden
+    const mx = 12.5 * E, mz = (V.y0 + 6.5) * E;
+    goblins.forEach((gb, i) => {
+      gb.sitzt = an; gb.g.visible = !an; gb.sitz.visible = an;
+      if (!an) return;
+      const a = (i / goblins.length) * Math.PI * 2 + 0.4;
+      const x = amPlatz ? mx + Math.cos(a) * 1.5 : gb.g.position.x, z = amPlatz ? mz + Math.sin(a) * 1.5 : gb.g.position.z;
+      gb.sitz.position.set(x, 0, z);
+      gb.sitz.rotation.y = amPlatz ? Math.atan2(mx - x, mz - z) : gb.g.rotation.y + Math.PI;
+    });
+  };
+  const dungeonOben = [wandMeshes.hoeren, stufenG].filter(Boolean);
+  const endZustand = () => {
+    for (const tl of Object.values(teile)) tl.aussen.visible = false;
+    if (merk.tor) merk.tor.visible = false;
+    truemmerG.visible = true; truemmerG.scale.y = 1;
+    for (const m of dungeonOben) m.visible = false;
+    lavaSetzen(1); tagSetzen(1); goblinsSetzen(true, true);
+    einsturzFertig = true;
+  };
+  lavaSetzen(0); tagSetzen(0);
+
+  // Plan des Einsturzes: [Beginn (s), Kippen, Richtung]
+  const PLAN = { "flanke-1": [2.0, 0.3, -1], flanke1: [2.5, 0.3, 1], "turm-1": [3.0, 0.25, -1], turm1: [3.3, 0.25, 1], bergfried: [3.8, 0.4, 1], torhaus: [4.6, 0.12, 0], mauer: [5.0, 0.05, 0] };
+  const kinoPos = new THREE.Vector3(), kinoBlick = new THREE.Vector3(), _a = new THREE.Vector3(), _b = new THREE.Vector3();
+  const mischV = (ziel, a, b, u) => ziel.copy(a).lerp(b, glatt(u));
+  const ABLAEUFE = {
+    // Die vier Splitter steigen aus der Lava, kreisen und verschmelzen zum Sprachsiegel; das Siegel schwebt zum Helden
+    siegel: () => {
+      const start = splitter.map((sp, k) => new THREE.Vector3(mitteX + [-9, -3, 3, 9][k], K.h - 0.6, (K.y0 + 1.5) * E));
+      let blitz = false;
+      return {
+        dauer: 11.5,
+        schritt: (t) => {
+          const mitte = _a.set(0, 0, 0);
+          splitter.forEach((sp, k) => {
+            sp.g.visible = t < 7.2;
+            if (!sp.g.visible) return;
+            const winkel = k * Math.PI / 2 + t * (1.6 + Math.max(0, t - 5) * 1.6);
+            const r = t < 5 ? 2.6 : 2.6 * (1 - glatt((t - 5) / 2.2)) + 0.15;
+            const kreis = _b.set(S.x + Math.cos(winkel) * r, S.y + Math.sin(t * 2 + k) * 0.25 + Math.max(0, t - 5) * 0.3, S.z + Math.sin(winkel) * r);
+            if (t < 2.2) sp.g.position.copy(start[k]).setY(start[k].y + glatt(t / 2.2) * 5.5);
+            else if (t < 5) sp.g.position.copy(start[k]).setY(start[k].y + 5.5).lerp(kreis, glatt((t - 2.2) / 2.8));
+            else sp.g.position.copy(kreis);
+            sp.kristall.rotation.y = t * 3 + k;
+            mitte.add(sp.g.position);
+            effekte?.funken.aussenden(sp.g.position, new THREE.Vector3((Math.random() - 0.5) * 0.4, 0.3, (Math.random() - 0.5) * 0.4), { farbe: [sp.farbe.r * 1.4, sp.farbe.g * 1.4, sp.farbe.b * 1.4], groesse: 0.12, dauer: 0.7, schwer: -0.2 });
+          });
+          if (t < 7.2) { mitte.multiplyScalar(0.25); lichtTraeger.visible = true; lichtTraeger.position.copy(mitte); }
+          else lichtTraeger.visible = false;
+          if (t >= 7.2 && !blitz) {
+            blitz = true;
+            effekte?.explosion(S, "#fff2c0", 160, 6);
+            effekte?.belohnung(S.clone().setY(S.y - 0.6), true);
+            bebenWert = 0.4;
+          }
+          if (t >= 7.2) bebenWert = Math.max(0, bebenWert - 0.02);
+          siegel.visible = t >= 7.2 && t < 11.2;
+          if (siegel.visible) {
+            const auf = glatt((t - 7.2) / 0.6), zumHeld = glatt((t - 9.8) / 1.4);
+            const ueber = 1 + Math.sin(Math.min(1, (t - 7.2) / 0.6) * Math.PI) * 0.25;
+            siegel.scale.setScalar(Math.max(0.01, auf * ueber * (1 - zumHeld * 0.85)));
+            siegel.position.copy(S).setY(S.y + Math.sin(t * 2) * 0.12).lerp(_b.copy(heldPos).setY(heldPos.y + 1.3), zumHeld);
+            siegel.rotation.y = Math.sin(t * 1.2) * 0.5 + zumHeld * 6;
+            if (t > 11.0 && !siegel.userData.weg) { siegel.userData.weg = true; effekte?.belohnung(heldPos, false); }
+          }
+          // Kamera: hinter dem Helden, langsam näher an das Geschehen
+          const nah = glatt(t / 9);
+          kinoPos.set(S.x + 5.5 - 2.5 * nah, S.y + 1.8 - 0.4 * nah, S.z + 11 - 3.5 * nah);
+          kinoBlick.copy(t < 7.2 ? mitte : siegel.position);
+          if (t < 2.2) kinoBlick.lerp(_b.copy(S), 0.3);
+          kontext.kino?.(kinoPos, kinoBlick);
+        },
+        ende: () => { for (const sp of splitter) sp.g.visible = false; siegel.visible = false; siegel.userData.weg = false; lichtTraeger.visible = false; bebenWert = 0; },
+      };
+    },
+    // Morgraths Feste verliert ihren Halt: ein schweres Beben, Steine fallen
+    beben: () => ({
+      dauer: 3.4,
+      schritt: (t, dt) => {
+        bebenWert = 1 - t / 3.4 * 0.6;
+        if (Math.random() < dt * 5) steinNahe(1);
+        kinoPos.set(heldPos.x + 3, heldPos.y + 3.2, heldPos.z + 6.5);
+        kinoBlick.set(heldPos.x, heldPos.y + 2.2, heldPos.z - 3);
+        kontext.kino?.(kinoPos, kinoBlick);
+      },
+      ende: () => { bebenWert = 0.3; naechstesBeben = 4; },
+    }),
+    // Draußen: Die Feste zerfällt zu Staub, der Vulkan erlischt, der Himmel wird blau
+    einsturz: () => {
+      const A = { pos: new THREE.Vector3(mitteX + 7, 4.5, wandZ + 36), blick: new THREE.Vector3(mitteX - 3, 14, wandZ - 12) };
+      const B2 = { pos: new THREE.Vector3(mitteX + 3, 8, wandZ + 40), blick: new THREE.Vector3(VX - 20, VB + VH * 0.75, VZ) };
+      const C = { pos: new THREE.Vector3(mitteX + 1.5, 3.6, wandZ + 29), blick: new THREE.Vector3(mitteX - 2, 9, wandZ - 30) };
+      const staubZeit = {};
+      let gesessen = false;
+      return {
+        dauer: 19,
+        schritt: (t, dt) => {
+          bebenWert = t < 2 ? 0.5 : t < 9 ? 1 : Math.max(0, 1 - (t - 9) / 6);
+          for (const [name, [beginn, kipp, richtung]] of Object.entries(PLAN)) {
+            const tl = teile[name];
+            if (!tl.aussen.visible) continue;
+            const u = Math.max(0, Math.min(1, (t - beginn) / 5));
+            const zittern = (u < 1 ? 0.12 : 0) * (1 - u * 0.5);
+            tl.aussen.position.set(tl.bx + (Math.random() - 0.5) * zittern, -tl.tiefe * u * u, tl.bz + (Math.random() - 0.5) * zittern);
+            tl.aussen.rotation.set(-kipp * 0.4 * u ** 1.5, 0, -richtung * kipp * u ** 1.5);
+            const enger = 1 - u * 0.3;
+            tl.aussen.scale.set(enger, 1, enger);
+            if (u > 0 && u < 1) {
+              staubZeit[name] = (staubZeit[name] ?? 0) - dt;
+              if (staubZeit[name] <= 0) {
+                staubZeit[name] = 0.14;
+                const breit = name === "mauer" ? 34 : name === "bergfried" ? 6 : 4;
+                staubWolke(tl.bx + (Math.random() - 0.5) * 2 * breit, tl.boden + Math.random() * 3, tl.bz + 2 + Math.random() * 2, 7 + Math.random() * 8, 4 + Math.random() * 2);
+                if (Math.random() < 0.5) steinFallen(tl.bx + (Math.random() - 0.5) * 4, tl.boden + 10 + Math.random() * 12, tl.bz + 1, 0.8 + Math.random() * 1.5, (Math.random() - 0.5) * 6, 2 + Math.random() * 3);
+              }
+            }
+            if (u >= 1) {
+              tl.aussen.visible = false;
+              for (let k = 0; k < 5; k++) staubWolke(tl.bx + (Math.random() - 0.5) * 8, tl.boden + Math.random() * 4, tl.bz + 2, 10 + Math.random() * 6, 5);
+            }
+          }
+          if (merk.tor && t > 4.6) merk.tor.position.y = -(((t - 4.6) / 5) ** 2) * 20;
+          // Der Schutt wächst aus dem Staub
+          if (t > 5) {
+            truemmerG.visible = true;
+            truemmerG.scale.y = Math.max(0.01, glatt((t - 5) / 5));
+            for (const m of dungeonOben) m.visible = false;
+          }
+          lavaSetzen(glatt((t - 8.5) / 3.5));
+          tagSetzen(glatt((t - 9) / 6));
+          if (t > 12 && !gesessen) { gesessen = true; goblinsSetzen(true, true); }
+          // Kamera
+          if (t < 7) { kinoPos.copy(A.pos); kinoBlick.copy(A.blick); }
+          else if (t < 14) { mischV(kinoPos, A.pos, B2.pos, (t - 7) / 4); mischV(kinoBlick, A.blick, B2.blick, (t - 7) / 4); }
+          else { mischV(kinoPos, B2.pos, C.pos, (t - 14) / 3); mischV(kinoBlick, B2.blick, C.blick, (t - 14) / 3); }
+          kontext.kino?.(kinoPos, kinoBlick);
+        },
+        ende: () => { endZustand(); bebenWert = 0; },
+      };
+    },
+  };
+  /** Ein paar Steine fallen in der Nähe der Spielfigur von der Decke */
+  const steinNahe = (n) => {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, r = 1.6 + Math.random() * 3.5;
+      const x = heldPos.x + Math.cos(a) * r, z = heldPos.z + Math.sin(a) * r;
+      const c = raster[Math.floor(z / E)]?.[Math.floor(x / E)];
+      if (!c || c === "#") continue;
+      steinFallen(x, heldPos.y + (heldPos.y > -2 ? 12 : 7.5), z, 0.4 + Math.random() * 0.5);
+    }
+  };
+  if (zustand.erledigt.schattenzahn_finale) endZustand();
+
+  animationen.push((zeit, dt = 0.016) => {
+    const z = zustand.erledigt;
+    // Laufende Zwischensequenz
+    if (ablauf) {
+      ablauf.t += dt;
+      ablauf.schritt(Math.min(ablauf.t, ablauf.dauer), dt);
+      if (ablauf.t >= ablauf.dauer) {
+        const fertig = ablauf.fertig;
+        ablauf.ende?.();
+        ablauf = null;
+        kontext.kino?.(null);
+        fertig();
+      }
+    } else if (z.schattenzahn_finale) {
+      if (!einsturzFertig) endZustand();     // z. B. nach einem Sprungcode
+      bebenWert = 0;
+    } else if (z.schattenzahn_flucht) {
+      // Auf der Flucht: Die Erde bebt immer wieder, Steine fallen von der Decke, draußen zittert die Burg
+      naechstesBeben -= dt;
+      if (naechstesBeben <= 0) { naechstesBeben = 3.5 + Math.random() * 3; bebenWert = 0.85; steinNahe(3); }
+      bebenWert = Math.max(0.15, bebenWert - dt * 0.5);
+      if (heldPos.y > -1) for (const tl of Object.values(teile)) tl.aussen.position.set(tl.bx + (Math.random() - 0.5) * 0.06 * bebenWert, 0, tl.bz + (Math.random() - 0.5) * 0.06 * bebenWert);
+    } else {
+      bebenWert = 0;
+    }
+    // Steine und Staub
+    for (const st of steine) {
+      if (!st.m.visible) continue;
+      st.leben -= dt;
+      st.v.y -= 22 * dt;
+      st.m.position.addScaledVector(st.v, dt);
+      st.m.rotation.x += dt * 3; st.m.rotation.z += dt * 2;
+      if (st.m.position.y < st.boden + 0.2 * st.groesse || st.leben <= 0) {
+        st.m.visible = false;
+        if (st.leben > 0 && effekte) effekte.staub(st.m.position.clone().setY(st.boden + 0.1), 0.5 * st.groesse, 8);
+      }
+    }
+    for (const w of wolken) {
+      if (!w.s.visible) continue;
+      w.t += dt;
+      const u = w.t / w.dauer;
+      if (u >= 1) { w.s.visible = false; continue; }
+      w.s.scale.setScalar(w.g * (0.5 + u * 1.3));
+      w.s.position.y += dt * 0.8;
+      w.s.material.opacity = Math.min(1, u * 6) * (1 - u) * 0.9;
+    }
+  });
+
   // --- Licht folgt der Tiefe: draußen rot, unten dunkel und glühend ---
   const F = (a) => new THREE.Color(a);
   const stufe = [
-    { bg: F("#2a0c0a"), nebel: F("#4a160c"), hemi: F("#ffa070"), boden: F("#3a1408"), i: 1.9, sonne: 2.4, nah: 120, weit: 1100 },
+    vorhofStufe,
     { bg: F("#0a0606"), nebel: F("#120808"), hemi: F("#b88070"), boden: F("#2a120a"), i: 1.15, sonne: 0.4, nah: 18, weit: 60 },
     { bg: F("#0a0806"), nebel: F("#140c08"), hemi: F("#b89a7a"), boden: F("#2a1a0a"), i: 1.15, sonne: 0.35, nah: 18, weit: 60 },
     { bg: F("#120604"), nebel: F("#2a0e06"), hemi: F("#d0886a"), boden: F("#3a1408"), i: 1.15, sonne: 0.35, nah: 18, weit: 64 },
@@ -741,7 +1175,13 @@ export function festeBauen(szene, raster, kontext) {
     blockZeichen: BLOCKIERT,
     boden: (x, z) => hoeheBeiZeile(z / 2),
     hindernis: (tx, ty) => (raster[ty]?.[tx] === "#" ? 999 : kachelH(tx, ty)),
-    objektModell: (o) => objektModell(o, animationen, ankerFuer),
+    objektModell: (o) => objektModell(o, animationen, ankerFuer, merk),
+    effekteSetzen: (e) => { effekte = e; },
+    beben: () => bebenWert,
+    ereignis: (name) => new Promise((fertig) => {
+      if (!ABLAEUFE[name]) { fertig(); return; }
+      ablauf = { t: 0, ...ABLAEUFE[name](), fertig };
+    }),
     licht: (pos) => {
       sonne.position.set(pos.x + versatz.x, pos.y + versatz.y, pos.z + versatz.z);
       sonne.target.position.set(pos.x, pos.y, pos.z);
@@ -754,7 +1194,9 @@ export function festeBauen(szene, raster, kontext) {
       mische(hemi.groundColor, a.boden, b.boden, u);
       hemi.intensity = a.i + (b.i - a.i) * u;
       sonne.intensity = a.sonne + (b.sonne - a.sonne) * u;
-      asche.visible = pos.y > -2;
+      asche.visible = pos.y > -2 && tag < 1;
+      heldPos.copy(pos);
+      sonnenScheibe.position.set(pos.x + 230, 420, pos.z + 520);
       lichterVerteilen(pos);
       himmel.position.set(pos.x, 0, pos.z);
     },

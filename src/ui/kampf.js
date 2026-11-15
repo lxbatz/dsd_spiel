@@ -8,6 +8,7 @@ import { sprechenStoppen } from "./sprechen.js";
 import { hatEffekt, kampfErgebnis } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
+import { tonSchalter } from "./tonschalter.js";
 
 /**
  * gegner: { name, bild (Data-URL), lp, schaden, einleitung, spott: [..], sieg: [..], niederlage: [..] }
@@ -32,7 +33,8 @@ export async function kampf(gegner, roheFragen) {
     zeigen(
       el("div", { class: "kampf-kopf" },
         el("img", { class: "portrait", src: gegner.bild, alt: "" }),
-        el("div", {}, el("h2", {}, gegner.name), el("div", { class: "rede" }, gegner.einleitung))),
+        el("div", { style: "flex:1" }, el("h2", {}, gegner.name), el("div", { class: "rede" }, gegner.einleitung)),
+        tonSchalter()),
       el("div", { class: "feedback info" },
         `So funktioniert der Kampf: Jede richtige Antwort trifft den Gegner (−${schaden} Lebenspunkte). `,
         `Bei einer falschen Antwort verlierst du ein Herz. Du hast ${herzenMax} Herzen`,
@@ -103,7 +105,8 @@ export async function kampf(gegner, roheFragen) {
             gegner.phase ? el("div", { class: "fortschritt" }, gegner.phase) : null,
             el("div", { class: "lp-balken" }, balken),
             lpText,
-            herzAnzeige)),
+            herzAnzeige),
+          tonSchalter()),
         el("div", { class: "spott" }, `Runde ${runde}: „${zufall(gegner.spott)}“`),
         lesetextElement(a.lesetext),
         hoertextElement(a.hoertext),
@@ -131,9 +134,10 @@ export async function kampf(gegner, roheFragen) {
     zeigen(
       el("div", { class: "kampf-kopf" },
         el("img", { class: "portrait", src: gegner.bild, alt: "", style: sieg ? "opacity:.5;filter:grayscale(1)" : "" }),
-        el("div", {},
+        el("div", { style: "flex:1" },
           el("h2", {}, sieg ? "🏆 Sieg!" : "Niederlage …"),
-          el("div", { class: "rede" }, (sieg ? gegner.sieg : gegner.niederlage).join("\n")))),
+          el("div", { class: "rede" }, (sieg ? gegner.sieg : gegner.niederlage).join("\n"))),
+        tonSchalter()),
       el("div", { class: "knopfleiste" }, k));
     fokus(k);
   });

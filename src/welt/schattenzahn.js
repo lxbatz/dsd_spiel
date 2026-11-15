@@ -9,9 +9,10 @@
 // In jeder Ebene stellt sich Morgrath zum Kampf. Jede bestandene Prüfung treibt ihn tiefer hinab.
 // Am Ende stürzt er in die Lava. Belohnung: das Sprachsiegel von Eldoria und der Titel „Meister der Vier Sprachkräfte“.
 
-import { dialog, frage, el, zeigen, knopf, fokus } from "../ui/fenster.js";
+import { dialog, frage, el, zeigen, knopf, fokus, schliessen } from "../ui/fenster.js";
 import { aufgabenFolge, pruefungsFolge, pruefungsAuswertung } from "../ui/aufgaben.js";
 import { kampf } from "../ui/kampf.js";
+import { tonSchalter } from "../ui/tonschalter.js";
 import { belohnung } from "../ui/belohnung.js";
 import { bild } from "../ui/bilder.js";
 import { musik, stilleBeiHoertexten } from "../musik.js";
@@ -45,6 +46,7 @@ function ergebnisMerken(teil, daten) {
 
 async function lyra(welt) {
   const B = bild("npc_lyra");
+  if (aufDerFlucht()) { await finaleDraussen(welt); return; }
   if (!istErledigt("schattenzahn_intro")) {
     await dialog(LYRA, [
       `${name()}! Gut, dass du da bist. Wir haben auf dich gewartet – alle vier.`,
@@ -70,8 +72,9 @@ async function lyra(welt) {
   await dialog(LYRA, `Dein nächster Weg führt ins ${naechster.ort}. Dort wartet die Probeprüfung ${naechster.name}. Du schaffst das!`, B);
 }
 
-const mentorTipp = (sprecher, bildKey, tipps, danach) => async () => {
+const mentorTipp = (sprecher, bildKey, tipps, danach) => async (welt) => {
   const B = bild(bildKey);
+  if (aufDerFlucht()) { await finaleDraussen(welt); return; }
   if (istErledigt("schattenzahn_finale")) { await dialog(sprecher, danach, B); return; }
   if (!istErledigt("schattenzahn_intro")) { await dialog(sprecher, "Sprich zuerst mit Lyra. Sie erklärt dir alles.", B); return; }
   await dialog(sprecher, tipps, B);
@@ -110,7 +113,8 @@ function bossKopf(phase, lp = lebenskraftVor(phase), lpText = lp) {
       el("h2", {}, MORGRATH_NAME),
       el("div", { class: "fortschritt" }, `Bosskampf · Phase ${phase} von ${PHASEN}`),
       el("div", { class: "lp-balken" }, balken),
-      el("div", { class: "fortschritt" }, `Lebenskraft: ${lpText} / ${LEBENSKRAFT}`)));
+      el("div", { class: "fortschritt" }, `Lebenskraft: ${lpText} / ${LEBENSKRAFT}`)),
+    tonSchalter());
   return { kopf, balken };
 }
 
@@ -194,20 +198,60 @@ async function endkampf(welt) {
   erledigen("schattenzahn_boss");
   welt.aktualisieren();
   await belohnung({ xp: 300, grund: "Endkampf gewonnen: Morgrath, der Verschleierer" });
-  await dialog("Die Kaverne der Stimmen", [
-    "Die Lava beruhigt sich. Wo Morgrath versunken ist, steigen vier helle Lichter auf – die Splitter des Sprachsiegels.",
-    "Sie schweben zu dir herüber, drehen sich umeinander … und verschmelzen mit einem hellen Klang zu einem einzigen, leuchtenden Siegel.",
+  await siegelUndBeben(welt);
+}
+
+/** Zwischensequenz in der Kaverne: Die Splitter vereinen sich zum Sprachsiegel, dann bebt der Berg. */
+async function siegelUndBeben(welt) {
+  await dialog("Die Kaverne der Stimmen", "Die Lava beruhigt sich. Wo Morgrath versunken ist, steigen vier helle Lichter auf – die Splitter des Sprachsiegels.");
+  schliessen();
+  musik("schattenzahn_sieg");
+  await welt.szene?.("siegel");
+  await dialog("Das Sprachsiegel", [
+    "Die vier Splitter drehen sich umeinander … und verschmelzen mit einem hellen Klang zu einem einzigen, leuchtenden Siegel.",
+    "Es schwebt zu dir herüber. Du nimmst es in die Hand. Es ist warm und summt leise.",
   ]);
+  await belohnung({ grund: "Das Sprachsiegel von Eldoria ist wieder ganz!", gegenstaende: ["sprachsiegel_eldoria"] });
+  erledigen("schattenzahn_flucht");
+  welt.aktualisieren();
+  schliessen();
+  musik("kampf_morgrath");
+  await welt.szene?.("beben");
+  await dialog("Die Kaverne der Stimmen", [
+    "Ein Donnern geht durch den Berg! Steine fallen von der Decke, die Lava brodelt.",
+    "Ohne Morgrath hält die Feste Schattenzahn nicht mehr. Sie stürzt ein!",
+    "Lauf! Zurück nach oben, durch alle Ebenen – hinaus zu den Mentoren!",
+  ]);
+}
+
+const aufDerFlucht = () => istErledigt("schattenzahn_flucht") && !istErledigt("schattenzahn_finale");
+
+/** Draußen vor der Feste: Die Mentoren warten, die Feste zerfällt, der Vulkan erlischt, der Himmel wird blau. */
+async function finaleDraussen(welt) {
+  const L = bild("npc_lyra");
+  await dialog(LYRA, `${name()}! Da bist du ja! Schnell, komm zu uns – weg von den Mauern!`, L);
+  schliessen();
+  await welt.laufen?.(HELD_DRAUSSEN[0], HELD_DRAUSSEN[1]);
+  welt.blicken?.(HELD_DRAUSSEN[0], V.y0 - 12);
+  await dialog(LYRA, [
+    `Du hast es geschafft, ${name()}! Du hast Hören, Lesen, Schreiben und Sprechen gemeistert – eine ganze Probeprüfung.`,
+    "Morgrath ist besiegt, und du hast das Sprachsiegel zurückgebracht!",
+  ], L);
+  await dialog(ORPHEON, "Hör nur, wie die Mauern ächzen. Ohne Morgrath hält diese Feste nicht mehr lange.", bild("npc_orpheon"));
+  await dialog(LIRIEN, "Morgrath hat sie aus verdrehten Wörtern gebaut. Jetzt sind die Wörter wieder klar – und die Steine verlieren ihren Halt.", bild("npc_lirien"));
+  await dialog(RUNA, "Seht doch – sie fällt!", bild("npc_runa"));
+  schliessen();
+  await welt.szene?.("einsturz");
   erledigen("schattenzahn_finale");
   welt.aktualisieren();
   musik("schattenzahn_sieg");
   await dialog(LYRA, [
-    "Lyra, Orpheon, Lirien und Runa kommen die Treppe herunter. Lyra legt dir die Hand auf die Schulter.",
-    `„${name()} – du hast Hören, Lesen, Schreiben und Sprechen gemeistert. Du hast eine ganze Probeprüfung bestanden. Morgrath ist besiegt, und Eldoria ist gerettet.“`,
-    `„Von heute an trägst du einen neuen Titel: ${TITEL_MEISTER}.“`,
-  ], bild("npc_lyra"));
-  await belohnung({ xp: 500, grund: `Eldoria ist gerettet! Neuer Titel: ${TITEL_MEISTER}`, gegenstaende: ["sprachsiegel_eldoria"], fanfare: true });
-  await dialog("Lichtportal", "Neben dir öffnet sich ein Portal aus warmem Licht. Es führt zurück ins Dorf der Ankömmlinge – Aldric wartet sicher schon.");
+    "Die Feste Schattenzahn ist zu Staub zerfallen. Der Vulkan schläft, und der Himmel über Eldoria ist wieder blau.",
+    "Sogar die Goblins haben ihre Speere weggelegt. Sie müssen Morgrath nicht mehr dienen.",
+    `${name()}, von heute an trägst du einen neuen Titel: ${TITEL_MEISTER}.`,
+  ], L);
+  await belohnung({ xp: 500, grund: `Eldoria ist gerettet! Neuer Titel: ${TITEL_MEISTER}`, fanfare: true });
+  await dialog("Portal", "Das Portal am Rand des Vorhofs leuchtet in der Sonne. Es führt zurück ins Dorf der Ankömmlinge – Aldric wartet sicher schon.");
 }
 
 // ---------- Tore und Portale ----------
@@ -223,22 +267,24 @@ function torAktion(i) {
 }
 
 async function heimweg(welt) {
-  const antwort = await frage("Portal", "Das Portal flackert rot im Ascheregen. Möchtest du ins Dorf der Ankömmlinge zurückkehren?", ["Ja, ins Dorf", "Nein, ich bleibe"]);
-  if (antwort === 0) welt.reisen("dorf", "vonLythara");
-}
-
-async function lichtportal(welt) {
-  const antwort = await frage("Lichtportal", "Das Portal aus warmem Licht führt ins Dorf der Ankömmlinge. Möchtest du zurückkehren?", ["Ja, nach Hause", "Noch nicht"]);
+  const fertig = istErledigt("schattenzahn_finale");
+  const antwort = fertig
+    ? await frage("Portal", "Das Portal leuchtet hell in der Sonne. Es führt ins Dorf der Ankömmlinge. Möchtest du nach Hause?", ["Ja, nach Hause", "Noch nicht"])
+    : await frage("Portal", "Das Portal flackert rot im Ascheregen. Möchtest du ins Dorf der Ankömmlinge zurückkehren?", ["Ja, ins Dorf", "Nein, ich bleibe"]);
   if (antwort === 0) welt.reisen("dorf", "vonLythara");
 }
 
 const V = EBENEN_POS[0], K = EBENEN_POS[4];
+/** Hier steht die Spielfigur, wenn die Feste einstürzt (zwischen den Mentoren, Blick zur Burg) */
+const HELD_DRAUSSEN = [20, V.y0 + 8];
+/** Auf der Flucht warten die Mentoren vor dem Tor statt am Lagerfeuer */
+const AM_TOR = { lyra: 17, orpheon: 22, lirien: 15, runa: 24 };
 const MORGRATH_ORT = { hoeren: [19, EBENEN_POS[1].y0 + 1], lesen: [19, EBENEN_POS[2].y0 + 1], schreiben: [19, EBENEN_POS[3].y0 + 1], sprechen: [19, K.y0 + 6] };
 
 export default {
   id: "schattenzahn",
   name: "Die Feste Schattenzahn",
-  get musik() { return zustand.erledigt.schattenzahn_finale ? "schattenzahn_sieg" : "schattenzahn"; },
+  get musik() { return zustand.erledigt.schattenzahn_finale ? "schattenzahn_sieg" : zustand.erledigt.schattenzahn_flucht ? "kampf_morgrath" : "schattenzahn"; },
   nur3d: true,
   nur3dZiel: ["dorf", "vonLythara"],
   raster: RASTER,
@@ -253,16 +299,24 @@ export default {
   },
   objekte: [
     { id: "portal_schattenzahn", art: "portal", name: "Portal ins Dorf", x: 19, y: V.y1, breite: 2, aktion: heimweg, hinweis: "Portal benutzen", aktiv: () => true },
-    { id: "sz_lyra", art: "npc", name: LYRA, bild: "npc_lyra", x: 16, y: V.y1 - 6, aktion: lyra,
-      marker: (z) => !z.erledigt.schattenzahn_intro },
-    { id: "sz_orpheon", art: "npc", name: ORPHEON, bild: "npc_orpheon", x: 23, y: V.y1 - 6, aktion: orpheon },
-    { id: "sz_lirien", art: "npc", name: LIRIEN, bild: "npc_lirien", x: 16, y: V.y1 - 3, aktion: lirien },
-    { id: "sz_runa", art: "npc", name: RUNA, bild: "npc_runa", x: 23, y: V.y1 - 3, aktion: runa },
+    ...[["lyra", LYRA, lyra, 16, V.y1 - 6], ["orpheon", ORPHEON, orpheon, 23, V.y1 - 6], ["lirien", LIRIEN, lirien, 16, V.y1 - 3], ["runa", RUNA, runa, 23, V.y1 - 3]]
+      .flatMap(([id, nameM, aktion, x, y]) => [
+        { id: `sz_${id}`, art: "npc", name: nameM, bild: `npc_${id}`, x, y, aktion,
+          marker: id === "lyra" ? (z) => !z.erledigt.schattenzahn_intro : undefined, sichtbar: (z) => !z.erledigt.schattenzahn_flucht },
+        // Nach dem Endkampf stehen sie vor dem Tor und schauen zur Burg
+        { id: `sz_${id}_tor`, art: "npc", name: nameM, bild: `npc_${id}`, x: AM_TOR[id], y: V.y0 + 7, drehung: Math.PI, aktion,
+          sichtbar: (z) => Boolean(z.erledigt.schattenzahn_flucht) },
+      ]),
     ...TORE.map((t, i) => t && ({
       id: `sz_tor${i}`, art: "tor", name: i === 1 ? "Burgtor" : `Fallgitter zum ${TEILE[i - 1].ort}`, bild: "fallgitter", x: t.x, y: t.y, breite: 2,
       aktion: torAktion(i), hinweis: i === 1 ? "Das Burgtor untersuchen" : "Das Fallgitter untersuchen",
       offen: (z) => Boolean(i === 1 ? z.erledigt.schattenzahn_intro : z.erledigt[TEILE[i - 2].flag]),
+      // Das Burgtor stürzt am Ende mit der Feste ein
+      sichtbar: i === 1 ? (z) => !z.erledigt.schattenzahn_finale : undefined,
     })).filter(Boolean),
+    { id: "sz_truemmer", art: "deko", name: "Schuttberg", bild: "truemmer", x: TORE[1].x, y: TORE[1].y, breite: 2, hinweis: "Den Schuttberg untersuchen",
+      aktion: async () => dialog("Schuttberg", "Hier stand einmal das Burgtor der Feste Schattenzahn. Jetzt ist nur noch ein Berg aus Steinen und Staub übrig. Zwischen den Steinen wächst schon das erste Gras."),
+      sichtbar: (z) => Boolean(z.erledigt.schattenzahn_finale) },
     ...TEILE.map((t, i) => ({
       id: `sz_morgrath_${t.id}`, art: "npc", name: MORGRATH_NAME, bild: "morgrath", x: MORGRATH_ORT[t.id][0], y: MORGRATH_ORT[t.id][1], breite: 2, hoehe: 2,
       aktion: morgrathAktion(t), hinweis: t.id === "sprechen" ? "Morgrath herausfordern" : `Probeprüfung ${t.name} beginnen`,
@@ -275,7 +329,9 @@ export default {
       marker: (z) => Boolean(z.erledigt.schattenzahn_intro) && (i === 0 || Boolean(z.erledigt[TEILE[i - 1].flag])) && !z.erledigt[t.flag]
         || (t.id === "sprechen" && Boolean(z.erledigt[t.flag]) && !z.erledigt.schattenzahn_boss),
     })),
-    { id: "sz_lichtportal", art: "portal", name: "Lichtportal", x: 19, y: K.y1 - 3, breite: 2, aktion: lichtportal, hinweis: "Durch das Lichtportal gehen",
-      aktiv: (z) => Boolean(z.erledigt.schattenzahn_finale), sichtbar: (z) => Boolean(z.erledigt.schattenzahn_finale) },
+  ],
+  // Wer auf der Flucht den Vorhof erreicht, trifft die Mentoren – und die Feste stürzt ein
+  ausloeser: [
+    { wenn: (z, tx, ty) => Boolean(z.erledigt.schattenzahn_flucht) && !z.erledigt.schattenzahn_finale && ty >= V.y0 + 1 && ty <= V.y0 + 11, aktion: finaleDraussen },
   ],
 };

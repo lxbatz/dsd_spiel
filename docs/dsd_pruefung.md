@@ -232,3 +232,4 @@ Grundsätze der Bewertung:
 - **Mündliche Kommunikation:** vier Gesprächsfragen (Teil 1), Stichwortzettel, Präsentation (2 Minuten) und zwei Nachfragen.
 - Schreiben und Sprechen gelten im Spiel als bestanden, sobald sie abgegeben sind. Die Bewertung macht die Lehrkraft.
 - **Endkampf gegen Morgrath:** gemischte Aufgaben aus allen vier Prüfungsteilen.
+- **Nach dem Endkampf** folgen nur noch Zwischensequenzen ohne Aufgaben (Siegel, Flucht, Einsturz der Feste). In Kämpfen und Prüfungen kann man die Musik jederzeit mit dem Knopf „Musik an/aus“ ausschalten, um sich zu konzentrieren.
