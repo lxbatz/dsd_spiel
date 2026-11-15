@@ -94,7 +94,11 @@ Das Spiel läuft in **3D** (`index.html`): Man sieht der Heldin oder dem Helden 
 
 **Spielstand:** wird automatisch im Browser gespeichert. Über *Menü → Als Datei speichern* entsteht eine `.sav`-Datei (z. B. `Eldoria_Mira_2026-11-07.sav`), die man auf einem anderen Gerät über *Datei laden* wieder einliest. Die Datei hat eine Prüfsumme, damit niemand nebenbei seine XP verändert.
 
-**Ältere Grafikversionen** (werden nicht weiterentwickelt, laufen aber noch mit demselben Spielstand): `snes.html` (16-Bit-Pixelgrafik) und `klassisch.html` (einfache Platzhaltergrafik). Die Figuren der 3D-Version lassen sich mit `tools/vorschau3d.html` ansehen, die Pixelgrafiken mit `tools/grafik16-vorschau.html`.
+**Archiv: frühere Grafikversionen.** Diese Dateien dokumentieren die Entwicklung des Spiels und werden **nicht mehr weiterentwickelt**. Für den Unterricht ist nur die 3D-Version (`index.html`) gedacht; neue Reiche wie Vocantia und die Feste Schattenzahn gibt es nur dort.
+- `klassisch.html`: die allererste Fassung mit einfacher Platzhaltergrafik
+- `snes.html`: die 16-Bit-Pixelgrafik-Version (online: https://lxbatz.github.io/dsd_spiel/snes.html); ihre Pixel-Porträts leben in der 3D-Version in den Dialogen weiter
+
+Beide laufen noch und lesen denselben Spielstand. Die Figuren der 3D-Version lassen sich mit `tools/vorschau3d.html` ansehen, die Pixelgrafiken mit `tools/grafik16-vorschau.html`.
 
 ## Starten
 
@@ -142,7 +146,7 @@ src/welt/              Karten und Story-Logik (Dorf, Turm der Tausend Treppen/Ha
 src/inhalte/           ALLE Lerninhalte: Aufgaben, Lesetexte, Gegenstände, Codes
 src/ui/                Fenster: Dialoge, Aufgabentypen, Bosskampf, Heldenpass, Kopfleiste
 src/grafik3d/          3D: Figuren, Dorf, Halle, Effekte, Katze, Kamera, Touch, Grafikstufen
-src/grafik16/          Pixel-Porträts (und die ältere 16-Bit-Version)
+src/grafik16/          Pixel-Porträts (und die archivierte 16-Bit-Version)
 tools/lehrercodes.html Werkzeug zum Erzeugen von Lehrercodes
 tools/vorschau3d.html  Alle 3D-Figuren ansehen
 vendor/                Three.js (MIT), Phaser (MIT, nur ältere Versionen)
