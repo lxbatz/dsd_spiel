@@ -257,15 +257,16 @@ const tonText = () => (istStumm() ? "🔇 Musik einschalten (M)" : "🔊 Musik a
 
 // ---------- Credits ----------
 
-// [Rolle, Name, Pixel-Avatar (optional)]
+// [Rolle, Name, Pixel-Avatar (optional): Malfunktion aus credits_bilder.js oder Pfad zu einer Bilddatei]
 const CREDITS = [
   ["Idee und fachliche Leitung", "Johannes Richter", johannesBild],
   ["Game Direction und ausführender Produzent", "Alexander Batzke", alexanderBild],
   ["Programmierung, Grafik, Questdesign, Texte", "Claude Code", claudeBild],
-  ["Musik", "Beau Buckley (Fantasy Musica)"],
+  ["Musik", "Beau Buckley (Fantasy Musica)", "Grafik/credits/beau_buckley.png"],
 ];
 const creditBilder = new Map();
 const creditBild = (fn) => {
+  if (typeof fn === "string") return fn;     // fertiges Bild (Datei)
   if (!creditBilder.has(fn)) creditBilder.set(fn, fn().alsCanvas(1).toDataURL());
   return creditBilder.get(fn);
 };

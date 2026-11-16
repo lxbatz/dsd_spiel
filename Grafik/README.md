@@ -19,3 +19,5 @@ Bei fremden Dateien immer die Lizenz prüfen und hier notieren (Quelle, Urheber,
 | Datei | Inhalt | Umsetzung |
 |---|---|---|
 | `Drachenrichter1.jpg`, `Drachrenrichter2.jpg` | Der Drachenrichter (Bossgegner), Zeichnungen eines Kollegen | 3D-Modell in `src/grafik3d/drache.js`, Pixel-Porträt in `src/grafik16/portraits.js`; anzusehen in DAS NICHTS |
+
+`credits/beau_buckley.png`: Anzeigebild von Beau Buckley (Fantasy Musica) aus dem Forum, in dem die Musik veröffentlicht ist; für die Credits mit gefüllten Ecken quadratisch gemacht.
