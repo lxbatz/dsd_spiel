@@ -16,6 +16,18 @@ export function johannesBild() {
   });
 }
 
+/** Alexander Batzke: kurze, verwuschelte braune Haare, leichter Bartschatten, Lächeln, rot-schwarzes Karohemd über schwarzem T-Shirt, Holzwand. */
+export function alexanderBild() {
+  return portraitBild(null, {
+    aussehen: {
+      haut: "#efc4a2", haare: "#6a4628", frisur: "wuschel", bart: "stoppeln", bartfarbe: "#9a7254",
+      kleid: "#b8282a", akzent: "#1a1416", hose: "#2a2a34", stiefel: "#1a1a1a",
+      karo: "#c42a2c", karoDunkel: "#1c1416", hemd: "#1c1c22", aufdruck: "#e8e8ec",
+    },
+    portrait: { hintergrund: "#d4a46a", augen: "#5a7a98", ausdruck: "froh", zaehne: true, szene: "holz" },
+  });
+}
+
 /** Das Claude-Logo als Pixelbild: ein terrakottafarbener Strahlenstern auf hellem Grund. */
 export function claudeBild() {
   const b = new Bild(G, G);

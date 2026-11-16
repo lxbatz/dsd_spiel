@@ -108,6 +108,18 @@ function huegel(b, y0, amp, freq, phase, farbe) {
 }
 
 const SZENEN = {
+  holz(b, p) {
+    // Helle Holzvertäfelung: breite senkrechte Bretter, feine Maserung, dunkle Fugen
+    const r = R5(p.hintergrund);
+    for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+      const brett = Math.floor((x + 6) / 22);
+      const maser = Math.sin(y * 0.22 + brett * 2.1 + Math.sin(x * 0.3 + brett * 1.7) * 2.2);
+      let i = (brett % 2 ? 3 : 2) - (Math.hypot(x - 30, y - 24) > 40 && hash(x, y, 8) < 0.5 ? 1 : 0);
+      if (maser > 0.93) i -= 1;
+      b.set(x, y, r[Math.max(0, Math.min(4, i))]);
+      if ((x + 6) % 22 === 0) b.set(x, y, r[0]);
+    }
+  },
   lochblech(b, p) {
     // Graue Lochblechwand mit regelmäßigen Löchern
     const r = R5(p.hintergrund);
@@ -267,10 +279,27 @@ function koerper(b, d, p, f) {
   const a = R(d.akzent);
   form(b, (x, y) => ((x - 32) / 28) ** 2 + ((y - 70) / 22) ** 2 <= 1,
     (x, y) => kugelTon(k, 30, 58, 30, 18, x, y, { dither: 0.5 }));
+  if (d.karo) {
+    // Karohemd (Holzfällerkaro): Grundfarbe mit dunklen Streifen, wo sich die Streifen kreuzen am dunkelsten
+    const dunkelKaro = d.karoDunkel ?? "#1a1416";
+    form(b, (x, y) => ((x - 32) / 28) ** 2 + ((y - 70) / 22) ** 2 <= 1, (x, y) => {
+      const sx = (x + 1) % 7 < 3, sy = (y + 2) % 7 < 3;
+      const grund = sx && sy ? dunkelKaro : sx || sy ? mische(d.karo, dunkelKaro, 0.5) : d.karo;
+      const schatten = Math.max(0, (Math.hypot(x - 28, y - 56) - 10) / 40);
+      return mische(grund, "#000000", schatten * 0.6);
+    });
+  }
   // Falten
   for (const [x0, y0, x1, y1] of [[18, 56, 14, 63], [46, 56, 50, 63], [26, 58, 24, 63], [40, 58, 41, 63]]) b.linie(x0, y0, x1, y1, k[1]);
 
-  if (d.robe || f.kragen === "v") {
+  if (d.hemd) {
+    // Offenes Hemd über einem T-Shirt: breiter V-Ausschnitt in der Farbe des T-Shirts, Kragenkanten im Hemdstoff
+    const t = R(d.hemd);
+    b.poly([[24, 48], [40, 48], [35, 64], [29, 64]], (x, y) => kugelTon(t, 32, 52, 10, 12, x, y, { dither: 0.3 }));
+    form(b, (x, y) => ((x - 32) / 8) ** 2 + ((y - 48.5) / 2.5) ** 2 <= 1 && y >= 48, t[1]);
+    b.linie(24, 48, 29, 64, mische(d.karo ?? d.kleid, "#000000", 0.35)); b.linie(40, 48, 35, 64, mische(d.karo ?? d.kleid, "#000000", 0.45));
+    if (d.aufdruck) for (const [x, y] of [[31, 58], [32, 58], [34, 58], [30, 59], [33, 59], [35, 59]]) b.set(x, y, d.aufdruck);
+  } else if (d.robe || f.kragen === "v") {
     // V-Ausschnitt mit Borte
     b.poly([[25, 48], [39, 48], [32, 60]], (x, y) => kugelTon(R(d.haut), 32, 50, 10, 10, x, y, { hell: -0.4 }));
     b.linie(25, 48, 32, 60, a[2]); b.linie(26, 48, 32, 59, a[3]);
@@ -406,8 +435,8 @@ function haare(b, d, p, teil) {
 
   // Grundfrisur
   form(b, (x, y) => {
-    const kappe = ((x - 32) / 15) ** 2 + ((y - 27) / 13.5) ** 2 <= 1 && y < 27;
-    const pony = y >= 22 && y < 26 + ((x * 7) % 5 > 2 ? 2 : 0) && kopfInnen(x, y) && f !== "dutt";
+    const kappe = ((x - 32) / 15) ** 2 + ((y - 27) / 13.5) ** 2 <= 1 && y < (f === "wuschel" ? 21 + (Math.abs(x - 32) > 9 ? 3 : 0) : 27);
+    const pony = y >= 22 && y < 26 + ((x * 7) % 5 > 2 ? 2 : 0) && kopfInnen(x, y) && f !== "dutt" && f !== "wuschel";
     const seiten = (x < 20.5 || x > 43.5) && y < (lang ? 52 : 34) && y > 20 && ((x - 32) / 15.5) ** 2 < 1;
     return kappe || pony || seiten;
   }, (x, y) => straehne(r, x, y, 28, 20, 18, 16, { welle: f === "lockig" ? 1.8 : 0.9 }));
@@ -416,6 +445,14 @@ function haare(b, d, p, teil) {
     b.linie(32, 14, 32, 21, r[0]);            // Scheitel
     const band = R(d.akzent);
     b.rect(19, 18, 26, 2, band[2]); b.rect(19, 20, 26, 1, band[1]);
+  }
+  if (f === "wuschel") {
+    // Kurz und verwuschelt: Stirn frei, oben ein paar Wellen, einzelne Strähnen in die Stirn
+    for (let i = 0; i < 7; i++) {
+      const x = 20 + i * 4, y = 15 + Math.abs(3 - i) * 0.9 + (i % 2) * 1.2;
+      b.kugel(x, y, 3, 2.4, R(d.haare), { dither: 0.35 });
+    }
+    for (const [x0, y0, x1, y1] of [[27, 21, 25, 24], [33, 21, 34, 24], [38, 21, 40, 23]]) b.linie(x0, y0, x1, y1, r[1]);
   }
   if (f === "lockig") {
     for (let i = 0; i < 9; i++) {
@@ -444,6 +481,12 @@ function hut(b, d) {
 function bart(b, d) {
   if (!d.bart) return;
   const r = R5(d.bartfarbe);
+  if (d.bart === "stoppeln") {
+    // Ganz leichter Bartschatten an Kinn und Kiefer
+    form(b, (x, y) => kopfInnen(x, y) && y >= 38 && (Math.abs(x - 32) > 8 || y >= 43) && hash(x, y, 23) < 0.22,
+      (x, y) => mische(b.get(x, y) ?? r[2], r[1], 0.3));
+    return;
+  }
   if (d.bart === "schnurrbart") {
     // Dreitagebart: lockere Stoppeln an Kinn und Kiefer, darüber ein gepflegter Schnurrbart
     form(b, (x, y) => kopfInnen(x, y) && y >= 37 && (Math.abs(x - 32) > 8 || y >= 43) && hash(x, y, 17) < 0.42,

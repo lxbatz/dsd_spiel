@@ -16,6 +16,7 @@ import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
 import { istStumm, stummSchalten, spieleJingle } from "../musik.js";
+import { johannesBild, alexanderBild, claudeBild } from "../grafik16/credits_bilder.js";
 
 const hud = document.getElementById("hud");
 
@@ -256,18 +257,27 @@ const tonText = () => (istStumm() ? "🔇 Musik einschalten (M)" : "🔊 Musik a
 
 // ---------- Credits ----------
 
+// [Rolle, Name, Pixel-Avatar (optional)]
 const CREDITS = [
-  ["Idee und fachliche Leitung", "Johannes Richter"],
-  ["Game Direction und ausführender Produzent", "Alexander Batzke"],
-  ["Programmierung, Grafik, Questdesign, Texte", "Claude Code"],
+  ["Idee und fachliche Leitung", "Johannes Richter", johannesBild],
+  ["Game Direction und ausführender Produzent", "Alexander Batzke", alexanderBild],
+  ["Programmierung, Grafik, Questdesign, Texte", "Claude Code", claudeBild],
   ["Musik", "Beau Buckley (Fantasy Musica)"],
 ];
+const creditBilder = new Map();
+const creditBild = (fn) => {
+  if (!creditBilder.has(fn)) creditBilder.set(fn, fn().alsCanvas(1).toDataURL());
+  return creditBilder.get(fn);
+};
 
 function creditsAnzeigen() {
   zeigen(
     el("h2", {}, "🎬 Credits"),
     el("div", { class: "untertitel" }, "Die Chroniken von Eldoria"),
-    el("dl", { class: "credits" }, CREDITS.flatMap(([rolle, name]) => [el("dt", {}, rolle), el("dd", {}, name)])),
+    el("div", { class: "credits" }, CREDITS.map(([rolle, name, bildFn]) => el("div", { class: "credit" },
+      bildFn ? el("img", { class: "portrait credit-bild", src: creditBild(bildFn), alt: `Pixel-Avatar: ${name}` }) : null,
+      el("div", { class: "credit-rolle" }, rolle),
+      el("div", { class: "credit-name" }, name)))),
     el("div", { class: "knopfleiste" }, knopf("Zurück zum Menü", menueAnzeigen, "knopf zweitrangig"), knopf("Schließen", schliessen)),
   );
 }

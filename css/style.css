@@ -371,8 +371,10 @@ body.touch:not(.im-spiel) #joystick { display: none; }
 
 /* Credits */
 .credits { text-align: center; margin: 18px 0 8px; }
-.credits dt { font-size: 0.85em; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 16px; }
-.credits dd { margin: 4px 0 0; font-size: 1.25em; font-weight: 600; }
+.credit { margin-top: 18px; }
+.credit-bild { display: block; width: 96px; height: 96px; margin: 0 auto 8px; image-rendering: pixelated; }
+.credit-rolle { font-size: 0.85em; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; }
+.credit-name { margin-top: 4px; font-size: 1.25em; font-weight: 600; }
 
 /* Auswertung der Probeprüfung */
 .auswertung { width: 100%; border-collapse: collapse; margin: 10px 0; font-variant-numeric: tabular-nums; }
