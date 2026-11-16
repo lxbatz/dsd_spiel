@@ -108,6 +108,14 @@ function huegel(b, y0, amp, freq, phase, farbe) {
 }
 
 const SZENEN = {
+  lochblech(b, p) {
+    // Graue Lochblechwand mit regelmäßigen Löchern
+    const r = R5(p.hintergrund);
+    for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
+      b.set(x, y, tonAus(r, 0.62 - Math.hypot(x - 30, y - 24) / 110, x, y, 0.6));
+      if (x % 4 === 1 && y % 4 === (Math.floor(x / 4) % 2 ? 1 : 3)) b.set(x, y, r[0]);
+    }
+  },
   schnee(b, p) {
     b.verlauf(0, 0, G, 44, R5(mische("#a8d8ff", p.hintergrund, 0.2)).reverse(), { dither: 0.9, umkehren: true });
     // Verschneite Berge
@@ -311,6 +319,7 @@ function kopf(b, d, p) {
   const froh = p.ausdruck === "froh" || p.ausdruck === "neugierig";
   b.linie(29, 41, 35, 41, lippe);
   if (froh) { b.set(28, 40, lippe); b.set(36, 40, lippe); b.linie(30, 42, 34, 42, h[1]); }
+  if (p.zaehne) { b.linie(30, 41, 34, 41, "#f4f0ea"); b.set(29, 41, lippe); b.set(35, 41, lippe); b.linie(30, 42, 34, 42, lippe); }
   else b.linie(30, 42, 34, 42, h[2]);
   if (p.ausdruck === "mutig") { b.set(36, 40, lippe); }
   // Augen
@@ -435,6 +444,14 @@ function hut(b, d) {
 function bart(b, d) {
   if (!d.bart) return;
   const r = R5(d.bartfarbe);
+  if (d.bart === "schnurrbart") {
+    // Dreitagebart: lockere Stoppeln an Kinn und Kiefer, darüber ein gepflegter Schnurrbart
+    form(b, (x, y) => kopfInnen(x, y) && y >= 37 && (Math.abs(x - 32) > 8 || y >= 43) && hash(x, y, 17) < 0.42,
+      (x, y) => mische(b.get(x, y) ?? r[2], r[1], 0.45));
+    form(b, (x, y) => y >= 38 && y <= 39 && Math.abs(x - 32) <= (y === 38 ? 4 : 5), (x, y) => straehne(r, x, y, 30, 37, 8, 3, { hell: 0.1 }));
+    b.set(27, 40, r[1]); b.set(37, 40, r[1]);
+    return;
+  }
   if (d.bart === "lang") {
     form(b, (x, y) => ((x - 32) / 15) ** 2 + ((y - 50) / 19) ** 2 <= 1 && y >= 35 - (Math.abs(x - 32) > 9 ? 4 : 0) && !(y >= 40 && y <= 42 && x >= 30 && x <= 34),
       (x, y) => straehne(r, x, y, 30, 44, 16, 20, { welle: 1.3 }));
@@ -675,15 +692,19 @@ function morgrath(b, p) {
 }
 
 /** Malt das Porträt einer Figur (64×64). */
-export function portraitBild(schluessel) {
-  const p = PORTRAITS[schluessel];
+/**
+ * Malt ein Porträt. Für Figuren außerhalb der Spielwelt (z. B. die Credits) können
+ * Aussehen und Porträt-Angaben direkt übergeben werden: portraitBild(null, { aussehen, portrait }).
+ */
+export function portraitBild(schluessel, eigen = null) {
+  const p = eigen?.portrait ?? PORTRAITS[schluessel];
   const b = new Bild(G, G);
   if (p?.waechter) { torwaechter(b, p); return b; }
   if (p?.drache) { drachenrichter(b, p); return b; }
   if (p?.werwolf) { werwolf(b, p); return b; }
   if (p?.troll) { schweigekoenig(b, p); return b; }
   if (p?.morgrath) { morgrath(b, p); return b; }
-  const d = AUSSEHEN[schluessel];
+  const d = eigen?.aussehen ?? AUSSEHEN[schluessel];
   hintergrund(b, p);
   const f = new Bild(G, G);
   ausruestung(f, d, p, "hinten");
