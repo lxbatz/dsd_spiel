@@ -133,6 +133,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 - Alle Texte und Aufgaben als HTML-Fenster über der 3D-Szene (gut lesbar, Umlaut-Tasten, auch am Handy bedienbar)
 - Spielstand im `localStorage` des Browsers, ein Spielstand pro Gerät, Sicherung als Datei
 - Online über GitHub Pages: https://lxbatz.github.io/dsd_spiel/ (wird bei jedem Push auf `main` automatisch aktualisiert; `.nojekyll` sorgt dafür, dass GitHub die Dateien unverändert ausliefert)
+- Making-of (wie das Spiel entstanden ist, mit Prompts, Meilensteinen und Grenzen): `making-of/index.html`, online unter https://lxbatz.github.io/dsd_spiel/making-of/
 - QR-Code zum Spiel (für Handy und Tablet): `docs/qr/qr_karte.png` (Karte zum Ausdrucken oder für den Beamer), `docs/qr/qr_spiel.png` und `docs/qr/qr_spiel.svg` (nur der Code)
 - Keine Verbindungen nach außen: Auch die Schriften (Cinzel, Atkinson Hyperlegible, SIL Open Font License) liegen lokal in `fonts/`
 

@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eldoria Making-of</title>
+<meta name="description" content="Wie das DSD-Lernspiel „Die Chroniken von Eldoria“ entstanden ist: Rollen, Prompts, Meilensteine, Umbauten und Grenzen.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../fonts/schriften.css">
+<style>
+  /* Layout: dunkles Titelbild wie ein Spielbildschirm, darunter ein Lesetext mit Inhaltsleiste links (breite Bildschirme),
+     Prompts als Zitatkarten mit Datum, Bilder in voller Spaltenbreite, Vorher-nachher-Paare nebeneinander. */
+  :root {
+    --bg: #eef0f4;
+    --flaeche: #ffffff;
+    --flaeche-2: #e4e6ee;
+    --tinte: #1c1b2a;
+    --tinte-2: #4f4d66;
+    --linie: #d3d5e0;
+    --gold: #94650f;
+    --gold-weich: #f2e6c9;
+    --lava: #a3321e;
+    --nacht: #14131f;
+    --nacht-text: #f1ead6;
+    --nacht-gold: #e2b553;
+    --display: "Cinzel", Georgia, "Times New Roman", serif;
+    --text: "Inter", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11111a; --flaeche: #1b1b28; --flaeche-2: #242435; --tinte: #ecebf4; --tinte-2: #aaa8bf;
+      --linie: #2e2e42; --gold: #e2b553; --gold-weich: #33291a; --lava: #ec6a45; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11111a; --flaeche: #1b1b28; --flaeche-2: #242435; --tinte: #ecebf4; --tinte-2: #aaa8bf;
+    --linie: #2e2e42; --gold: #e2b553; --gold-weich: #33291a; --lava: #ec6a45; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--tinte); font: 400 17px/1.65 var(--text); }
+  img { max-width: 100%; display: block; }
+  a { color: var(--gold); text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 3px; }
+
+  /* Titelbild */
+  .titel {
+    position: relative; background: var(--nacht); color: var(--nacht-text); overflow: hidden;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 72px 56px;
+  }
+  .titel::before {
+    content: ""; position: absolute; inset: 0; background-image: var(--titelbild); background-size: cover; background-position: center 35%;
+    opacity: .5; filter: saturate(1.1);
+  }
+  .titel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #14131f55 0%, #14131fcc 62%, #14131f 100%); }
+  .titel-innen { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; display: grid; gap: 18px; }
+  .ueberzeile { font: 500 13px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--nacht-gold); margin: 0; }
+  .titel h1 { font: 700 clamp(34px, 6vw, 68px)/1.04 var(--display); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+  .titel h1 span { display: block; font-size: .46em; color: var(--nacht-gold); letter-spacing: .08em; margin-top: 10px; }
+  .titel p.lead { max-width: 62ch; font-size: 19px; margin: 0; color: #e6dfcd; }
+  .eckdaten { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 8px 0 0; padding: 0; list-style: none; font: 500 14px/1.4 var(--mono); color: #d8cfb8; }
+  .eckdaten b { display: block; font: 700 26px/1.1 var(--display); color: var(--nacht-text); }
+
+  /* Seite */
+  .seite {
+    max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 48px 80px;
+  }
+  @media (max-width: 900px) { .seite { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+  nav.inhalt { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+  nav.inhalt h2 { font: 500 12px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--tinte-2); margin: 0 0 10px; }
+  nav.inhalt ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: k; }
+  nav.inhalt li { counter-increment: k; }
+  nav.inhalt a { color: var(--tinte-2); text-decoration: none; display: grid; grid-template-columns: 26px 1fr; }
+  nav.inhalt a::before { content: counter(k, decimal-leading-zero); font: 500 12px/1.9 var(--mono); color: var(--gold); }
+  nav.inhalt a:hover { color: var(--tinte); }
+  @media (max-width: 900px) {
+    nav.inhalt { position: static; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 10px; padding: 14px 16px; }
+    nav.inhalt ol { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  }
+
+  article { min-width: 0; display: grid; gap: 72px; }
+  section { display: grid; gap: 18px; scroll-margin-top: 20px; }
+  section > * { margin: 0; }
+  h2 { font: 700 clamp(26px, 3.4vw, 36px)/1.15 var(--display); margin: 0; text-wrap: balance; }
+  h2 .zeit { display: block; font: 500 13px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  h3 { font: 700 19px/1.3 var(--text); margin: 8px 0 0; text-wrap: balance; }
+  p, li { max-width: 68ch; }
+  ul.punkte { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+
+  /* Prompt-Karten */
+  figure.prompt { margin: 0; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 18px 20px; max-width: 72ch; }
+  figure.prompt figcaption { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font: 500 12.5px/1.4 var(--mono); color: var(--tinte-2); margin-bottom: 8px; }
+  figure.prompt figcaption .wer { color: var(--gold); letter-spacing: .06em; text-transform: uppercase; }
+  figure.prompt blockquote { margin: 0; font-size: 16px; white-space: pre-line; }
+  figure.prompt.antwort { background: var(--flaeche-2); border-style: dashed; }
+  figure.prompt.antwort figcaption .wer { color: var(--tinte-2); }
+
+  /* Bilder */
+  figure.bild { margin: 0; display: grid; gap: 8px; }
+  figure.bild img { border-radius: 10px; border: 1px solid var(--linie); width: 100%; height: auto; background: var(--flaeche-2); }
+  figure.bild figcaption, .paar figcaption { font-size: 14px; color: var(--tinte-2); max-width: 72ch; }
+  .paar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+  .paar > figure { margin: 0; display: grid; gap: 6px; }
+  .paar img { border-radius: 10px; border: 1px solid var(--linie); width: 100%; height: auto; }
+  .paar .marke { font: 500 12px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+  .drei { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 640px) { .paar, .drei { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Team */
+  .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .person { background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 18px; display: grid; gap: 10px; align-content: start; }
+  .person header { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center; }
+  .person img { width: 72px; height: 72px; image-rendering: pixelated; border-radius: 8px; border: 2px solid var(--gold); }
+  .person h3 { margin: 0; font: 700 18px/1.25 var(--display); }
+  .person .rolle { font: 500 12px/1.35 var(--mono); color: var(--tinte-2); letter-spacing: .04em; }
+  .person ul { margin: 0; padding-left: 1.1em; font-size: 15px; display: grid; gap: 4px; }
+
+  /* Zeitstrahl */
+  ol.zeitstrahl { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--linie); }
+  ol.zeitstrahl li { position: relative; padding: 0 0 22px 22px; max-width: none; }
+  ol.zeitstrahl li::before { content: ""; position: absolute; left: -7px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--gold); }
+  ol.zeitstrahl li.gross::before { background: var(--gold); }
+  ol.zeitstrahl time { font: 500 13px/1.5 var(--mono); color: var(--gold); display: block; }
+  ol.zeitstrahl b { display: block; }
+  ol.zeitstrahl span { color: var(--tinte-2); font-size: 15px; display: block; max-width: 68ch; }
+
+  /* Arbeitskreislauf */
+  ol.kreis { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; counter-reset: s; }
+  ol.kreis li { counter-increment: s; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 10px; padding: 14px; font-size: 15px; max-width: none; }
+  ol.kreis li::before { content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--gold-weich); color: var(--gold); font: 700 14px/1 var(--mono); margin-bottom: 8px; }
+  ol.kreis b { display: block; margin-bottom: 2px; }
+
+  /* Grenzen */
+  .grenzen { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .grenze { background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+  .grenze h3 { margin: 0; font-size: 16.5px; }
+  .grenze p { font-size: 15px; color: var(--tinte-2); }
+  .grenze .loesung { color: var(--tinte); }
+  .grenze .loesung::before { content: "Lösung im Spiel: "; font-weight: 600; color: var(--gold); }
+
+  .zahlen { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .zahlen th, .zahlen td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--linie); }
+  .zahlen td:last-child, .zahlen th:last-child { text-align: right; }
+  .tabelle { overflow-x: auto; }
+  .hinweis { background: var(--gold-weich); border-radius: 10px; padding: 14px 18px; font-size: 15.5px; max-width: 72ch; }
+  footer.ende { border-top: 1px solid var(--linie); padding-top: 24px; font-size: 14.5px; color: var(--tinte-2); display: grid; gap: 8px; }
+  code { font: 14px var(--mono); background: var(--flaeche-2); padding: 1px 5px; border-radius: 4px; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<header class="titel" style="--titelbild: url('bilder/titel.jpg')">
+  <div class="titel-innen">
+    <p class="ueberzeile">Ein Lernspiel für den DSD-Kurs · Making-of</p>
+    <h1>Die Chroniken von Eldoria <span>Wie das Spiel entstanden ist</span></h1>
+    <p class="lead">In zwölf Tagen ist aus einem Designdokument ein 3D-Rollenspiel geworden, mit dem Schülerinnen und Schüler auf das Deutsche Sprachdiplom (DSD I PRO) hinarbeiten. Programmiert hat es Claude Code, eine KI. Die Richtung kam von zwei Lehrkräften. Hier steht, wer was gemacht hat, wie die Arbeit ablief und wo das Projekt an Grenzen stößt.</p>
+    <ul class="eckdaten" aria-label="Eckdaten">
+      <li><b>12 Tage</b>5. bis 16. November 2026</li>
+      <li><b>84</b>Commits im Repository</li>
+      <li><b>über 350</b>selbst geschriebene Aufgaben</li>
+      <li><b>5 Welten</b>4 Reiche und die Feste</li>
+      <li><b>rund 25 000</b>Zeilen Programmcode</li>
+    </ul>
+  </div>
+</header>
+
+<div class="seite">
+  <nav class="inhalt" aria-label="Inhalt">
+    <h2>Inhalt</h2>
+    <ol>
+      <li><a href="#team">Wer was gemacht hat</a></li>
+      <li><a href="#anfang">Womit es losging</a></li>
+      <li><a href="#grafik">Drei Grafikstile</a></li>
+      <li><a href="#arbeitsweise">Wie gearbeitet wurde</a></li>
+      <li><a href="#meilensteine">Meilensteine</a></li>
+      <li><a href="#lythara">Lythara: zweimal neu gebaut</a></li>
+      <li><a href="#drache">Vom Skizzenblatt zum Drachen</a></li>
+      <li><a href="#reiche">Reiche, die sich verwandeln</a></li>
+      <li><a href="#pruefung">Die Prüfung als Grundlage</a></li>
+      <li><a href="#lehrkraft">Werkzeuge für Lehrkräfte</a></li>
+      <li><a href="#finale">Finale und Intro</a></li>
+      <li><a href="#veroeffentlichung">Der Weg in die Klasse</a></li>
+      <li><a href="#grenzen">Grenzen und Abstriche</a></li>
+      <li><a href="#fazit">Was wir mitnehmen</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <!-- 1 Team -->
+    <section id="team">
+      <h2><span class="zeit">Die Beteiligten</span>Wer was gemacht hat</h2>
+      <p>Das Spiel ist Teamarbeit zwischen zwei Lehrkräften und einer KI. Die Rollen waren von Anfang an klar verteilt: Die Menschen haben entschieden, was das Spiel sein soll, und es immer wieder durchgespielt. Claude Code hat gebaut, getestet und Vorschläge gemacht. Die Rollen stehen so auch in den Credits im Spiel.</p>
+      <div class="team">
+        <div class="person">
+          <header><img src="bilder/avatar_richter.png" alt="Pixel-Avatar von Johannes Richter"><div><h3>Johannes Richter</h3><div class="rolle">Idee und fachliche Leitung</div></div></header>
+          <ul>
+            <li>unterrichtet die DSD-Klasse, für die das Spiel gedacht ist</li>
+            <li>hat die Konzeptzeichnungen für den Bossgegner <b>Drachenrichter</b> angefertigt</li>
+            <li>hat sich mit Blick auf die Lerngruppe für die 3D-Grafik entschieden</li>
+            <li>wollte den Fortschritt der Klasse regelmäßig sehen; daraus wurde das Lehrerzimmer, und er fragte nach einer Live-Ansicht</li>
+            <li>hat den Start mit der Klasse geplant</li>
+          </ul>
+        </div>
+        <div class="person">
+          <header><img src="bilder/avatar_batzke.png" alt="Pixel-Avatar von Alexander Batzke"><div><h3>Alexander Batzke</h3><div class="rolle">Game Direction und ausführender Produzent</div></div></header>
+          <ul>
+            <li>hat alle Aufträge an Claude Code formuliert, rund 100 Nachrichten in zwölf Tagen</li>
+            <li>hat die Welten entworfen: Bücherwald, Eiswelt, Turm der Tausend Treppen, Feste vor dem Vulkan, Intro und Finale</li>
+            <li>hat jede Fassung selbst gespielt und Notizen geschrieben</li>
+            <li>hat die Musik ausgesucht, die echte Schulglocke als Klang für Aurelia beigesteuert und Reader, Modellsatz und Hör-Beispiele besorgt</li>
+            <li>hat Repository, Freigabe, IT-Fragen und Veröffentlichung organisiert</li>
+          </ul>
+        </div>
+        <div class="person">
+          <header><img src="bilder/avatar_claude.png" alt="Das Claude-Logo als Pixelbild"><div><h3>Claude Code</h3><div class="rolle">Programmierung, Grafik, Questdesign, Texte</div></div></header>
+          <ul>
+            <li>hat den gesamten Code geschrieben, im Browser mit Three.js, ohne Spiel-Engine</li>
+            <li>hat alle 3D-Figuren aus Grundkörpern gebaut und alle Pixel-Porträts gezeichnet, beides per Programm</li>
+            <li>hat alle Aufgaben, Lese- und Hörtexte selbst geschrieben, nach dem Muster der Prüfung</li>
+            <li>hat jede Änderung automatisch im Browser getestet, mit Bildschirmfotos</li>
+            <li>hat Doku, Lehrerzimmer, Sprungcodes und die Veröffentlichung gebaut</li>
+          </ul>
+        </div>
+        <div class="person">
+          <header><img src="bilder/avatar_buckley.png" alt="Anzeigebild von Beau Buckley: ein Diamant auf rotem Grund"><div><h3>Beau Buckley</h3><div class="rolle">Musik (Fantasy Musica)</div></div></header>
+          <ul>
+            <li>frei verwendbare MIDI-Stücke für Rollenspiele</li>
+            <li>Claude Code hat sie mit einem freien Klangsatz in MP3 umgewandelt und so gekürzt, dass sie ohne Lücke in Schleife laufen</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 Anfang -->
+    <section id="anfang">
+      <h2><span class="zeit">5. November</span>Womit es losging</h2>
+      <p>Am Anfang stand ein leeres GitHub-Repository und ein Satz, der das ganze Projekt beschreibt:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>5.11.2026, 19:21</time></figcaption>
+        <blockquote>Es soll ein Spiel werden, das mit Gamification auf das Deutsche Sprachdiplom vorbereitet. Es ist für Schülerinnen und Schüler, die Deutsch als Fremdsprache erlernen. Im Rahmen eines Adventure-Rollenspiels sollen sie alle notwendigen sprachlichen und inhaltlichen Kompetenzen lernen und erweitern. Das Setting ist eine Heldenreise im Fantasy Sujet.</blockquote>
+      </figure>
+      <p>Danach kam das Designdokument „Die Chroniken von Eldoria“: vier Reiche für die vier Prüfungsteile, ein Bösewicht namens Morgrath, der das Sprachsiegel zerbrochen hat, und eine finale Festung. Die Anweisung dazu war bewusst zurückhaltend: erst lesen, dann einen Plan vorschlagen, noch nichts bauen. Claude Code schlug einen Aufbau vor, stellte Fragen zu Geräten, Spielständen und KI-Feedback, und am selben Abend stand ein erster spielbarer Prototyp: das Dorf der Ankömmlinge und die erste Quest in Lythara, in einfacher Platzhaltergrafik.</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>5.11.2026, 20:31</time></figcaption>
+        <blockquote>Es funktioniert. Es macht jetzt schon mehr Spaß, als einfach nur Arbeitsblätter auszufüllen. Wir haben noch einen weiten Weg vor uns, aber ich spüre, dass das toll wird :-)</blockquote>
+      </figure>
+      <p>Schon die erste Rückmeldung zeigte, wie die Zusammenarbeit laufen würde. Im Heldenbogen gibt man Herkunft und Traumberuf an, die nächste Aufgabe fragte aber nach anderen Angaben:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>5.11.2026, 20:33</time></figcaption>
+        <blockquote>Also ich habe „Pilotin“ geschrieben, in der nächsten Aufgabe stand aber dann „Krankenpfleger“ kann man das durch eine Variable direkt aufgreifen?</blockquote>
+      </figure>
+      <p>Zwanzig Minuten später griffen alle Folgeaufgaben die eigenen Angaben aus dem Heldenbogen auf. Dieses Muster zog sich durch das ganze Projekt: ausprobieren, eine konkrete Beobachtung schildern, Claude Code ändert es, wieder ausprobieren.</p>
+    </section>
+
+    <!-- 3 Grafik -->
+    <section id="grafik">
+      <h2><span class="zeit">6. und 7. November</span>Drei Grafikstile, eine Entscheidung</h2>
+      <p>Der Prototyp erinnerte an einen Heimcomputer der Achtzigerjahre. Für den nächsten Schritt sollten zwei Richtungen nebeneinander entstehen, damit man vergleichen kann:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>6.11.2026, 19:46</time></figcaption>
+        <blockquote>Ich möchte gerne, eine Version in 16 Bit Grafik, die an SNES erinnert. In etwa wie „Zelda: A Link to the Past.“ Die Figuren sollen, wenn sie angesprochen werden, größere und detaillierte Pixelfiguren bekommen. […]
+Außerdem möchte ich eine zweite Version erstellen in 3D Grafik. Man schaut dem Helden über die Schulter wie in „Zelda: Ocarina of Time“. […]
+Ich würde gerne beide Versionen vergleichen, um dann zu entscheiden, mit welcher Idee wir weitermachen.</blockquote>
+      </figure>
+      <div class="paar drei">
+        <figure><span class="marke">Prototyp</span><img src="bilder/version_klassisch.jpg" alt="Prototyp mit einfacher Platzhaltergrafik" loading="lazy"><figcaption>Der erste Prototyp vom 5. November</figcaption></figure>
+        <figure><span class="marke">16-Bit</span><img src="bilder/version_16bit.jpg" alt="16-Bit-Version im Pixelstil" loading="lazy"><figcaption>Die 16-Bit-Version, heute im Archiv</figcaption></figure>
+        <figure><span class="marke">3D</span><img src="bilder/version_3d.jpg" alt="3D-Version mit Blick über die Schulter der Heldenfigur" loading="lazy"><figcaption>Die 3D-Version, heute das Spiel</figcaption></figure>
+      </div>
+      <p>Entschieden hat die Lerngruppe:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>7.11.2026, 07:56</time></figcaption>
+        <blockquote>Ich finde selbst die 16-Bit Version schöner, aber vonseiten des Klassenlehrers mit Blick auf die Lerngruppe wurde sich für die 3D Version entschieden. Ist wahrscheinlich auch noch beeindruckender und motivierender für die Schüler. […]
+Um noch etwas aus der 16-Bit Version mitzunehmen würde ich vorschlagen, dass wir die Pixelgesichter in den Dialogen übernehmen.</blockquote>
+      </figure>
+      <p>So entstand die Mischung, die das Spiel heute prägt: eine 3D-Welt mit runden Polygonfiguren, Licht und Schatten, und in jedem Gespräch ein detailliertes Pixel-Porträt. Im selben Schritt kamen eine Touch-Steuerung für Handy und Tablet dazu und ein Spielstand als Datei, statt eines langen Codes zum Abschreiben. Hilfreich war dabei ein früheres 3D-Projekt von Herrn Batzke: Seine gesammelten Erkenntnisse gab er Claude Code als Lektüre mit.</p>
+    </section>
+
+    <!-- 4 Arbeitsweise -->
+    <section id="arbeitsweise">
+      <h2><span class="zeit">Der Prozess</span>Wie gearbeitet wurde</h2>
+      <p>Gearbeitet wurde meist abends und am Wochenende, in kurzen Runden. Jede Runde folgte demselben Ablauf:</p>
+      <ol class="kreis">
+        <li><b>Idee oder Beobachtung</b>Herr Batzke beschreibt, was er sich wünscht oder was ihm beim Spielen aufgefallen ist.</li>
+        <li><b>Konzept</b>Bei größeren Dingen schlägt Claude Code zuerst ein Konzept vor, oft mit mehreren Varianten.</li>
+        <li><b>Entscheidung</b>Herr Batzke wählt aus, oft nach Rücksprache mit Herrn Richter, und gibt Details vor.</li>
+        <li><b>Bau</b>Claude Code programmiert, schreibt Aufgaben und baut die 3D-Welt.</li>
+        <li><b>Automatischer Test</b>Ein Skript spielt die neuen Stellen im Browser durch und macht Bildschirmfotos.</li>
+        <li><b>Veröffentlichung</b>Die neue Fassung geht online, der Code wird im Repository gesichert.</li>
+        <li><b>Durchspielen</b>Herr Batzke spielt selbst und schreibt die nächste Beobachtung auf.</li>
+      </ol>
+      <p>Drei Werkzeuge haben diesen Kreislauf deutlich beschleunigt. Alle drei sind auf Wunsch von Herrn Batzke entstanden:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>9.11.2026, 18:06</time></figcaption>
+        <blockquote>Sag mal, ist es möglich, dass du mir für alle Stages im Spiel Codes erzeugst, damit ich da direkt hinspringen kann? Ich will nicht immer, um was zu überprüfen, alle Aufgaben lösen. Deutsch lernen muss ich nicht mehr, kann ich schon :-)</blockquote>
+      </figure>
+      <ul class="punkte">
+        <li><b>Sprungcodes:</b> Mit einem Code springt man an jede Stelle im Spiel, zum Beispiel direkt vor den Drachenrichter. Die Codes stehen nur verschlüsselt im Code, als Prüfsummen.</li>
+        <li><b>DAS NICHTS:</b> eine weiße, endlose Galerie, in der alle Figuren auf Sockeln stehen, damit man jedes neue Modell sofort ansehen kann. Die Idee kam von Herrn Batzke, nach dem „Raum von Geist und Zeit“ aus Dragonball.</li>
+        <li><b>Die Arbeitsregeln im Repository:</b> Eine Datei <code>CLAUDE.md</code> hält fest, was immer gilt, etwa „vor neuen Aufgaben zuerst die Prüfungsformate lesen“, „keine Originaltexte aus Prüfungsunterlagen“ und „vor jedem Commit automatisch testen“.</li>
+      </ul>
+      <figure class="bild">
+        <img src="bilder/nichts.jpg" alt="DAS NICHTS: Figuren auf weißen Sockeln in einer hellen Leere" loading="lazy">
+        <figcaption>DAS NICHTS, die Figurengalerie zum Prüfen der Modelle</figcaption>
+      </figure>
+      <p>Bei großen Bauteilen lautete der Auftrag oft „Lass dir Zeit“ oder, wie bei Scriptoria: „Ich möchte dich bitten, Scriptoria so weit es geht fertig zu machen. Melde dich nur, wenn Probleme oder größere Fragen auftreten.“ Dann arbeitete Claude Code längere Strecken selbstständig. Kleine Korrekturen kamen dagegen in Minuten, etwa ein Loch an der obersten Treppenstufe, über das die Figur einfach lief.</p>
+    </section>
+
+    <!-- 5 Meilensteine -->
+    <section id="meilensteine">
+      <h2><span class="zeit">Chronik</span>Meilensteine</h2>
+      <ol class="zeitstrahl">
+        <li class="gross"><time>5. November</time><b>Grundgerüst</b><span>Dorf der Ankömmlinge, Heldenbogen, erste Quest in Lythara, Platzhaltergrafik</span></li>
+        <li><time>6. November</time><b>Musik und zwei neue Grafikstile</b><span>Erste Hintergrundmusik, Fanfaren, Quests lassen sich abbrechen; 16-Bit- und 3D-Fassung zum Vergleich</span></li>
+        <li class="gross"><time>7. November</time><b>3D wird Hauptversion</b><span>Ganzes Spiel in 3D, Handy-Steuerung, Spielstand als Datei, erstes Lehrerzimmer</span></li>
+        <li><time>8. November</time><b>Lythara: Teil B des Readers</b><span>Vier Quests zum Forumsbeitrag (Einleitung, Wiedergabe, Erfahrungen, Meinung, Schluss)</span></li>
+        <li><time>9. November</time><b>Sprungcodes, schwebende Inseln, Nebenquests</b><span>Die Kammern werden zu Inseln über Lythara; das Dorf bekommt eigene Geschichten</span></li>
+        <li><time>10. November</time><b>Drachenrichter, DAS NICHTS, Aurelia</b><span>Das Modell nach Herrn Richters Skizzen, die Figurengalerie, die Hörquest „Mimi ist weg!“ und die Hafenstadt Aurelia</span></li>
+        <li><time>12. und 13. November</time><b>Aurelia fertig, Prüfungsformat als Grundlage</b><span>Fünf Hörquests nach dem Muster des DSD; Abgleich mit Modellsatz, Hör-Beispielen und Handreichung</span></li>
+        <li><time>13. und 14. November</time><b>Scriptoria</b><span>Der Bücherwald mit fünf Lesequests und dem Bibliothekar der Schatten</span></li>
+        <li class="gross"><time>14. November</time><b>Vocantia, Verwandlungen, Turm der Tausend Treppen</b><span>Sprechaufgaben mit Stimmkristall, Reiche verwandeln sich nach dem Sieg, Lythara wird zum Turm</span></li>
+        <li class="gross"><time>15. November</time><b>Finale, Intro, Veröffentlichung</b><span>Notizen aus dem ersten kompletten Durchspielen; Feste Schattenzahn mit Probeprüfung; Morgrath als Bosskampf in fünf Phasen; Schlusssequenz; Intro; GitHub Pages und QR-Code</span></li>
+        <li><time>16. November</time><b>Credits</b><span>Pixel-Avatare des Teams</span></li>
+        <li><time>danach</time><b>Einsatz in der DSD-Klasse</b><span>Das Spiel läuft im Unterricht, Rückmeldungen fließen in kleinen Schritten ein</span></li>
+      </ol>
+    </section>
+
+    <!-- 6 Lythara -->
+    <section id="lythara">
+      <h2><span class="zeit">Grundlegende Umbauten</span>Lythara: zweimal neu gebaut</h2>
+      <p>Kein Ort hat sich so oft verändert wie Lythara, das Reich des Schreibens. Lythara war der erste Ort im Spiel und damit auch der erste Entwurf. Als das Spiel wuchs, passte er nicht mehr dazu.</p>
+      <h3>Erster Umbau: von den Kammern zu den schwebenden Inseln</h3>
+      <p>Nach der „Halle der Tausend Tore“ kamen ursprünglich die „Kammern der Stimmen“. Beim Durchspielen fiel auf, dass sich beides kaum unterschied:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>9.11.2026, 19:44</time></figcaption>
+        <blockquote>Die Halle der Tausend Tore und die Kammern der Stimmen sind mir designtechnisch zu ähnlich. Da glaubt man nicht, dass man Fortschritt gemacht hat, wenn man nach dem Brechen des Siegels beim Torwächter wieder im selben Level landet. […] Die Frage ist, wie wir die Kammern neu gestalten können. Ideen?</blockquote>
+      </figure>
+      <p>Claude Code schlug mehrere Richtungen vor. Gewählt wurden schwebende Inseln über einem Wolkenmeer, verbunden durch Brücken, mit Lythara in der Ferne. Damit wurde aus „Kammer“ auch begrifflich „Insel“.</p>
+      <figure class="bild">
+        <img src="bilder/inseln.jpg" alt="Schwebende Inseln mit Brücken über einem Wolkenmeer im Abendlicht" loading="lazy">
+        <figcaption>Die Inseln der Stimmen: Hier schreiben die Lernenden ihren Forumsbeitrag Abschnitt für Abschnitt</figcaption>
+      </figure>
+      <h3>Zweiter Umbau: von der Halle zum Turm</h3>
+      <p>Fünf Tage später wirkte auch die Halle selbst wie ein Prototyp:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>14.11.2026, 19:07</time></figcaption>
+        <blockquote>Die Halle der Tausend Tore war ein guter Ausgangspunkt, doch mittlerweile hat sich das Spiel so toll entwickelt, dass sie sehr prototypisch wirkt, was sie am Anfang ja auch war. Ich möchte bitte, dass aus der „Halle der Tausend Tore“ ein „Turm der Tausend Treppen“ wird. […] In jedem Raum wird es schöner, heller und etwas eleganter eingerichtet. Als wenn man in einer mittelalterlichen Burg aufsteigt. Keller (Eingang Lyra) → Kammern des Gesindes (Thema) → Waffenkammer der Ritter (Quellen) → Bankettsaal (Interesse) → Gemächer der Burgherren (Leser) → Das Observatorium (Überschrift).</blockquote>
+      </figure>
+      <div class="paar">
+        <figure><span class="marke">Unten</span><img src="bilder/turm_keller.jpg" alt="Der Keller des Turms mit Fackeln und der Mentorin Lyra" loading="lazy"><figcaption>Der Keller, in dem Lyra die Heldin oder den Helden empfängt</figcaption></figure>
+        <figure><span class="marke">Oben</span><img src="bilder/turm_observatorium.jpg" alt="Das Observatorium ganz oben im Turm" loading="lazy"><figcaption>Das Observatorium: Von hier geht es hinauf zu den Inseln</figcaption></figure>
+      </div>
+      <p>Der Turm hat den Fortschritt im Spiel sichtbar gemacht: Jede gelöste Aufgabe öffnet die Treppe ein Stockwerk höher, und ganz oben öffnet sich der Weg zu den Inseln. Beim ersten Test gab es Feinschliff: Die Gemächer bekamen mehr Ausstattung, die oberste Treppenstufe war ein Loch, und der Keller brauchte mehr Fackeln.</p>
+      <p>Ein dritter, stiller Umbau betraf die Inhalte. Nachdem am 13. November der offizielle Modellsatz und die Handreichung zur Schriftlichen Kommunikation vorlagen, hat Claude Code alle Lythara-Aufgaben noch einmal mit diesen Unterlagen abgeglichen und überarbeitet.</p>
+    </section>
+
+    <!-- 7 Drache -->
+    <section id="drache">
+      <h2><span class="zeit">10. November</span>Vom Skizzenblatt zum Drachen</h2>
+      <p>Der einzige Bossgegner, der nicht von Claude Code entworfen wurde, ist der Drachenrichter. Herr Richter hat ihn gezeichnet, und zwar nicht als Bild, sondern als Konstruktionsblatt: wie der Kopf aus Grundformen aufgebaut ist, wie der Kiefer aufklappt, wie das Ohr nach hinten klappt, und dass der Drache sich am Ende vor seinem Bezwinger hinkniet.</p>
+      <div class="paar">
+        <figure><img src="bilder/drache_skizze1.jpg" alt="Konstruktionsblatt Drachenrichter mit vielen Detailskizzen und Notizen" loading="lazy"><figcaption>Konstruktionsblatt von Johannes Richter</figcaption></figure>
+        <figure><img src="bilder/drache_skizze2.jpg" alt="Skizze des Drachenrichters mit offenem Maul und großen Ohren" loading="lazy"><figcaption>Studie des Kopfes von Johannes Richter</figcaption></figure>
+      </div>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>10.11.2026, 12:50</time></figcaption>
+        <blockquote>Dies sind Zeichnungen, die ein Kollege für einen Bossgegner namens Drachenrichter angefertigt hat. Jetzt wird es spannend: Bist du unter Zuhilfenahme diverser Skills dazu in der Lage, aus diesen Konzeptzeichnungen ein 3D-Modell für das Spiel zu erstellen? Soll ich ggf. noch eine andere KI hinzuziehen?</blockquote>
+      </figure>
+      <figure class="prompt antwort">
+        <figcaption><span class="wer">Claude Code</span><time>10.11.2026, 12:51 · Auszug</time></figcaption>
+        <blockquote>Ja, ich traue mir das zu. Ich würde es aber anders angehen, als du vielleicht denkst: Ich baue den Drachenrichter selbst, im Stil des Spiels. […] Ein fremdes Modell würde neben den anderen Figuren wie ein Fremdkörper wirken. […] Grenze: Ein Drache ist komplexer als die bisherigen Figuren. Er wird stilisiert, keine fotorealistische Skulptur.</blockquote>
+      </figure>
+      <p>Das Modell besteht wie alle Figuren aus programmierten Grundkörpern, ohne andere KI und ohne Modellierprogramm. Aus dem Konstruktionsblatt wurden übernommen: der Unterkiefer, der wie eine Baggerschaufel aufklappt, die dreieckigen, wütenden Augen, die tropfenförmigen Nasenlöcher, aus denen alle paar Sekunden Rauch kommt, die Ohren, die wie eine Tür nach hinten klappen, die Fledermausflügel, der Schweif aus Röhrensegmenten mit spitzem Kegel und die kniende Pose nach der Niederlage.</p>
+      <figure class="bild">
+        <img src="bilder/drache_modell.jpg" alt="Der Drachenrichter als 3D-Modell vor dem Glockenturm von Aurelia" loading="lazy">
+        <figcaption>Der fertige Drachenrichter vor dem Glockenturm von Aurelia. Er wurde der Endgegner des Hör-Reichs, statt wie im Designdokument geplant in Lythara aufzutreten. „Dafür ist er irgendwie zu cool“, hieß es.</figcaption>
+      </figure>
+      <p>Auch die übrigen Bossgegner gehen auf Vorgaben aus den Prompts zurück: ein Werwolf als Bibliothekar der Schatten, der sich nach dem Sieg in einen freundlichen alten Bibliothekar zurückverwandelt, und ein Eistroll mit gefrorener Krone und schweren Ketten als Schweigekönig. Der Troll verwandelt sich bewusst nicht zurück, sondern zieht sich geschlagen auf den Gipfel zurück, damit sich das Motiv nicht wiederholt.</p>
+      <div class="paar">
+        <figure><img src="bilder/werwolf.jpg" alt="Der Bibliothekar der Schatten, ein Werwolf, im Bücherwald" loading="lazy"><figcaption>Der Bibliothekar der Schatten in Scriptoria</figcaption></figure>
+        <figure><img src="bilder/eistroll.jpg" alt="Der Schweigekönig, ein Eistroll mit Krone und Ketten" loading="lazy"><figcaption>Der Schweigekönig in Vocantia</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 8 Reiche -->
+    <section id="reiche">
+      <h2><span class="zeit">10. bis 14. November</span>Reiche, die sich verwandeln</h2>
+      <p>Jedes Reich steht für einen Prüfungsteil, und jedes hat eine eigene Welt bekommen. Die Bildsprache stammt fast immer aus den Prompts:</p>
+      <ul class="punkte">
+        <li><b>Aurelia, Hören:</b> eine Hafenstadt im Stil der Antike am Mittelmeer, mit Leuchtturm, Agora, Werft und Glockenturm.</li>
+        <li><b>Scriptoria, Lesen:</b> „Ich fände es sehr charmant, wenn sich diese in einer Art verwunschenem Wald befände. Ich stelle mir etwas vor wie Lothlorien in Herr der Ringe. Große Bäume, dunkel, leuchtende Pilze, Glühwürmchen. Und in diesem Wald sind dann überall Bücherregale.“</li>
+        <li><b>Vocantia, Sprechen:</b> „Also Vocantia ist ein in Schweigen gehülltes Bergdorf. Schnee, Eiszapfen, gefrorene Seen, hellblauer Himmel. Spürbare Kälte.“</li>
+        <li><b>Lythara, Schreiben:</b> der Turm und die schwebenden Inseln.</li>
+      </ul>
+      <p>Am 14. November kam ein Gedanke dazu, der das Spielgefühl stark verändert hat. Vocantia taut nach dem Sieg über den Schweigekönig auf und blüht. Das sollte für alle Reiche gelten:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>14.11.2026, 19:07</time></figcaption>
+        <blockquote>Mir gefällt die Idee mit der Verwandlung des Ortes in Vocantia sehr gut. Ich möchte diese auch in anderen Orten einbauen. Dies erzeugt noch mehr das Gefühl einer Heldenreise und dass man mit seinen Taten tatsächlich etwas bewirkt und das Land rettet. […] Aurelia ist am Anfang zu idyllisch. Das passt auch nicht zu dem Drachen, der vor dem Turm dräut. […] Der Himmel rot, die Sonne hat eine halbe Sonnenfinsternis […] Das Meer ist nicht einladend blau, sondern schwarz.</blockquote>
+      </figure>
+      <div class="paar">
+        <figure><span class="marke">Aurelia · vorher</span><img src="bilder/aurelia_vorher.jpg" alt="Aurelia unter rotem Himmel mit schwarzem Meer" loading="lazy"></figure>
+        <figure><span class="marke">Aurelia · nach dem Sieg</span><img src="bilder/aurelia_nachher.jpg" alt="Aurelia unter blauem Himmel mit blauem Meer" loading="lazy"></figure>
+        <figure><span class="marke">Scriptoria · vorher</span><img src="bilder/scriptoria_vorher.jpg" alt="Scriptoria als dunkler Wald mit Glühwürmchen" loading="lazy"></figure>
+        <figure><span class="marke">Scriptoria · nach dem Sieg</span><img src="bilder/scriptoria_nachher.jpg" alt="Scriptoria im Sonnenlicht" loading="lazy"></figure>
+        <figure><span class="marke">Vocantia · vorher</span><img src="bilder/vocantia_vorher.jpg" alt="Vocantia als verschneites, gefrorenes Bergdorf" loading="lazy"></figure>
+        <figure><span class="marke">Vocantia · nach dem Sieg</span><img src="bilder/vocantia_nachher.jpg" alt="Vocantia aufgetaut mit grünen Wiesen und Blumen" loading="lazy"></figure>
+      </div>
+    </section>
+
+    <!-- 9 Prüfung -->
+    <section id="pruefung">
+      <h2><span class="zeit">Fachliche Grundlage</span>Die Prüfung als Grundlage</h2>
+      <p>Ein Spiel zur Prüfungsvorbereitung ist nur so gut wie seine Aufgaben. Deshalb hat Herr Batzke nach und nach die offiziellen Unterlagen beschafft: den Reader zur Schriftlichen Kommunikation (47 Handyfotos von Buchseiten), fünf Hör-Beispiele, den Modellsatz und die Handreichung mit den Bewertungsmaßstäben.</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>13.11.2026, 19:50</time></figcaption>
+        <blockquote>Hier ist außerdem noch der Modellsatz für Lesen, Hören, Schreiben. Und die Handreichung mit Hinweisen und Maßstäben zur Aufgabenbewertung. Diese Dateien kommen von der DSD-Seite und gelten als Grundlage. Bitte auch gründlich durcharbeiten und in den Workflow mit aufnehmen.</blockquote>
+      </figure>
+      <p>Claude Code hat daraus eine Arbeitsgrundlage geschrieben, die seitdem vor jeder neuen Aufgabe gelesen wird: die Aufgabenformate (A/B/C, richtig/falsch, Zuordnen mit übrig bleibenden Antworten, Lückentext), wie Lösungen im Text umschrieben werden, wie Ablenker mit Lockwörtern arbeiten, wie oft man welchen Hörtext hört, und die Kriterien der Handreichung für das Schreib-Feedback. Herr Batzke merkte den Unterschied sofort:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>13.11.2026, 21:38</time></figcaption>
+        <blockquote>Ich finde, dass die Handlungsanweisungen die Erstellung deiner Aufgaben nochmal bereichert haben. Alles wirkt kreativer und zugleich effektiver.</blockquote>
+      </figure>
+      <div class="hinweis"><b>Urheberrecht:</b> Aus den offiziellen Unterlagen ist kein einziger Text ins Spiel gelangt. Übernommen wurden nur Formate und Muster. Alle Lese- und Hörtexte, Aufgaben und Lösungen hat Claude Code neu geschrieben, mit Themen aus der Berufswelt der Lernenden: Ausbildung, Praktikum, Arbeitsplatz, Kunden, Termine. Die Prüfungsdateien selbst liegen nicht im Repository.</div>
+      <div class="tabelle">
+        <table class="zahlen">
+          <caption style="text-align:left;font-weight:600;margin-bottom:6px">Aufgaben im Spiel nach Format</caption>
+          <thead><tr><th>Format</th><th>Anzahl</th></tr></thead>
+          <tbody>
+            <tr><td>Auswahl (A/B/C)</td><td>206</td></tr>
+            <tr><td>Lückentext</td><td>33</td></tr>
+            <tr><td>Zuordnen</td><td>31</td></tr>
+            <tr><td>Richtig/Falsch</td><td>29</td></tr>
+            <tr><td>Sätze ordnen</td><td>22</td></tr>
+            <tr><td>Sprechaufgaben</td><td>16</td></tr>
+            <tr><td>Freie Texte</td><td>10</td></tr>
+            <tr><td>Aufgabenblöcke (mehrere Fragen zu einem Text)</td><td>7</td></tr>
+            <tr><td><b>Zusammen</b></td><td><b>354</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Ganz am Ende steht in der Feste Schattenzahn eine vollständige Probeprüfung: Hörverstehen und Leseverstehen mit je 24 Aufgaben in fünf Teilen, im Prüfungsmodus mit nur einem Versuch und ohne Rückmeldung bis zur Auswertung, dazu ein Forumsbeitrag und eine mündliche Prüfung mit Gespräch und Präsentation.</p>
+    </section>
+
+    <!-- 10 Lehrkraft -->
+    <section id="lehrkraft">
+      <h2><span class="zeit">Für den Unterricht</span>Werkzeuge für Lehrkräfte</h2>
+      <p>Schon am dritten Tag ging es nicht mehr nur um das Spiel, sondern auch um den Unterricht drumherum:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>7.11.2026, 13:17</time></figcaption>
+        <blockquote>Es wäre gut, wenn die Speicherstände der Schüler einsehbar und auslesbar wären. Also um als Lehrer den Fortschritt nachzuverfolgen. […] Im Dashboard soll man die Speicherstände anklicken und die Ergebnisse am besten sogar mit visualisierten Statistiken anschauen können.</blockquote>
+      </figure>
+      <p>Daraus wurde das <b>Lehrerzimmer</b>: Die Schülerinnen und Schüler speichern ihren Spielstand als Datei und laden ihn in einen Abgabeordner, zum Beispiel in OneDrive. Die Lehrkraft liest den ganzen Ordner auf einmal ein und sieht eine Klassenübersicht, die Stolpersteine der Klasse, die Fertigkeiten je Prüfungsteil und für jede Person eine eigene Akte mit allen geschriebenen Texten. Die Dateien werden nur im Browser ausgewertet und nirgendwohin hochgeladen.</p>
+      <figure class="bild">
+        <img src="bilder/lehrerzimmer.jpg" alt="Das Lehrerzimmer mit Kennzahlen und Klassenübersicht" loading="lazy">
+        <figcaption>Das Lehrerzimmer mit einer Beispielklasse</figcaption>
+      </figure>
+      <ul class="punkte">
+        <li><b>Lehrercodes:</b> Für Teamarbeit oder mündliche Beiträge im Unterricht verteilt die Lehrkraft Codes, die im Spiel Erfahrungspunkte bringen.</li>
+        <li><b>Das Sprechsiegel:</b> Vor dem letzten Kampf in Vocantia braucht man einen Code der Lehrkraft für eine echte mündliche Leistung im Unterricht. So spricht jede Person mindestens einmal vor echten Menschen.</li>
+        <li><b>Der Stimmkristall:</b> Mit Mikrofon misst er, wie lange jemand spricht, und erlaubt eine eigene Aufnahme zum Anhören. Ohne Mikrofon gibt es eine Sprechuhr. Partnerübungen bringen Abwechslung.</li>
+      </ul>
+      <figure class="bild">
+        <img src="bilder/sprechen.jpg" alt="Eine Sprechaufgabe mit dem Stimmkristall" loading="lazy">
+        <figcaption>Eine Sprechaufgabe mit Stimmkristall. Solange das Mikrofon an ist, schweigt die Musik.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 11 Finale -->
+    <section id="finale">
+      <h2><span class="zeit">15. November</span>Finale und Intro</h2>
+      <p>Für das Ende gab das Designdokument nur einen Rahmen vor. Den Rest beschrieb Herr Batzke in einem einzigen, langen Prompt:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>15.11.2026, 10:48</time></figcaption>
+        <blockquote>Jetzt fehlt nur noch die finale Kampagne. The belly of the beast. Wie es in der Heldenreise heißt. […] Man startet draußen vor der Feste Schattenzahn. Ein düsteres, bedrohliches Schloss vor einem aktiven Vulkan. Fledermäuse, Ratten, Spinnenweben, Goblins. […] Mit jedem Dungeon geht es tiefer runter. Beleuchtet von blubbernden Lavaströmen und Fackeln. […] Beim finalen Sieg über Morgrath fällt er in die Lava und das Reich ist gerettet. Gib dir bei der Modellierung von Morgrath nochmal richtig Mühe. Ich denke z.B. an Sauron im Herr der Ringe. Think big!</blockquote>
+      </figure>
+      <figure class="bild">
+        <img src="bilder/feste.jpg" alt="Die Feste Schattenzahn mit den Mentoren am Lagerfeuer" loading="lazy">
+        <figcaption>Ankunft vor der Feste Schattenzahn: Die Mentoren aus allen vier Reichen warten am Lagerfeuer</figcaption>
+      </figure>
+      <p>Danach folgten drei Runden Feinschliff, jede nach dem Durchspielen. Zuerst wurden alle Begegnungen mit Morgrath zu einem Bosskampf in fünf Phasen, mit Bossmusik und einem Lebensbalken, der nach jeder bestandenen Prüfung fällt. Dann kam die Schlusssequenz:</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>15.11.2026, 16:06</time></figcaption>
+        <blockquote>Die ganze Festung wackelt und bebt nach dem Fall Morgraths. Man läuft zurück aus der Feste Schattenzahn und trifft draußen auf die Mentoren, die dann ihren Satz sagen. Dann zerfällt die Festung zu Staub und der Vulkan im Hintergrund erlischt. Der Himmel wird blau und die Goblins setzen sich gechillt auf den Boden. […] Epischer Schluss!</blockquote>
+      </figure>
+      <div class="paar drei">
+        <figure><img src="bilder/einsturz_1.jpg" alt="Staubwolken am Fuß der Feste" loading="lazy"><figcaption>Die Feste beginnt zu bröckeln</figcaption></figure>
+        <figure><img src="bilder/einsturz_2.jpg" alt="Der Vulkan hinter der zerfallenden Feste" loading="lazy"><figcaption>Der Vulkan erlischt</figcaption></figure>
+        <figure><img src="bilder/einsturz_3.jpg" alt="Blauer Himmel über den Ruinen, davor die Mentoren" loading="lazy"><figcaption>Blauer Himmel über den Ruinen</figcaption></figure>
+      </div>
+      <p>Für das Grollen beim Beben hat Claude Code keinen fertigen Klang verwendet: Der Browser erzeugt es während des Spiels selbst, aus gefiltertem Rauschen. Und weil ein epischer Schluss einen ebenso epischen Anfang verdient, bekam der Prolog am selben Abend Bilder: einen Überflug durch die vier Reiche, das Sprachsiegel in der hellen Leere, Morgrath, der es zerschlägt, und Figuren, die sich nicht mehr verstehen.</p>
+      <figure class="prompt">
+        <figcaption><span class="wer">Herr Batzke</span><time>15.11.2026, 19:50</time></figcaption>
+        <blockquote>So ein episches Ende verdient auch einen ebenso dramatischen Anfang. Kurzum, wir brauchen ein Intro. […] Wir haben ja jetzt schon alle Modelle, es muss nichts neu erzeugt werden.</blockquote>
+      </figure>
+      <div class="paar">
+        <figure><img src="bilder/intro_siegel.jpg" alt="Das Sprachsiegel dreht sich in einer hellen Leere" loading="lazy"><figcaption>Intro: das Sprachsiegel</figcaption></figure>
+        <figure><img src="bilder/intro_morgrath.jpg" alt="Morgrath holt vor der Feste mit dem Streitkolben aus" loading="lazy"><figcaption>Intro: Morgrath zerschlägt das Siegel</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 12 Veröffentlichung -->
+    <section id="veroeffentlichung">
+      <h2><span class="zeit">15. November</span>Der Weg in die Klasse</h2>
+      <p>Während der Entwicklung lief das Spiel als private Seite bei Claude. Für den Unterricht brauchte es eine feste Adresse. SharePoint und OneDrive schieden aus, weil sie hochgeladene Webseiten aus Sicherheitsgründen nicht ausführen. Gewählt wurde GitHub Pages: Dafür wurde das Repository öffentlich, und jede neue Fassung ist seitdem ein bis zwei Minuten nach dem Speichern online.</p>
+      <ul class="punkte">
+        <li><b>Datenschutz:</b> Das Spiel hat keinen eigenen Server. Spielstände bleiben im Browser des Geräts. Seit dem 15. November lädt das Spiel auch keine Schriften mehr von fremden Servern.</li>
+        <li><b>Für die IT:</b> Freigegeben werden muss nur die Adresse <code>lxbatz.github.io</code>.</li>
+        <li><b>Für Handy und Tablet:</b> eine Karte mit QR-Code zum Ausdrucken oder für den Beamer.</li>
+      </ul>
+      <p>Spielen: <a href="https://lxbatz.github.io/dsd_spiel/">lxbatz.github.io/dsd_spiel</a> · Quellcode: <a href="https://github.com/lxbatz/dsd_spiel">github.com/lxbatz/dsd_spiel</a></p>
+    </section>
+
+    <!-- 13 Grenzen -->
+    <section id="grenzen">
+      <h2><span class="zeit">Ehrlich bilanziert</span>Grenzen und Abstriche</h2>
+      <p>Nicht alles, was man sich wünschen würde, war möglich. Manches lag an der Technik, manches an Datenschutz und Urheberrecht, manches an der Zeit.</p>
+      <div class="grenzen">
+        <div class="grenze"><h3>Keine KI-Bewertung der Texte</h3><p>Ein Feedback der KI auf frei geschriebene Texte hätte eine Anmeldung bei einem KI-Dienst für jede Person gebraucht. Das kam für eine Schulklasse nicht infrage.</p><p class="loesung">Checklisten nach der Handreichung, eine Wortzählung und die Bewertung durch die Lehrkraft im Lehrerzimmer.</p></div>
+        <div class="grenze"><h3>Robotische Stimmen</h3><p>Die Hörtexte liest die Sprachausgabe des Browsers vor. Das klingt hörbar künstlich. Echte Prüfungsaudios dürfen aus Urheberrechtsgründen nicht ins Spiel.</p><p class="loesung">Eigene Hörtexte nach dem Prüfungsmuster; aufgenommene Stimmen können später eingebaut werden.</p></div>
+        <div class="grenze"><h3>Der Kristall versteht nichts</h3><p>Der Stimmkristall misst nur, ob und wie lange jemand spricht, nicht was. In der Claude-Ansicht ist das Mikrofon gesperrt.</p><p class="loesung">Selbstcheck, Partnercheck, eigene Aufnahme zum Anhören und das Sprechsiegel der Lehrkraft; mit Mikrofon über GitHub Pages.</p></div>
+        <div class="grenze"><h3>Kein Live-Dashboard</h3><p>Herr Richter wünschte sich, live zu sehen, wer gerade woran arbeitet. Das ist technisch machbar, braucht aber eine Anmeldung mit dem Schulkonto und eine Freigabe der Schul-IT. Konzept und Anfrage an die IT liegen vor, gebaut ist es noch nicht.</p><p class="loesung">Spielstände als Datei in einen Abgabeordner, Auswertung im Lehrerzimmer.</p></div>
+        <div class="grenze"><h3>Ein Spielstand pro Gerät</h3><p>Der Fortschritt liegt im Browser. Wer das Gerät wechselt oder an einem geteilten Schulrechner spielt, muss ihn mitnehmen.</p><p class="loesung">Speichern als Datei und Laden auf dem anderen Gerät.</p></div>
+        <div class="grenze"><h3>Stilisierte Grafik</h3><p>Alle Figuren sind aus Grundkörpern programmiert, ohne Modellierprogramm und ohne Animationsaufnahmen. Der Drache ist eine Deutung der Skizzen, keine exakte Umsetzung. Bossanimationen sind teils von Meldungen verdeckt.</p><p class="loesung">Ein einheitlicher Stil, kleine Dateien, schnelles Laden auch auf Schulgeräten.</p></div>
+        <div class="grenze"><h3>Leistung auf schwachen Geräten</h3><p>3D im Browser fordert ältere Rechner. Beim Intro werden die Reiche kurz gebaut, das kann einen Moment stocken.</p><p class="loesung">Drei Grafikstufen, die sich bei Bedarf selbst herunterschalten.</p></div>
+        <div class="grenze"><h3>Tests ohne Augen und Ohren</h3><p>Claude Code testet in einem Browser ohne Grafikkarte und ohne Lautsprecher. Ton, echte Geräte und das Spielgefühl kann nur ein Mensch prüfen.</p><p class="loesung">Jede größere Stufe wurde von Herrn Batzke durchgespielt; seine Notizen flossen direkt ein.</p></div>
+        <div class="grenze"><h3>Unsichere Prüfungsdetails</h3><p>Die Unterlagen widersprechen sich teilweise, der Reader lag nur als Handyfotos vor, und offizielle Bestehensgrenzen standen nicht darin.</p><p class="loesung">Die Bestehensgrenze im Spiel liegt bei 50 %; die Lehrkraft sieht alle Punkte im Detail.</p></div>
+        <div class="grenze"><h3>Platzhalter-Musik</h3><p>Die Musik besteht aus freien MIDI-Stücken. Sie klingen nach klassischem Rollenspiel, aber nicht nach Orchester. Geräusche der Orte fehlen noch weitgehend.</p><p class="loesung">Die Dateien lassen sich jederzeit austauschen; die Schulglocke von Aurelia ist schon eine echte Aufnahme.</p></div>
+        <div class="grenze"><h3>Kein echter Kopierschutz</h3><p>Rechtsklick und Entwicklerwerkzeuge sind im Spiel gesperrt. Der Quellcode ist aber öffentlich auf GitHub.</p><p class="loesung">Die Sprungcodes stehen nur als Prüfsummen im Code; die Klartext-Liste hat nur die Lehrkraft.</p></div>
+        <div class="grenze"><h3>Begrenzte Rechenzeit</h3><p>Einmal hat das Nutzungslimit die Arbeit mitten in einem Bauschritt unterbrochen. Danach ging es an derselben Stelle weiter.</p><p class="loesung">Große Aufgaben in kleinere Schritte teilen und jeden Stand sofort sichern.</p></div>
+      </div>
+    </section>
+
+    <!-- 14 Fazit -->
+    <section id="fazit">
+      <h2><span class="zeit">Zum Schluss</span>Was wir mitnehmen</h2>
+      <ul class="punkte">
+        <li><b>Die Richtung muss von Menschen kommen.</b> Die stärksten Momente im Spiel, die Verwandlungen, der Turm, das Finale, standen zuerst als Bild im Kopf einer Lehrkraft. Claude Code hat sie umgesetzt und Details ergänzt.</li>
+        <li><b>Konkrete Beobachtungen wirken am besten.</b> „Die letzte Stufe der Treppe ist ein Loch“ war in Minuten behoben. Je genauer eine Rückmeldung, desto schneller und besser die Änderung.</li>
+        <li><b>Erst ein Konzept, dann bauen.</b> Bei großen Teilen hat es sich bewährt, zuerst Vorschläge einzuholen und zu entscheiden. So entstanden die Inseln, Aurelia und Vocantia.</li>
+        <li><b>Werkzeuge für die Entwicklung lohnen sich.</b> Sprungcodes, DAS NICHTS und die Arbeitsregeln im Repository haben jede spätere Runde schneller gemacht.</li>
+        <li><b>Fachliche Unterlagen früh einbeziehen.</b> Seit Modellsatz und Handreichung als Arbeitsgrundlage vorliegen, sind die Aufgaben spürbar näher an der Prüfung.</li>
+        <li><b>Selbst spielen ist nicht zu ersetzen.</b> Automatische Tests finden Fehler. Ob etwas Spaß macht, verständlich ist und gut klingt, merkt nur ein Mensch.</li>
+      </ul>
+      <figure class="bild">
+        <img src="bilder/credits.jpg" alt="Die Credits-Seite im Spiel mit den Pixel-Avataren des Teams" loading="lazy">
+        <figcaption>Die Credits im Spiel</figcaption>
+      </figure>
+      <footer class="ende">
+        <p>Dieses Making-of hat Claude Code auf Wunsch von Herrn Batzke geschrieben, auf Grundlage des Projektverlaufs: der Prompts, der Commits im Repository und der Projektdokumentation. Die zitierten Prompts sind wörtlich übernommen, Auslassungen sind mit […] markiert, Anführungszeichen typografisch gesetzt.</p>
+        <p>Die Chroniken von Eldoria · Idee und fachliche Leitung: Johannes Richter · Game Direction und ausführender Produzent: Alexander Batzke · Programmierung, Grafik, Questdesign, Texte: Claude Code · Musik: Beau Buckley (Fantasy Musica)</p>
+      </footer>
+    </section>
+  </article>
+</div>
+</body>
+</html>
