@@ -461,7 +461,7 @@ function akte() {
       ? el("ul", { class: "klein", style: "margin:6px 0 0;padding-left:18px;max-width:90ch" }, schwer.map(({ q, a }) => el("li", {}, `${q.titel}, Aufgabe ${a.nr}: ${a.frage}`, a.loesungGezeigt ? " (Lösung angesehen)" : a.fehler ? ` (${a.fehler} ${a.fehler === 1 ? "Fehlversuch" : "Fehlversuche"})` : "")))
       : el("p", { class: "leer" }, "Keine – alles beim ersten Versuch richtig oder noch keine Daten."),
     el("h3", { style: "margin-top:18px" }, "Eigene Texte"),
-    texte.length
+    ...(texte.length
       ? texte.map(([id, t]) => {
           const woerter = (t.text.trim().match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length;
           const kopieren = el("button", { class: "knopf zweit", type: "button", style: "padding:4px 10px;font-size:13px" }, "Text kopieren");
@@ -473,7 +473,7 @@ function akte() {
               el("b", {}, TEXT_NAMEN[id] ?? id), el("span", { class: "klein" }, `${woerter} Wörter · ${datumLang(t.datum)}`), kopieren),
             el("p", {}, t.text));
         })
-      : el("p", { class: "leer" }, "Noch keine eigenen Texte."),
+      : [el("p", { class: "leer" }, "Noch keine eigenen Texte.")]),
   );
 }
 
