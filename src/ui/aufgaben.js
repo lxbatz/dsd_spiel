@@ -15,6 +15,8 @@
 //   sprechen      { frage, dauer, hilfen?, checkliste, partner? } – Sprechaufgabe mit Sprechuhr oder Stimmkristall (ui/sprechen.js)
 //   freitext      { id, frage, minWoerter, checkliste: [..], muster: [{ such, ok, fehlt }], stichpunkte?, vorlage? }
 //                   vorlage: Text (oder Funktion des Spielstands), der beim ersten Schreiben schon im Feld steht
+//                   vergleich: weitere Texte (wie lesetext), aus denen nicht abgeschrieben werden soll.
+//                   Der Lesetext wird immer verglichen (Abschriftprüfung, siehe abschriftFinden).
 //
 // Alle Typen können zusätzlich einen Lesetext haben:
 //   lesetext: "<id aus texte.js>"  oder  { titel, text, quelle }
@@ -322,6 +324,50 @@ function richtigfalsch(a) {
   };
 }
 
+// ---------- Abschriftprüfung ----------
+// Wer ganze Satzteile aus dem Ausgangstext übernimmt, bekommt eine Warnung (in der Prüfung zählen
+// abgeschriebene Sätze nicht). Gezählt werden Folgen von ABSCHRIFT_WOERTER gleichen Wörtern.
+// Wortfolgen aus Redemitteln, Vorlage und Aufgabenstellung sind erlaubt.
+const ABSCHRIFT_WOERTER = 6;
+// Wortfolgen zählen nur innerhalb eines Satzes, sonst ergeben kurze einfache Sätze zufällige Treffer.
+const woerterVon = (t) => {
+  let satz = 0, zuletzt = 0;
+  const text = String(t ?? "");
+  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].map((m) => {
+    if (/[.!?;:\n]/.test(text.slice(zuletzt, m.index))) satz++;
+    zuletzt = m.index + m[0].length;
+    return { w: m[0].toLowerCase(), satz, start: m.index, ende: zuletzt };
+  });
+};
+const folge = (w, i) => (w[i].satz === w[i + ABSCHRIFT_WOERTER - 1].satz ? w.slice(i, i + ABSCHRIFT_WOERTER).map((x) => x.w).join(" ") : null);
+const folgen = (woerter) => {
+  const s = new Set();
+  for (let i = 0; i + ABSCHRIFT_WOERTER <= woerter.length; i++) { const f = folge(woerter, i); if (f) s.add(f); }
+  return s;
+};
+
+/** Liefert { anteil, stellen: ["…"] } – welche Stellen des Textes wörtlich aus den Quellen stammen. */
+export function abschriftFinden(text, quellen, erlaubt = []) {
+  const quelle = new Set(quellen.flatMap((q) => [...folgen(woerterVon(q))]));
+  if (!quelle.size) return { anteil: 0, stellen: [] };
+  for (const q of erlaubt) for (const f of folgen(woerterVon(q))) quelle.delete(f);
+  const w = woerterVon(text);
+  const kopiert = new Array(w.length).fill(false);
+  for (let i = 0; i + ABSCHRIFT_WOERTER <= w.length; i++) {
+    if (quelle.has(folge(w, i))) kopiert.fill(true, i, i + ABSCHRIFT_WOERTER);
+  }
+  const stellen = [];
+  for (let i = 0; i < w.length; i++) {
+    if (!kopiert[i] || (i > 0 && kopiert[i - 1])) continue;
+    let j = i;
+    while (j + 1 < w.length && kopiert[j + 1]) j++;
+    stellen.push(text.slice(w[i].start, w[j].ende));
+  }
+  return { anteil: w.length ? kopiert.filter(Boolean).length / w.length : 0, stellen };
+}
+const quellText = (lt) => { const t = lesetextHolen(lt); return t ? [t.titel, t.text].filter(Boolean).join("\n") : ""; };
+const kuerzen = (t, n = 80) => (t.length > n ? `${t.slice(0, n).trimEnd()} …` : t);
+
 function freitext(a) {
   const leiste = umlautLeiste();
   const vorlage = typeof a.vorlage === "function" ? a.vorlage(zustand) : a.vorlage;
@@ -333,6 +379,10 @@ function freitext(a) {
   const analyse = el("ul", { class: "analyse" });
   const haken = (a.checkliste ?? []).map((punkt) => el("input", { type: "checkbox" }));
   const stichpunkte = typeof a.stichpunkte === "function" ? a.stichpunkte(zustand) : a.stichpunkte;
+  const quellen = [a.lesetext, ...(a.vergleich ?? [])].map(quellText).filter(Boolean);
+  const erlaubt = [stichpunkte, vorlage, a.frage].filter((x) => typeof x === "string");
+  const warnung = el("div", { class: "feedback schlecht abschrift-warnung", hidden: true, role: "alert" });
+  const abschrift = () => abschriftFinden(feld.value, quellen, erlaubt);
 
   function aktualisieren() {
     const n = woerterZaehlen(feld.value);
@@ -341,6 +391,16 @@ function freitext(a) {
       const ok = new RegExp(mu.such, "iu").test(feld.value);
       return el("li", { class: ok ? "ok" : "fehlt" }, ok ? `✔ ${mu.ok}` : `✘ ${mu.fehlt}`);
     }));
+    const { stellen } = abschrift();
+    warnung.hidden = !stellen.length;
+    if (stellen.length) {
+      warnung.replaceChildren(
+        el("b", {}, "⚠ Achtung, abgeschrieben! "),
+        stellen.length === 1 ? "Diese Stelle stimmt wörtlich mit dem Ausgangstext überein: " : `${stellen.length} Stellen stimmen wörtlich mit dem Ausgangstext überein, zum Beispiel: `,
+        el("i", {}, `„${kuerzen(stellen[0])}“`),
+        el("br"),
+        "In der Prüfung zählen abgeschriebene Sätze nicht – das gibt 0 Punkte. Schreib diese Stellen mit eigenen Worten.");
+    }
   }
   feld.addEventListener("input", aktualisieren);
   aktualisieren();
@@ -361,7 +421,7 @@ function freitext(a) {
   return {
     element: el("div", {},
       stichpunkte ? el("div", { class: "stichpunkte" }, stichpunkte) : null,
-      feld, leiste, zaehler,
+      feld, leiste, zaehler, warnung,
       a.muster?.length ? el("div", {}, el("b", {}, "Der Zauberspiegel prüft deinen Text:"), analyse) : null,
       a.checkliste?.length ? el("div", { class: "checkliste" },
         el("h3", {}, "Selbstcheck"),
@@ -376,7 +436,11 @@ function freitext(a) {
       if (haken.some((h) => !h.checked)) probleme.push("Geh den Selbstcheck durch und hake alle Punkte ab.");
       if (probleme.length) return { ok: false, leer: true, meldung: probleme.join(" ") };
       textSpeichern(a.id, feld.value);
-      return { ok: true, meldung: "Dein Text ist gespeichert. Du findest ihn im Heldenpass unter „Meine Texte“. Zeig ihn deiner Lehrkraft!" };
+      const { anteil, stellen } = abschrift();
+      // Überwiegend abgeschrieben: Der Text wird nicht angenommen (in der Prüfung wären das 0 Punkte).
+      if (anteil >= 0.5) return { ok: false, meldung: `⚠ Dein Text ist zum größten Teil aus dem Ausgangstext abgeschrieben (${Math.round(anteil * 100)} %). Das zählt nicht. Schreib den Text mit eigenen Worten.` };
+      const hinweis = stellen.length ? `\n⚠ Aber Achtung: ${stellen.length === 1 ? "Eine Stelle ist" : `${stellen.length} Stellen sind`} wörtlich abgeschrieben. Schreib sie noch mit eigenen Worten um – in der Prüfung zählen sie nicht.` : "";
+      return { ok: true, meldung: "Dein Text ist gespeichert. Du findest ihn im Heldenpass unter „Meine Texte“. Zeig ihn deiner Lehrkraft!" + hinweis };
     },
     loesungZeigen() {},
     sperren() { feld.disabled = true; haken.forEach((h) => { h.disabled = true; }); },
@@ -434,7 +498,8 @@ const ABBRUCH = Symbol("abbruch");
  * oder { abgebrochen: true }.
  */
 export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lesetext, kopf }) {
-  const aufgaben = roh.map(aufgabeAufloesen);
+  const aufgaben = roh.map(aufgabeAufloesen)
+    .map((a) => (a.typ === "freitext" && lesetext && !a.lesetext ? { ...a, vergleich: [...(a.vergleich ?? []), lesetext] } : a));
   let ersterVersuch = 0;
   const protokoll = [];
   for (let i = 0; i < aufgaben.length; i++) {

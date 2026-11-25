@@ -234,7 +234,6 @@ textarea.freitext {
 .pass-ansicht dt { font-weight: bold; color: var(--tinte-2); font-size: 13px; }
 .pass-ansicht dd { margin: 0 0 8px; font-size: 16px; }
 .pass-ansicht { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
-textarea.code-feld { width: 100%; min-height: 90px; font-family: monospace; font-size: 12px; }
 input.code-eingabe { font: inherit; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; padding: 8px; width: 100%; text-align: center; }
 
 /* Titel */
@@ -266,9 +265,6 @@ input.code-eingabe { font: inherit; font-size: 20px; letter-spacing: 2px; text-t
 #overlay.gespraech #fenster { max-height: 48vh; }
 
 /* Spielstand: alter Code */
-details.alter-code { margin-top: 10px; font-size: 14px; }
-details.alter-code summary { cursor: pointer; color: var(--tinte-2); }
-details.alter-code .knopf { margin-top: 6px; }
 
 /* ---------- Überblende beim Kartenwechsel, Treffer-Blitz ---------- */
 #blende { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .45s; z-index: 2; }

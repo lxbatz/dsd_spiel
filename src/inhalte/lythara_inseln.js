@@ -485,6 +485,7 @@ const Q3 = {
   text: {
     typ: "freitext",
     id: "lythara_q3_text",
+    vergleich: [TEXT],
     frage: "Schreibe jetzt deinen Erfahrungsbericht (5–7 Sätze). Beginne mit einer Überleitung. Erzähle dann von deinen Erfahrungen (oder von den Erfahrungen einer Person, die du kennst) mit Praktikum, Arbeit oder Ausland.",
     minWoerter: 60,
     stichpunkte: "Redemittel: Jetzt möchte ich von meinen eigenen Erfahrungen berichten. · Genauso wie Jonas … / Anders als Jonas … · Letztes Jahr / Letzten Sommer habe ich … · Am Anfang … Dann … Danach … Schließlich … · Es hat mir (nicht) gefallen, weil … ★ Prüfungstipp: Ein einziger Satz reicht nicht. Erzähle ausführlich mit Details: Wo? Wann? Was hast du gemacht? Wie war es?",
@@ -734,6 +735,7 @@ const Q4 = {
   text: {
     typ: "freitext",
     id: "lythara_q4_text",
+    vergleich: [TEXT],
     frage: `Schreibe jetzt deine Meinung zur Frage: „${FRAGE}“ (6–8 Sätze). Sag deine Meinung deutlich, nenne mindestens zwei Argumente und begründe sie mit Erklärungen oder Beispielen.`,
     minWoerter: 70,
     stichpunkte: "Redemittel: Nach meinen Erfahrungen bin ich der Meinung, dass … · Meiner Meinung nach … · Zuerst … , weil … · Zum Beispiel … · Außerdem … · Ein weiterer Punkt ist … · Zwar …, aber … · Aus diesen Gründen … ★ Prüfungstipp: Eine Meinung ohne Begründung bringt höchstens 1 von 3 Punkten. Welche Meinung du hast, ist egal – wichtig sind die Gründe.",

@@ -210,7 +210,6 @@ function dateiLaden(meldung) {
 
 function menueAnzeigen() {
   const meldung = el("div", { class: "feedback", hidden: true });
-  const codeFeld = el("textarea", { class: "code-feld", placeholder: "Alten Spielstand-Code hier einfügen …", "data-einfuegen": true });
   const steuerung = einstellungen.steuerung?.() ?? "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc";
 
   const tonKnopf = knopf(tonText(), () => { stummSchalten(); tonKnopf.textContent = tonText(); }, "knopf zweitrangig");
@@ -228,19 +227,6 @@ function menueAnzeigen() {
       knopf("💾 Als Datei speichern", () => dateiSpeichern(meldung)),
       knopf("📂 Datei laden", () => dateiLaden(meldung), "knopf zweitrangig")),
     meldung,
-    el("details", { class: "alter-code" },
-      el("summary", {}, "Alten Spielstand-Code einfügen"),
-      codeFeld,
-      knopf("Code laden", () => {
-        try {
-          spielstandUebernehmen(spielstandLesen(codeFeld.value));
-          location.reload();
-        } catch (e) {
-          meldung.hidden = false;
-          meldung.className = "feedback schlecht";
-          meldung.textContent = e.message;
-        }
-      }, "knopf zweitrangig")),
     einstellungen.zusatz?.() ?? null,
     el("h3", {}, "Neues Spiel"),
     knopf("Alles löschen und neu beginnen", async () => {

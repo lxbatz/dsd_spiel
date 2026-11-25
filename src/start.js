@@ -9,7 +9,7 @@ import { musik } from "./musik.js";
 // Rechtsklick, Kopieren, Ausschneiden, Einfügen, Bilder und Text ziehen, Strg+S, Strg+U, F12 und
 // Strg+Umschalt+I/J/C sind im Spiel gesperrt. So kann niemand Aufgabentexte in die Schreibaufgaben kopieren
 // (in der Prüfung gäbe das 0 Punkte). Erlaubt bleibt nur das Einfügen in Felder mit data-einfuegen
-// (Lehrercode, alter Spielstand-Code) und das Kopieren des eigenen Textes aus einer Schreibaufgabe.
+// (Lehrercode) und das Kopieren des eigenen Textes aus einer Schreibaufgabe.
 const einfuegenErlaubt = (z) => !!z?.closest?.("[data-einfuegen]");
 const eigenerText = (z) => !!z?.closest?.("textarea.freitext");
 const ziel = (ev) => (ev.target?.nodeType === 1 ? ev.target : ev.target?.parentElement);

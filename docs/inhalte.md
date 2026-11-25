@@ -132,9 +132,12 @@ Wie auf dem Aufgabenblatt der Prüfung: erst alle Aufgaben lesen, dann den Text 
   ],
   checkliste: ["Ich nenne das Thema.", "…"],   // Selbstcheck, muss abgehakt werden
   vorlage: (z) => "…",            // optional: Text, der beim ersten Öffnen schon im Feld steht
+  vergleich: ["nachricht_reisender"], // optional: weitere Texte, aus denen nicht abgeschrieben werden darf
 }
 ```
 `such` ist ein regulärer Ausdruck (Groß-/Kleinschreibung egal). Freie Texte werden nicht bewertet: Die Schülerin/der Schüler muss die Mindestwortzahl erreichen und den Selbstcheck abhaken. Die Lehrkraft liest den Text im Heldenpass und vergibt ggf. einen Lehrercode.
+
+**Abschriftprüfung:** Der Text wird mit dem Lesetext der Aufgabe (oder der Quest) und den Texten in `vergleich` abgeglichen. Ab 6 gleichen Wörtern in Folge erscheint eine Warnung mit der Stelle; Wortfolgen aus `stichpunkte`, `vorlage` und `frage` sind erlaubt. Ist mindestens die Hälfte des Textes abgeschrieben, wird er nicht angenommen.
 
 ### Sprechen
 ```js
