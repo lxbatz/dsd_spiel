@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Eldoria – Fragebogen zum Beta-Test</title>
+<link rel="stylesheet" href="../../fonts/schriften.css">
+<style>
+  /* Druckvorlage A4, 4 Seiten. Für das Einscannen: weiße Felder, dunkle Rahmen, große Kästchen,
+     Fragenummern in schwarzen Kästen, Kennung und Seitenzahl auf jeder Seite, Passmarken in den Ecken. */
+  @page { size: A4; margin: 0; }
+  :root { --tinte: #1d1c28; --gold: #a8741d; --gold-hell: #e9d9b0; --pergament: #fbf6ea; --grau: #5a5868; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--tinte); }
+  body { font-family: "Atkinson Hyperlegible", Arial, sans-serif; font-size: 11.5pt; line-height: 1.35; }
+  .seite { width: 210mm; height: 297mm; position: relative; padding: 13mm 14mm 12mm; overflow: hidden; page-break-after: always; break-after: page; }
+  .seite:last-child { page-break-after: auto; break-after: auto; }
+  /* Passmarken für das Einscannen */
+  .marke { position: absolute; width: 6mm; height: 6mm; background: #000; }
+  .marke.lo { top: 5mm; left: 5mm; } .marke.ro { top: 5mm; right: 5mm; } .marke.lu { bottom: 5mm; left: 5mm; } .marke.ru { bottom: 5mm; right: 5mm; }
+
+  .kopf { display: flex; align-items: center; justify-content: space-between; gap: 6mm; border-bottom: 1.2pt solid var(--gold); padding-bottom: 2.5mm; margin-bottom: 4mm; }
+  .kopf .titel { white-space: nowrap; font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 12pt; letter-spacing: .4pt; color: var(--gold); }
+  .kopf .rechts { display: flex; align-items: center; gap: 4mm; font-size: 10pt; }
+  .kennung-klein { display: flex; align-items: center; gap: 2mm; }
+  .zeichen { display: inline-flex; gap: 0; }
+  .zeichen span { width: 6mm; height: 7.5mm; border: 1pt solid var(--tinte); margin-left: -1pt; background: #fff; }
+  .zeichen span:first-child { margin-left: 0; }
+  .zeichen span.strich { border: none; width: 3mm; text-align: center; line-height: 7.5mm; }
+  .seitenzahl { font-weight: 700; white-space: nowrap; }
+  .kennung-klein { white-space: nowrap; }
+
+  h1 { font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 25pt; margin: 3mm 0 1mm; text-align: center; letter-spacing: .5pt; }
+  .unter { text-align: center; color: var(--grau); margin: 0 0 4mm; font-size: 11pt; }
+  .banner { width: 100%; height: 36mm; object-fit: cover; border: 1.5pt solid var(--gold); border-radius: 3mm; display: block; }
+
+  h2 { font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 14.5pt; margin: 0 0 2.5mm; display: flex; align-items: center; gap: 3mm; }
+  h2 .teil { background: var(--gold); color: #fff; font-family: "Atkinson Hyperlegible", sans-serif; font-size: 11pt; padding: .6mm 2.5mm; border-radius: 1.5mm; }
+  h2::after { content: ""; flex: 1; border-bottom: .8pt solid var(--gold-hell); }
+  .abschnitt { margin-bottom: 4.5mm; }
+  .mit-bild { display: grid; grid-template-columns: 22mm 1fr; gap: 4mm; align-items: start; }
+  .portrait { width: 22mm; height: 22mm; image-rendering: pixelated; border: 1.5pt solid var(--gold); border-radius: 2mm; display: block; }
+  .blase { background: var(--pergament); border: 1pt solid var(--gold-hell); border-radius: 3mm; padding: 2.5mm 3.5mm; position: relative; }
+  .blase b.name { font-family: "Cinzel", Georgia, serif; color: var(--gold); display: block; font-size: 10.5pt; }
+
+  .frage { display: grid; grid-template-columns: 9mm 1fr; gap: 2.5mm; margin-bottom: 3.6mm; break-inside: avoid; }
+  .nr { background: #000; color: #fff; font-weight: 700; font-size: 10.5pt; height: 7mm; border-radius: 1mm; display: flex; align-items: center; justify-content: center; }
+  .text { font-weight: 700; margin-bottom: 1.6mm; }
+  .text small { font-weight: 400; color: var(--grau); }
+  .optionen { display: flex; flex-wrap: wrap; gap: 2mm 6mm; }
+  .opt { display: inline-flex; align-items: center; gap: 2mm; white-space: nowrap; }
+  .box { width: 6mm; height: 6mm; border: 1.3pt solid #000; background: #fff; display: inline-block; flex: none; }
+  .box.rund { border-radius: 50%; }
+
+  /* Skala mit Gesichtern */
+  .skala { display: grid; grid-template-columns: repeat(5, 25mm); gap: 0 3mm; }
+  .skala .stufe { display: flex; flex-direction: column; align-items: center; gap: 1mm; font-size: 9.5pt; text-align: center; }
+  .skala svg { width: 9mm; height: 9mm; }
+
+  /* Tabelle (Grafik, Sound, Musik) */
+  table.bewertung { border-collapse: collapse; width: 100%; }
+  .bewertung th, .bewertung td { border-bottom: .8pt solid #cfcbd8; padding: 1.3mm 1mm; text-align: center; vertical-align: middle; }
+  .bewertung th { font-size: 9.5pt; font-weight: 400; color: var(--grau); }
+  .bewertung th svg { width: 8mm; height: 8mm; display: block; margin: 0 auto 0.5mm; }
+  .bewertung td:first-child, .bewertung th:first-child { text-align: left; width: 58mm; }
+  .bewertung td:first-child { font-weight: 700; }
+  .bewertung td:first-child small { display: block; font-weight: 400; color: var(--grau); font-size: 9.5pt; }
+  .bewertung .nr { display: inline-flex; width: 9mm; margin-right: 2mm; vertical-align: middle; }
+
+  /* Schreibfelder: weißer Kasten mit Linien */
+  .feld { border: 1.2pt solid #000; border-radius: 1.5mm; background: #fff repeating-linear-gradient(to bottom, transparent 0, transparent 8.4mm, #b9b5c6 8.4mm, #b9b5c6 8.7mm); background-origin: content-box; padding: 0 3mm; }
+  .feld.z2 { height: 19mm; } .feld.z3 { height: 27.5mm; } .feld.z4 { height: 36mm; } .feld.z1 { height: 10.5mm; }
+  .zeile-klein { display: flex; align-items: center; gap: 3mm; margin-top: 2mm; }
+  .zeile-klein .feld { flex: 1; }
+
+  .hinweis { border: 1.2pt dashed var(--gold); border-radius: 3mm; padding: 3mm 4mm; background: var(--pergament); }
+  .hinweis ul { margin: 1mm 0 0; padding-left: 5mm; }
+  .hinweis li { margin: .5mm 0; }
+  .beispiele { display: flex; gap: 8mm; align-items: center; flex-wrap: wrap; margin-top: 2mm; }
+  .beispiel { display: inline-flex; align-items: center; gap: 2mm; }
+  .box.kreuz { position: relative; } .box.kreuz::before, .box.kreuz::after { content: ""; position: absolute; left: 50%; top: 50%; width: 7mm; height: 1.4pt; background: #1a3fa0; }
+  .box.kreuz::before { transform: translate(-50%, -50%) rotate(45deg); } .box.kreuz::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  .box.voll { background: #1a3fa0; }
+
+  table.fehler { border-collapse: collapse; width: 100%; }
+  .fehler th, .fehler td { border: 1.2pt solid #000; padding: 1.5mm 2mm; text-align: left; vertical-align: top; }
+  .fehler th { font-size: 10pt; background: #fff; }
+  .fehler td { height: 17mm; }
+  .fehler td.n { width: 8mm; text-align: center; font-weight: 700; vertical-align: middle; }
+  .zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .note { display: flex; gap: 4mm; }
+  .note .opt { flex-direction: column; gap: 1mm; font-weight: 700; }
+  .note .opt small { font-weight: 400; font-size: 8.5pt; color: var(--grau); }
+  .helden { display: flex; justify-content: center; gap: 5mm; margin-top: 4mm; }
+  .helden img { width: 17mm; height: 17mm; image-rendering: pixelated; border: 1.2pt solid var(--gold); border-radius: 2mm; }
+  .danke { text-align: center; font-family: "Cinzel", Georgia, serif; font-size: 17pt; font-weight: 600; color: var(--gold); margin-top: 3mm; }
+  .fuss { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; font-size: 8.5pt; color: var(--grau); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<!-- Gesichter für die Skalen (1 = gar nicht … 5 = super) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <g id="g1"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#1d1c28" stroke-width="1.6"/><circle cx="8.3" cy="9.5" r="1.3" fill="#1d1c28"/><circle cx="15.7" cy="9.5" r="1.3" fill="#1d1c28"/><path d="M7 17.5 Q12 12.5 17 17.5" fill="none" stroke="#1d1c28" stroke-width="1.6" stroke-linecap="round"/></g>
+    <g id="g2"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#1d1c28" stroke-width="1.6"/><circle cx="8.3" cy="9.5" r="1.3" fill="#1d1c28"/><circle cx="15.7" cy="9.5" r="1.3" fill="#1d1c28"/><path d="M7.5 16.5 Q12 14 16.5 16.5" fill="none" stroke="#1d1c28" stroke-width="1.6" stroke-linecap="round"/></g>
+    <g id="g3"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#1d1c28" stroke-width="1.6"/><circle cx="8.3" cy="9.5" r="1.3" fill="#1d1c28"/><circle cx="15.7" cy="9.5" r="1.3" fill="#1d1c28"/><path d="M7.5 15.5 H16.5" fill="none" stroke="#1d1c28" stroke-width="1.6" stroke-linecap="round"/></g>
+    <g id="g4"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#1d1c28" stroke-width="1.6"/><circle cx="8.3" cy="9.5" r="1.3" fill="#1d1c28"/><circle cx="15.7" cy="9.5" r="1.3" fill="#1d1c28"/><path d="M7.5 14.5 Q12 17.5 16.5 14.5" fill="none" stroke="#1d1c28" stroke-width="1.6" stroke-linecap="round"/></g>
+    <g id="g5"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#1d1c28" stroke-width="1.6"/><path d="M6.8 10 Q8.3 8 9.8 10 M14.2 10 Q15.7 8 17.2 10" fill="none" stroke="#1d1c28" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 13.5 Q12 20.5 17.5 13.5 Z" fill="#1d1c28"/></g>
+  </defs>
+</svg>
+
+<!-- ============ Seite 1 ============ -->
+<section class="seite">
+  <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
+  <div class="kopf">
+    <span class="titel">Die Chroniken von Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="seitenzahl">Seite 1 von 4</span></span>
+  </div>
+
+  <img class="banner" src="bilder/dorf_banner.jpg" alt="Das Dorf der Ankömmlinge">
+  <h1>Fragebogen zum Spiel</h1>
+  <p class="unter">Du hast Eldoria getestet. Jetzt brauchen wir deine Meinung!</p>
+
+  <div class="abschnitt mit-bild">
+    <img class="portrait" src="bilder/npc_aldric.png" alt="">
+    <div class="blase"><b class="name">Ratsältester Aldric</b>
+      Hallo, Heldin! Hallo, Held! Was ist gut im Spiel? Was können wir besser machen?
+      Es gibt keine falschen Antworten. Sei ehrlich – auch Kritik hilft uns sehr!
+    </div>
+  </div>
+
+  <div class="abschnitt hinweis">
+    <b>So füllst du den Fragebogen aus:</b>
+    <ul>
+      <li>Schreib mit einem <b>dunklen Stift</b> (blau oder schwarz) und schreib <b>deutlich</b>.</li>
+      <li>Mach ein <b>Kreuz</b> in das Kästchen. Bei manchen Fragen darfst du mehrere Kreuze machen.</li>
+      <li>Falsch angekreuzt? Mal das Kästchen ganz aus und kreuz neu an.</li>
+      <li>Schreib nur in die Kästen.</li>
+    </ul>
+    <div class="beispiele">
+      <span class="beispiel"><span class="box kreuz"></span> = ja, das meine ich</span>
+      <span class="beispiel"><span class="box voll"></span> = falsch, gilt nicht</span>
+    </div>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">A</span> Über dich</h2>
+    <div class="frage"><div class="nr">A1</div><div>
+      <div class="text">Deine Kennung aus dem Spiel <small>(steht im Heldenpass, zum Beispiel IFK11-07)</small></div>
+      <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span>
+      <span style="margin-left:8mm" class="text">Klasse:</span> <span class="zeichen"><span></span><span></span><span></span><span></span><span></span></span>
+    </div></div>
+    <div class="frage"><div class="nr">A2</div><div>
+      <div class="text">Womit hast du gespielt? <small>(mehrere Kreuze möglich)</small></div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>Computer in der Schule</span>
+        <span class="opt"><span class="box"></span>Computer / Laptop zu Hause</span>
+        <span class="opt"><span class="box"></span>Handy</span>
+        <span class="opt"><span class="box"></span>Tablet</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">A3</div><div>
+      <div class="text">Wie lange hast du schon gespielt? <small>(alles zusammen)</small></div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>weniger als 1 Stunde</span>
+        <span class="opt"><span class="box"></span>1–3 Stunden</span>
+        <span class="opt"><span class="box"></span>3–6 Stunden</span>
+        <span class="opt"><span class="box"></span>mehr als 6 Stunden</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">A4</div><div>
+      <div class="text">Wo bist du jetzt im Spiel? <small>(ein Kreuz)</small></div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>Dorf</span>
+        <span class="opt"><span class="box"></span>Lythara</span>
+        <span class="opt"><span class="box"></span>Aurelia</span>
+        <span class="opt"><span class="box"></span>Scriptoria</span>
+        <span class="opt"><span class="box"></span>Vocantia</span>
+        <span class="opt"><span class="box"></span>Schattenzahn</span>
+        <span class="opt"><span class="box"></span>Ich habe das Spiel geschafft!</span>
+      </div>
+    </div></div>
+  </div>
+  <div class="abschnitt hinweis" style="border-style:solid">
+    <b>Darauf achtest du beim Spielen besonders:</b>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 6mm">
+      <ul>
+        <li>Ist ein Wort falsch geschrieben?</li>
+        <li>Wo kommst du nicht weiter?</li>
+        <li>Welche Aufgabe verstehst du nicht?</li>
+      </ul>
+      <ul>
+        <li>Was macht dir Spaß? Was ist langweilig?</li>
+        <li>Ist etwas zu schnell oder zu langsam?</li>
+        <li>Tipp: Mach dir beim Spielen kurze Notizen.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="fuss"><span>Danke für deine Hilfe!</span><span>Bitte alle 4 Seiten ausfüllen.</span></div>
+</section>
+
+<!-- ============ Seite 2 ============ -->
+<section class="seite">
+  <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
+  <div class="kopf">
+    <span class="titel">Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 2 von 4</span></span>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">B</span> Das Spiel</h2>
+    <div class="mit-bild" style="margin-bottom:3mm">
+      <img class="portrait" src="bilder/npc_lyra.png" alt="">
+      <div class="blase"><b class="name">Meisterin Lyra</b>Erzähl mir: Wie findest du unser Abenteuer?</div>
+    </div>
+    <div class="frage"><div class="nr">B1</div><div>
+      <div class="text">Wie gefällt dir das Spiel?</div>
+      <div class="skala">
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g1"/></svg><span class="box"></span>gar nicht</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g2"/></svg><span class="box"></span>nicht so gut</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g3"/></svg><span class="box"></span>okay</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g4"/></svg><span class="box"></span>gut</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g5"/></svg><span class="box"></span>super</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">B2</div><div>
+      <div class="text">Was gefällt dir am besten?</div>
+      <div class="feld z2"></div>
+    </div></div>
+    <div class="frage"><div class="nr">B3</div><div>
+      <div class="text">Was gefällt dir nicht?</div>
+      <div class="feld z2"></div>
+    </div></div>
+    <div class="frage"><div class="nr">B4</div><div>
+      <div class="text">Möchtest du weiterspielen?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>ja</span>
+        <span class="opt"><span class="box"></span>vielleicht</span>
+        <span class="opt"><span class="box"></span>nein</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">B5</div><div>
+      <div class="text">Ist die Geschichte spannend?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>ja, sehr</span>
+        <span class="opt"><span class="box"></span>ein bisschen</span>
+        <span class="opt"><span class="box"></span>nein</span>
+        <span class="opt"><span class="box"></span>Ich lese die Geschichte nicht.</span>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">C</span> Die Aufgaben</h2>
+    <div class="frage"><div class="nr">C1</div><div>
+      <div class="text">Die Aufgaben sind …</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>zu leicht</span>
+        <span class="opt"><span class="box"></span>genau richtig</span>
+        <span class="opt"><span class="box"></span>zu schwer</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">C2</div><div>
+      <div class="text">Verstehst du, was du bei einer Aufgabe machen sollst?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>immer</span>
+        <span class="opt"><span class="box"></span>meistens</span>
+        <span class="opt"><span class="box"></span>manchmal</span>
+        <span class="opt"><span class="box"></span>selten</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">C3</div><div>
+      <div class="text">Welche Aufgaben machen dir <u>Spaß</u>? <small>(mehrere Kreuze möglich)</small></div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>Hören</span>
+        <span class="opt"><span class="box"></span>Lesen</span>
+        <span class="opt"><span class="box"></span>Schreiben</span>
+        <span class="opt"><span class="box"></span>Sprechen</span>
+        <span class="opt"><span class="box"></span>Kämpfe gegen Wächter</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">C4</div><div>
+      <div class="text">Welche Aufgaben sind <u>schwer</u> für dich? <small>(mehrere Kreuze möglich)</small></div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>Hören</span>
+        <span class="opt"><span class="box"></span>Lesen</span>
+        <span class="opt"><span class="box"></span>Schreiben</span>
+        <span class="opt"><span class="box"></span>Sprechen</span>
+        <span class="opt"><span class="box"></span>Kämpfe gegen Wächter</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">C5</div><div>
+      <div class="text">Die Texte im Spiel (Gespräche, Briefe, Aufgaben) sind …</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>zu lang</span>
+        <span class="opt"><span class="box"></span>gut so</span>
+        <span class="opt"><span class="box"></span>zu kurz</span>
+      </div>
+    </div></div>
+  </div>
+  <div class="fuss"><span>Teil B und C</span><span>Weiter auf Seite 3 ▸</span></div>
+</section>
+
+<!-- ============ Seite 3 ============ -->
+<section class="seite">
+  <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
+  <div class="kopf">
+    <span class="titel">Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 3 von 4</span></span>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">C</span> Die Aufgaben <small style="font-family:'Atkinson Hyperlegible',sans-serif;font-size:10pt;color:var(--grau)">(weiter)</small></h2>
+    <div class="frage"><div class="nr">C6</div><div>
+      <div class="text">Hilft dir das Spiel für die DSD-Prüfung?</div>
+      <div class="skala">
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g1"/></svg><span class="box"></span>gar nicht</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g2"/></svg><span class="box"></span>wenig</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g3"/></svg><span class="box"></span>etwas</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g4"/></svg><span class="box"></span>viel</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g5"/></svg><span class="box"></span>sehr viel</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">C7</div><div>
+      <div class="text">Welche Aufgabe war <u>nicht klar</u>? Wo war das? <small>(Wenn alles klar war: leer lassen.)</small></div>
+      <div class="feld z2"></div>
+    </div></div>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">D</span> Die Steuerung</h2>
+    <div class="frage"><div class="nr">D1</div><div>
+      <div class="text">Wie kommst du mit der Steuerung klar? <small>(laufen, sprechen, Kamera drehen)</small></div>
+      <div class="skala">
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g1"/></svg><span class="box"></span>sehr schlecht</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g2"/></svg><span class="box"></span>schlecht</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g3"/></svg><span class="box"></span>okay</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g4"/></svg><span class="box"></span>gut</span>
+        <span class="stufe"><svg viewBox="0 0 24 24"><use href="#g5"/></svg><span class="box"></span>sehr gut</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">D2</div><div>
+      <div class="text">Weißt du immer, wohin du gehen sollst?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>immer</span>
+        <span class="opt"><span class="box"></span>meistens</span>
+        <span class="opt"><span class="box"></span>manchmal</span>
+        <span class="opt"><span class="box"></span>selten</span>
+      </div>
+    </div></div>
+    <div class="frage"><div class="nr">D3</div><div>
+      <div class="text">Was war bei der Steuerung schwierig?</div>
+      <div class="feld z1"></div>
+    </div></div>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">E</span> Grafik, Sound und Musik</h2>
+    <table class="bewertung">
+      <tr><th>Wie gefällt dir …</th>
+        <th><svg viewBox="0 0 24 24"><use href="#g1"/></svg>gar nicht</th>
+        <th><svg viewBox="0 0 24 24"><use href="#g2"/></svg>nicht so gut</th>
+        <th><svg viewBox="0 0 24 24"><use href="#g3"/></svg>okay</th>
+        <th><svg viewBox="0 0 24 24"><use href="#g4"/></svg>gut</th>
+        <th><svg viewBox="0 0 24 24"><use href="#g5"/></svg>super</th></tr>
+      <tr><td><span class="nr">E1</span>die Grafik?<small>die Welt, die Orte</small></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+      <tr><td><span class="nr">E2</span>die Figuren?<small>Menschen, Wächter, Monster</small></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+      <tr><td><span class="nr">E3</span>der Sound?<small>Geräusche, Stimmen</small></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+      <tr><td><span class="nr">E4</span>die Musik?</td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+    </table>
+    <div class="frage" style="margin-top:3mm"><div class="nr">E5</div><div>
+      <div class="text">Läuft das Spiel flüssig?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>ja, immer</span>
+        <span class="opt"><span class="box"></span>manchmal ist es langsam</span>
+        <span class="opt"><span class="box"></span>oft ist es langsam</span>
+      </div>
+    </div></div>
+  </div>
+  <div class="fuss"><span>Teil C, D und E</span><span>Weiter auf Seite 4 ▸</span></div>
+</section>
+
+<!-- ============ Seite 4 ============ -->
+<section class="seite">
+  <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
+  <div class="kopf">
+    <span class="titel">Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 4 von 4</span></span>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">F</span> Fehler im Spiel</h2>
+    <div class="mit-bild" style="margin-bottom:3mm">
+      <img class="portrait" src="bilder/npc_borin.png" alt="">
+      <div class="blase"><b class="name">Schmied Borin</b>Ist etwas kaputt? Ich repariere alles! Aber ich muss wissen: <b>Wo</b> war es und <b>was</b> ist passiert?
+        Zum Beispiel: Ein Wort ist falsch geschrieben. Du kommst nicht weiter. Das Bild bleibt hängen.</div>
+    </div>
+    <div class="frage"><div class="nr">F1</div><div>
+      <div class="text">Hast du Fehler gefunden?</div>
+      <div class="optionen">
+        <span class="opt"><span class="box"></span>ja → bitte unten aufschreiben</span>
+        <span class="opt"><span class="box"></span>nein</span>
+      </div>
+    </div></div>
+    <table class="fehler">
+      <tr><th></th><th style="width:52mm">Wo war das? <span style="font-weight:400">(Ort, Person, Aufgabe)</span></th><th>Was ist passiert?</th></tr>
+      <tr><td class="n">F2</td><td></td><td></td></tr>
+      <tr><td class="n">F3</td><td></td><td></td></tr>
+      <tr><td class="n">F4</td><td></td><td></td></tr>
+    </table>
+    <p style="font-size:10pt;color:var(--grau);margin:1.5mm 0 0">Tipp: Mach ein Foto vom Bildschirm und zeig es deiner Lehrkraft.</p>
+  </div>
+
+  <div class="abschnitt">
+    <h2><span class="teil">G</span> Zum Schluss</h2>
+    <div class="frage"><div class="nr">G1</div><div>
+      <div class="text">Deine Ideen: Was soll es noch im Spiel geben? Was können wir besser machen?</div>
+      <div class="feld z3"></div>
+    </div></div>
+    <div class="frage"><div class="nr">G2</div><div>
+      <div class="text">Gib dem Spiel eine Schulnote!</div>
+      <div class="note">
+        <span class="opt"><span class="box"></span>1<small>sehr gut</small></span>
+        <span class="opt"><span class="box"></span>2<small>gut</small></span>
+        <span class="opt"><span class="box"></span>3<small>befriedigend</small></span>
+        <span class="opt"><span class="box"></span>4<small>ausreichend</small></span>
+        <span class="opt"><span class="box"></span>5<small>mangelhaft</small></span>
+        <span class="opt"><span class="box"></span>6<small>ungenügend</small></span>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="danke">Vielen Dank, Held von Eldoria!</div>
+  <div class="helden">
+    <img src="bilder/held_kriegerin.png" alt=""><img src="bilder/held_magier.png" alt=""><img src="bilder/held_waldlaeufer.png" alt=""><img src="bilder/held_barde.png" alt="">
+  </div>
+  <div class="fuss"><span>Teil F und G</span><span>Fertig! Gib den Bogen bei deiner Lehrkraft ab.</span></div>
+</section>
+
+</body>
+</html>
