@@ -234,6 +234,27 @@ Pro Reich gibt es bisher etwa 1100–1300 XP. Wenn die nächsten Reiche fertig s
 
 Neue Stufen einfach hinten an `STUFEN` anhängen. Bei neuen Reichen die Schwellen so wählen, dass der Hauptweg weiter Stufen bringt.
 
+## Stellen zum Ansehen (Weltgestaltung)
+
+In allen Reichen gibt es Dinge, die man ansehen kann, ohne dass sie eine Quest weiterbringen: die Quelle der Echos,
+der Baum der Erinnerungen, Säulen mit Inschriften, ein Lagerfeuer … Sie erzählen von der Welt und sind kleine
+Leseanlässe nebenbei (A2, kurze Sätze, gern poetisch). Alle Texte stehen in `src/inhalte/stellen.js`:
+
+```js
+stelle({ id: "st_baum", name: "Baum der Erinnerungen", x: 32, y: 47, breite: 2, hoehe: 2,
+  hinweis: "Den Baum ansehen",      // optional, sonst „<Name> ansehen“
+  kopfY: 3, weit: 3.5,               // optional: wohin die Gesprächskamera schaut
+  texte: ["Erster Besuch …", "Zweiter Besuch …"] }),       // bei jedem Besuch der nächste Text
+stelle({ …, texte: jeNach("aurelia_finale", "vorher (verflucht) …", "nachher (gerettet) …") }),
+```
+
+- Eine Stelle ist unsichtbar und liegt auf Deko, die im Raster ohnehin gesperrt ist (Baum, Säule, Fels, Wasser).
+  Sie sperrt ihre Kacheln, darum nie auf begehbare Kacheln legen. Koordinaten stehen in den `*_layout.js`-Dateien.
+- Vorhandene Objekte ohne eigene Aufgabe (Marktstand, Amboss, Ratsfeuer …) bekommen ihre Texte über `TEXTE_OBJEKTE`.
+- Stellen gibt es nur in der 3D-Version; die 16-Bit-Version blendet sie aus.
+- Nach dem Eintragen prüfen, dass jede Stelle erreichbar ist und keine Figur oder Quest-Station verdrängt
+  (die nächste Interaktion gewinnt immer das nächste Objekt).
+
 ## Neue Orte in der 3D-Version
 
 Ein neuer Ort braucht zwei Teile:

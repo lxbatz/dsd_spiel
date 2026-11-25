@@ -127,6 +127,7 @@ Dann im Browser `http://localhost:8000` öffnen.
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Kopiersperre:** Rechtsklick, Kopieren und Einfügen sind im Spiel gesperrt, damit niemand Aufgabentexte in die Schreibaufgaben übernimmt. Einfügen geht nur bei „Lehrercode einlösen“; den eigenen Text kann man weiterhin herauskopieren.
 - **Abschriftprüfung:** Schreibaufgaben vergleichen den Text mit dem Ausgangstext. Ab 6 wörtlich gleichen Wörtern in Folge warnt der Zauberspiegel und zeigt die Stelle; Redemittel und Aufgabenstellung zählen nicht. Ist mehr als die Hälfte abgeschrieben, wird der Text nicht angenommen.
+- **Stellen zum Ansehen:** In allen Reichen lassen sich Dinge ansehen, die keine Quest weiterbringen (Quelle der Echos, Baum der Erinnerungen, Säulen mit Inschriften, Lagerfeuer …). Kurze, bildhafte Texte als Leseanlässe nebenbei, teils mit neuem Text nach der Rettung des Reichs. Alle Texte in `src/inhalte/stellen.js`.
 - **Neue Inhalte anlegen:** siehe [docs/inhalte.md](docs/inhalte.md).
 
 ## Technik

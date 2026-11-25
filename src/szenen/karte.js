@@ -45,7 +45,7 @@ export class KartenSzene extends Phaser.Scene {
 
     // Objekte
     this.feste = this.physics.add.staticGroup();
-    this.objekte = def.objekte.map((o) => this.objektErzeugen(o));
+    this.objekte = def.objekte.filter((o) => !o.unsichtbar).map((o) => this.objektErzeugen(o));
 
     // Spielfigur
     const [sx, sy] = def.spawns[this.spawnId] ?? def.spawns.start;

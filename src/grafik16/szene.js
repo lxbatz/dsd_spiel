@@ -127,7 +127,7 @@ export class Karte16 extends Phaser.Scene {
     if (!this.drinnen) this.falter(breite, hoehe);
 
     // Objekte aus der Kartendefinition
-    this.objekte = def.objekte.map((o) => this.objektErzeugen(o));
+    this.objekte = def.objekte.filter((o) => !o.unsichtbar).map((o) => this.objektErzeugen(o));   // Stellen gibt es nur in 3D
 
     // Spielfigur
     const [sx, sy] = def.spawns[this.spawnId] ?? def.spawns.start;

@@ -196,7 +196,8 @@ export class Spiel3D {
     for (const o of def.objekte) {
       const b = o.breite ?? 1, h = o.hoehe ?? 1;
       const cx = o.x * E + (b * E) / 2, cz = o.y * E + (h * E) / 2;
-      let res = bau.objektModell(o);
+      // Unsichtbare Stellen (src/welt/stellen.js) liegen auf vorhandener Deko und brauchen kein eigenes Modell
+      let res = o.unsichtbar ? { modell: new THREE.Group(), kopfY: o.kopfY, weit: o.weit } : bau.objektModell(o);
       if (!res && o.art === "npc" && AUSSEHEN[o.bild]) {
         const figur = figurBauen(AUSSEHEN[o.bild], o.bild);
         res = { modell: figur.gruppe, figur };
