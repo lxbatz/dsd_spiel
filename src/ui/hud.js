@@ -107,7 +107,7 @@ async function sprungAnbieten(ziel, zurueck) {
 }
 
 export function codeAnzeigen({ zurueck } = {}) {
-  const eingabe = el("input", { class: "code-eingabe", placeholder: "ELD-XXXX-XXXX", maxlength: 20, autocomplete: "off" });
+  const eingabe = el("input", { class: "code-eingabe", placeholder: "ELD-XXXX-XXXX", maxlength: 20, autocomplete: "off", "data-einfuegen": true });
   const meldung = el("div", { class: "feedback", hidden: true });
   const einloesen = async () => {
     let code = eingabe.value.trim().toUpperCase();
@@ -210,7 +210,7 @@ function dateiLaden(meldung) {
 
 function menueAnzeigen() {
   const meldung = el("div", { class: "feedback", hidden: true });
-  const codeFeld = el("textarea", { class: "code-feld", placeholder: "Alten Spielstand-Code hier einfügen …" });
+  const codeFeld = el("textarea", { class: "code-feld", placeholder: "Alten Spielstand-Code hier einfügen …", "data-einfuegen": true });
   const steuerung = einstellungen.steuerung?.() ?? "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc";
 
   const tonKnopf = knopf(tonText(), () => { stummSchalten(); tonKnopf.textContent = tonText(); }, "knopf zweitrangig");

@@ -6,17 +6,37 @@ import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 
-// Rechtsklick, Bilder ziehen, Strg+S, Strg+U, F12 und Strg+Umschalt+I/J/C sind im Spiel gesperrt (für nichts nötig).
-// In Textfeldern bleibt der Rechtsklick erlaubt, damit Kopieren und Einfügen beim Schreiben funktioniert.
-const editierbar = (z) => z?.closest?.("textarea, input, [contenteditable='true']");
-document.addEventListener("contextmenu", (ev) => { if (!editierbar(ev.target)) ev.preventDefault(); });
-document.addEventListener("dragstart", (ev) => { if (ev.target?.tagName === "IMG") ev.preventDefault(); });
+// Rechtsklick, Kopieren, Ausschneiden, Einfügen, Bilder und Text ziehen, Strg+S, Strg+U, F12 und
+// Strg+Umschalt+I/J/C sind im Spiel gesperrt. So kann niemand Aufgabentexte in die Schreibaufgaben kopieren
+// (in der Prüfung gäbe das 0 Punkte). Erlaubt bleibt nur das Einfügen in Felder mit data-einfuegen
+// (Lehrercode, alter Spielstand-Code) und das Kopieren des eigenen Textes aus einer Schreibaufgabe.
+const einfuegenErlaubt = (z) => !!z?.closest?.("[data-einfuegen]");
+const eigenerText = (z) => !!z?.closest?.("textarea.freitext");
+const ziel = (ev) => (ev.target?.nodeType === 1 ? ev.target : ev.target?.parentElement);
+// Bei Textfeldern ist das Ereignisziel das Feld selbst, sonst zählt, wo die Markierung liegt.
+const markierungIn = (ev, pruef) => {
+  const z = ziel(ev);
+  if (z?.matches?.("textarea, input")) return pruef(z);
+  const sel = document.getSelection();
+  if (!sel || sel.isCollapsed) return true;
+  const knoten = (n) => (n?.nodeType === 1 ? n : n?.parentElement);
+  return pruef(knoten(sel.anchorNode)) && pruef(knoten(sel.focusNode));
+};
+document.addEventListener("contextmenu", (ev) => { if (!einfuegenErlaubt(ziel(ev))) ev.preventDefault(); }, true);
+document.addEventListener("copy", (ev) => { if (!markierungIn(ev, eigenerText)) ev.preventDefault(); }, true);
+document.addEventListener("cut", (ev) => { if (!markierungIn(ev, (z) => eigenerText(z) || einfuegenErlaubt(z))) ev.preventDefault(); }, true);
+document.addEventListener("paste", (ev) => { if (!einfuegenErlaubt(ziel(ev))) ev.preventDefault(); }, true);
+document.addEventListener("beforeinput", (ev) => {
+  if (/^insertFrom(Paste|Drop|Yank)/.test(ev.inputType) && !einfuegenErlaubt(ziel(ev))) ev.preventDefault();
+}, true);
+document.addEventListener("dragstart", (ev) => { if (!einfuegenErlaubt(ziel(ev))) ev.preventDefault(); }, true);
+document.addEventListener("drop", (ev) => { if (!einfuegenErlaubt(ziel(ev))) ev.preventDefault(); }, true);
 document.addEventListener("keydown", (ev) => {
   const taste = ev.key.toLowerCase();
   if ((ev.ctrlKey || ev.metaKey) && ["s", "u"].includes(taste)) ev.preventDefault();
   // F12 und Strg+Umschalt+I/J/C (Entwicklerwerkzeuge)
   if (ev.key === "F12" || ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && ["i", "j", "c"].includes(taste))) ev.preventDefault();
-});
+}, true);
 
 export const PROLOG = [
   "Vor langer Zeit war Eldoria ein Land des Friedens. Vier Reiche lebten in Harmonie: Aurelia, das Reich des Hörens. Scriptoria, das Reich des Lesens. Lythara, das Reich des Schreibens. Und Vocantia, das Reich des Sprechens.",
