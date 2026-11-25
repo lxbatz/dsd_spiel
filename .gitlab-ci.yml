@@ -1,0 +1,11 @@
+# Veröffentlicht das Spiel auf GitLab Pages (Schul-GitLab).
+# Das Spiel braucht keinen Bauschritt: Alle Dateien werden unverändert in den Ordner public kopiert.
+pages:
+  stage: deploy
+  script:
+    - mkdir -p /tmp/seite && cp -r . /tmp/seite/ && rm -rf /tmp/seite/.git && mv /tmp/seite public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
