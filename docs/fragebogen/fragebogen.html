@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../fonts/schriften.css">
 <style>
   /* Druckvorlage A4, 4 Seiten. Für das Einscannen: weiße Felder, dunkle Rahmen, große Kästchen,
-     Fragenummern in schwarzen Kästen, Kennung und Seitenzahl auf jeder Seite, Passmarken in den Ecken. */
+     Fragenummern in schwarzen Kästen, Seitenzahl auf jeder Seite (anonym, ohne Kennung), Passmarken in den Ecken. */
   @page { size: A4; margin: 0; }
   :root { --tinte: #1d1c28; --gold: #a8741d; --gold-hell: #e9d9b0; --pergament: #fbf6ea; --grau: #5a5868; }
   * { box-sizing: border-box; }
@@ -31,7 +31,7 @@
 
   h1 { font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 25pt; margin: 3mm 0 1mm; text-align: center; letter-spacing: .5pt; }
   .unter { text-align: center; color: var(--grau); margin: 0 0 4mm; font-size: 11pt; }
-  .banner { width: 100%; height: 36mm; object-fit: cover; border: 1.5pt solid var(--gold); border-radius: 3mm; display: block; }
+  .banner { width: 100%; height: 31mm; object-fit: cover; border: 1.5pt solid var(--gold); border-radius: 3mm; display: block; }
 
   h2 { font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 14.5pt; margin: 0 0 2.5mm; display: flex; align-items: center; gap: 3mm; }
   h2 .teil { background: var(--gold); color: #fff; font-family: "Atkinson Hyperlegible", sans-serif; font-size: 11pt; padding: .6mm 2.5mm; border-radius: 1.5mm; }
@@ -84,15 +84,17 @@
   table.fehler { border-collapse: collapse; width: 100%; }
   .fehler th, .fehler td { border: 1.2pt solid #000; padding: 1.5mm 2mm; text-align: left; vertical-align: top; }
   .fehler th { font-size: 10pt; background: #fff; }
-  .fehler td { height: 17mm; }
+  .fehler td { height: 15mm; }
   .fehler td.n { width: 8mm; text-align: center; font-weight: 700; vertical-align: middle; }
   .zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
   .note { display: flex; gap: 4mm; }
   .note .opt { flex-direction: column; gap: 1mm; font-weight: 700; }
   .note .opt small { font-weight: 400; font-size: 8.5pt; color: var(--grau); }
-  .helden { display: flex; justify-content: center; gap: 5mm; margin-top: 4mm; }
+  .helden { display: flex; justify-content: center; gap: 5mm; margin-top: 2.5mm; }
   .helden img { width: 17mm; height: 17mm; image-rendering: pixelated; border: 1.2pt solid var(--gold); border-radius: 2mm; }
   .danke { text-align: center; font-family: "Cinzel", Georgia, serif; font-size: 17pt; font-weight: 600; color: var(--gold); margin-top: 3mm; }
+  .belohnung { margin-top: 4mm; border: 1.5pt solid var(--gold); border-radius: 3mm; background: var(--pergament); padding: 3mm 4mm; display: grid; grid-template-columns: 14mm 1fr; gap: 4mm; align-items: center; }
+  .belohnung .xp { font-family: "Cinzel", Georgia, serif; font-weight: 600; color: var(--gold); font-size: 13pt; }
   .fuss { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; font-size: 8.5pt; color: var(--grau); display: flex; justify-content: space-between; }
 </style>
 </head>
@@ -125,7 +127,7 @@
     <img class="portrait" src="bilder/npc_aldric.png" alt="">
     <div class="blase"><b class="name">Ratsältester Aldric</b>
       Hallo, Heldin! Hallo, Held! Was ist gut im Spiel? Was können wir besser machen?
-      Es gibt keine falschen Antworten. Sei ehrlich – auch Kritik hilft uns sehr!
+      Du schreibst deinen Namen nicht auf. Es gibt keine falschen Antworten. Sei ehrlich – auch Kritik hilft uns sehr!
     </div>
   </div>
 
@@ -146,9 +148,8 @@
   <div class="abschnitt">
     <h2><span class="teil">A</span> Über dich</h2>
     <div class="frage"><div class="nr">A1</div><div>
-      <div class="text">Deine Kennung aus dem Spiel <small>(steht im Heldenpass, zum Beispiel IFK11-07)</small></div>
-      <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span>
-      <span style="margin-left:8mm" class="text">Klasse:</span> <span class="zeichen"><span></span><span></span><span></span><span></span><span></span></span>
+      <div class="text">Deine Klasse:</div>
+      <span class="zeichen"><span></span><span></span><span></span><span></span><span></span></span>
     </div></div>
     <div class="frage"><div class="nr">A2</div><div>
       <div class="text">Womit hast du gespielt? <small>(mehrere Kreuze möglich)</small></div>
@@ -203,8 +204,8 @@
 <section class="seite">
   <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
   <div class="kopf">
-    <span class="titel">Eldoria · Beta-Test</span>
-    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 2 von 4</span></span>
+    <span class="titel">Die Chroniken von Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="seitenzahl">Seite 2 von 4</span></span>
   </div>
 
   <div class="abschnitt">
@@ -305,8 +306,8 @@
 <section class="seite">
   <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
   <div class="kopf">
-    <span class="titel">Eldoria · Beta-Test</span>
-    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 3 von 4</span></span>
+    <span class="titel">Die Chroniken von Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="seitenzahl">Seite 3 von 4</span></span>
   </div>
 
   <div class="abschnitt">
@@ -384,8 +385,8 @@
 <section class="seite">
   <div class="marke lo"></div><div class="marke ro"></div><div class="marke lu"></div><div class="marke ru"></div>
   <div class="kopf">
-    <span class="titel">Eldoria · Beta-Test</span>
-    <span class="rechts"><span class="kennung-klein">Kennung: <span class="zeichen"><span></span><span></span><span></span><span></span><span></span><span class="strich">–</span><span></span><span></span><span></span></span></span><span class="seitenzahl">Seite 4 von 4</span></span>
+    <span class="titel">Die Chroniken von Eldoria · Beta-Test</span>
+    <span class="rechts"><span class="seitenzahl">Seite 4 von 4</span></span>
   </div>
 
   <div class="abschnitt">
@@ -433,6 +434,12 @@
   <div class="danke">Vielen Dank, Held von Eldoria!</div>
   <div class="helden">
     <img src="bilder/held_kriegerin.png" alt=""><img src="bilder/held_magier.png" alt=""><img src="bilder/held_waldlaeufer.png" alt=""><img src="bilder/held_barde.png" alt="">
+  </div>
+  <div class="belohnung">
+    <svg viewBox="0 0 24 24" width="14mm" height="14mm"><rect x="3" y="10" width="18" height="11" rx="1.5" fill="#fbf6ea" stroke="#a8741d" stroke-width="1.5"/><rect x="2" y="7" width="20" height="4" rx="1" fill="#e9d9b0" stroke="#a8741d" stroke-width="1.5"/><path d="M12 7v14" stroke="#a8741d" stroke-width="1.5"/><path d="M12 7C9 2 5 4 8 7M12 7c3-5 7-3 4 0" fill="none" stroke="#a8741d" stroke-width="1.5"/></svg>
+    <div><span class="xp">Deine Belohnung: +50 XP!</span><br>
+      Gib den Fragebogen bei deiner Lehrkraft ab. Dann bekommst du einen <b>Lehrercode</b>.
+      Im Spiel gibst du ihn so ein: <b>☰ Menü → Lehrercode einlösen</b>.</div>
   </div>
   <div class="fuss"><span>Teil F und G</span><span>Fertig! Gib den Bogen bei deiner Lehrkraft ab.</span></div>
 </section>
