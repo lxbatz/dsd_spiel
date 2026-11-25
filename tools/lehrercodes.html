@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" class="gesperrt">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,6 +24,8 @@
     }
     @media (max-width: 520px) { body { margin: 12px auto; } }
   </style>
+  <style>html.gesperrt body > :not(#sperre) { display: none !important; }</style>
+  <script type="module" src="sperre.js"></script>
 </head>
 <body>
   <div class="nicht-drucken">

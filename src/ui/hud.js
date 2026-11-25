@@ -15,6 +15,7 @@ import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
 import { TEXTE } from "../inhalte/texte.js";
 import { ziele } from "../welt/ziele.js";
 import { sha256 } from "../hilfen.js";
+import { vollbildMoeglich, istVollbild, vollbildUmschalten } from "./vollbild.js";
 import { istStumm, stummSchalten, spieleJingle } from "../musik.js";
 import { johannesBild, alexanderBild, claudeBild } from "../grafik16/credits_bilder.js";
 
@@ -208,6 +209,15 @@ function dateiLaden(meldung) {
   eingabe.click();
 }
 
+// Schalter im Menü; die Beschriftung folgt dem Zustand (auch wenn man Vollbild mit Esc verlässt)
+function vollbildKnopf() {
+  const text = () => (istVollbild() ? "⛶ Vollbild aus" : "⛶ Vollbild an");
+  const k = knopf(text(), async () => { await vollbildUmschalten(); k.textContent = text(); }, "knopf zweitrangig");
+  const anpassen = () => { if (!k.isConnected) document.removeEventListener("fullscreenchange", anpassen); else k.textContent = text(); };
+  document.addEventListener("fullscreenchange", anpassen);
+  return k;
+}
+
 function menueAnzeigen() {
   const meldung = el("div", { class: "feedback", hidden: true });
   const steuerung = einstellungen.steuerung?.() ?? "Laufen: Pfeiltasten oder W A S D · Sprechen/Benutzen: E oder Leertaste · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik an/aus: M · Menü: Esc";
@@ -217,6 +227,7 @@ function menueAnzeigen() {
     el("h2", {}, "☰ Menü"),
     el("div", { class: "knopfleiste menue-schnell", style: "justify-content:flex-start" },
       tonKnopf,
+      vollbildMoeglich() ? vollbildKnopf() : null,
       knopf("🔑 Lehrercode einlösen", () => codeAnzeigen({ zurueck: menueAnzeigen }), "knopf zweitrangig"),
       knopf("🎬 Credits", creditsAnzeigen, "knopf zweitrangig")),
     el("h3", {}, "Steuerung"),

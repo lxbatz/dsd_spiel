@@ -5,6 +5,7 @@ import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/
 import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
+import { vollbildBeimStart } from "./ui/vollbild.js";
 
 // Rechtsklick, Kopieren, Ausschneiden, Einfügen, Bilder und Text ziehen, Strg+S, Strg+U, F12 und
 // Strg+Umschalt+I/J/C sind im Spiel gesperrt. So kann niemand Aufgabentexte in die Schreibaufgaben kopieren
@@ -76,6 +77,7 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
   };
 
   const neuesSpiel = async () => {
+    vollbildBeimStart();
     zuruecksetzen();
     musik("intro");
     if (intro) {
@@ -100,7 +102,7 @@ export function titelZeigen({ beimStart, untertitel = null, titelBild = "boss_to
 
   const hatSpielstand = Boolean(zustand.held) || zustand.xp > 0;
   const knoepfe = hatSpielstand
-    ? [knopf("▶ Weiterspielen", starten), knopf("Neues Spiel", async () => {
+    ? [knopf("▶ Weiterspielen", () => { vollbildBeimStart(); starten(); }), knopf("Neues Spiel", async () => {
         const ja = await bestaetigen("Neues Spiel?", "Dein bisheriger Fortschritt auf diesem Gerät wird gelöscht.", "Ja, neu beginnen");
         if (ja) neuesSpiel();
         else titelZeigen({ beimStart, untertitel, titelBild, bildGroesse, intro });

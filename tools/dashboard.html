@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" class="gesperrt">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -157,6 +157,8 @@
     @media (prefers-reduced-motion: no-preference) { .akte:not([hidden]) { animation: rein .25s ease-out; } }
     @keyframes rein { from { opacity: .4; transform: translateY(6px); } }
   </style>
+  <style>html.gesperrt body > :not(#sperre) { display: none !important; }</style>
+  <script type="module" src="sperre.js"></script>
 </head>
 <body>
   <main>
