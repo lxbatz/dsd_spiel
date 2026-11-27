@@ -34,6 +34,7 @@ import { TEXTE } from "../inhalte/texte.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { sprechen, sprechenStoppen } from "./sprechen.js";
 import { ton } from "../ton.js";
+import { hilfsmittelKnopf } from "./hilfsmittel.js";
 
 // ---------- Hilfen ----------
 
@@ -122,6 +123,17 @@ function auswahl(a) {
       return { ok, meldung: ok ? "" : (a.tipp ?? "Das stimmt leider nicht.") };
     },
     loesungZeigen() { knoepfe.get(a.richtig).classList.add("richtig"); },
+    hilfen: {
+      // Feder: streicht eine falsche Antwort
+      feder() {
+        const falsche = [...knoepfe.entries()].filter(([i, k]) => i !== a.richtig && !k.disabled);
+        if (!falsche.length) return false;
+        const [i, k] = falsche[Math.floor(Math.random() * falsche.length)];
+        k.disabled = true; k.classList.add("gestrichen"); k.classList.remove("gewaehlt");
+        if (gewaehlt === i) gewaehlt = null;
+        return true;
+      },
+    },
     punkte: () => ({ punkte: gewaehlt === a.richtig ? 1 : 0, max: 1 }),
     sperren() { knoepfe.forEach((k) => { k.disabled = true; }); },
   };
@@ -188,6 +200,22 @@ function luecke(a) {
         feld.classList.add("richtig");
       });
     },
+    hilfen: {
+      // Feder: füllt eine noch leere oder falsche Lücke richtig aus
+      feder() {
+        const f = felder.find(({ feld, loesungen }) => !feld.disabled && !vergleiche(feld.value, loesungen).ok);
+        if (!f) return false;
+        f.feld.value = f.loesungen[0];
+        f.feld.classList.remove("falsch"); f.feld.classList.add("richtig", "geholfen");
+        f.feld.disabled = true;
+        return true;
+      },
+      // Lupe: zeigt in allen Lücken den Anfangsbuchstaben
+      lupe: optionen ? null : () => {
+        felder.forEach(({ feld, loesungen }) => { if (!feld.disabled) feld.placeholder = `${loesungen[0][0]}…`; });
+        return true;
+      },
+    },
     punkte: () => ({ punkte: felder.filter(({ feld, loesungen }) => vergleiche(feld.value, loesungen).ok).length, max: felder.length }),
     sperren() { felder.forEach(({ feld }) => { feld.disabled = true; }); },
   };
@@ -211,6 +239,22 @@ function ordnen(a) {
     return b;
   }
   reihenfolge.forEach((i) => quelle.append(baustein(i)));
+  let fest = 0;
+  function festlegen() {
+    if (fest >= a.teile.length - 1) return false;
+    // Alle Bausteine zurück, dann die ersten (fest + 1) in der richtigen Reihenfolge festlegen
+    const alle = [...ziel.children, ...quelle.children];
+    fest++;
+    ziel.replaceChildren();
+    for (let i = 0; i < fest; i++) {
+      const b = alle.find((x) => Number(x.dataset.index) === i);
+      b.disabled = true; b.classList.add("geholfen");
+      ziel.append(b);
+    }
+    quelle.replaceChildren(...alle.filter((x) => Number(x.dataset.index) >= fest));
+    ziel.classList.remove("richtig", "falsch");
+    return true;
+  }
 
   const satz = () => normal([...ziel.children].map((b) => b.textContent).join(" "));
   const loesungen = [a.teile.join(" "), ...(a.loesungen ?? [])].map(normal);
@@ -237,6 +281,11 @@ function ordnen(a) {
       a.teile.forEach((_, i) => ziel.append(baustein(i)));
       ziel.classList.remove("falsch");
       ziel.classList.add("richtig");
+    },
+    hilfen: {
+      // Feder (und Lupe): legt den nächsten Baustein fest an den Anfang
+      feder: () => festlegen(),
+      lupe: () => festlegen(),
     },
     punkte: () => ({ punkte: !quelle.children.length && loesungen.includes(satz()) ? 1 : 0, max: 1 }),
     sperren() { gesperrt = true; },
@@ -274,6 +323,17 @@ function zuordnen(a) {
     },
     loesungZeigen() {
       selects.forEach((s, i) => { s.value = a.paare[i][1]; s.classList.remove("falsch"); s.classList.add("richtig"); });
+    },
+    hilfen: {
+      // Feder: ordnet ein Paar richtig zu
+      feder() {
+        const i = selects.findIndex((s, j) => !s.disabled && s.value !== a.paare[j][1]);
+        if (i < 0) return false;
+        selects[i].value = a.paare[i][1];
+        selects[i].classList.remove("falsch"); selects[i].classList.add("richtig", "geholfen");
+        selects[i].disabled = true;
+        return true;
+      },
     },
     punkte: () => ({ punkte: selects.filter((s, i) => s.value === a.paare[i][1]).length, max: selects.length }),
     sperren() { selects.forEach((s) => { s.disabled = true; }); },
@@ -319,6 +379,20 @@ function richtigfalsch(a) {
         z.zeile.classList.remove("falsch");
         z.zeile.classList.add("richtig");
       });
+    },
+    hilfen: {
+      // Feder: beantwortet eine Aussage richtig
+      feder() {
+        const i = zeilen.findIndex((z, j) => !z.r.disabled && antworten[j] !== a.aussagen[j][1]);
+        if (i < 0) return false;
+        const wert = a.aussagen[i][1];
+        antworten[i] = wert;
+        const z = zeilen[i];
+        z.r.classList.toggle("gewaehlt", wert === true); z.f.classList.toggle("gewaehlt", wert === false);
+        z.zeile.classList.remove("falsch"); z.zeile.classList.add("richtig", "geholfen");
+        z.r.disabled = z.f.disabled = true;
+        return true;
+      },
     },
     punkte: () => ({ punkte: antworten.filter((x, i) => x === a.aussagen[i][1]).length, max: zeilen.length }),
     sperren() { zeilen.forEach((z) => { z.r.disabled = true; z.f.disabled = true; }); },
@@ -499,6 +573,10 @@ function block(a) {
       return { ok, meldung: ok ? "" : `${richtig} von ${teile.length} Aufgaben sind richtig.` };
     },
     loesungZeigen() { teile.forEach(({ r }) => r.loesungZeigen()); kaesten.forEach((k) => k.classList.remove("falsch")); },
+    hilfen: {
+      feder: () => teile.some(({ r }) => r.hilfen?.feder?.()),
+      lupe: teile.some(({ r }) => r.hilfen?.lupe) ? () => teile.some(({ r }) => r.hilfen?.lupe?.()) : null,
+    },
     punkte: () => teile.map(({ r }) => r.punkte?.() ?? { punkte: 0, max: 0 }).reduce((x, y) => ({ punkte: x.punkte + y.punkte, max: x.max + y.max }), { punkte: 0, max: 0 }),
     sperren() { teile.forEach(({ r }) => r.sperren()); },
   };
@@ -596,7 +674,8 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         if (loesungErlaubt && !leiste.contains(loesungKnopf)) leiste.prepend(loesungKnopf);
       });
       leiste.append(pruefKnopf);
-      if (hilfsmittelKnopf) { const k = hilfsmittelKnopf(r, a); if (k) mitte.append(k); }
+      const hilfe = hilfsmittelKnopf(r);
+      if (hilfe) mitte.append(hilfe);
 
       const zaehlung = aufgaben.length > 1 ? (wiederholung ? `Wiederholung: Aufgabe ${i + 1}` : `Aufgabe ${i + 1} von ${aufgaben.length}`) : (wiederholung ? "Wiederholung" : null);
       zeigen(
@@ -655,10 +734,6 @@ export function leistungAbholen() {
   leistungOffen = null;
   return l && Date.now() - l.zeit < 3 * 60 * 1000 ? l : null;
 }
-
-// Knopf „Hilfsmittel einsetzen“ zwischen „Quest abbrechen“ und „Prüfen“ (wird vom Inventar gesetzt).
-let hilfsmittelKnopf = null;
-export function hilfsmittelAnmelden(fn) { hilfsmittelKnopf = fn; }
 
 // ---------- Prüfungsmodus (Probeprüfung) ----------
 

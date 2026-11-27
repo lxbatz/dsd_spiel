@@ -5,7 +5,8 @@ import { el, zeigen, knopf, fokus } from "./fenster.js";
 import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { sprechenStoppen } from "./sprechen.js";
-import { hatEffekt, kampfErgebnis } from "../zustand.js";
+import { kampfErgebnis, herzenJetzt, herzenMax as herzenMaxWelt, herzenSetzen } from "../zustand.js";
+import { hilfsmittelKnopf } from "./hilfsmittel.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
 import { tonSchalter } from "./tonschalter.js";
@@ -19,8 +20,9 @@ import { ton } from "../ton.js";
  */
 export async function kampf(gegner, roheFragen) {
   const fragen = roheFragen.map(aufgabeAufloesen);
-  const herzenMax = 3 + (hatEffekt("extra_herz") ? 1 : 0);
-  let herzen = herzenMax;
+  // Die Herzen kommen aus der Welt: Wer vorher Herzen sammelt, geht gestärkt in den Kampf.
+  const herzenMax = herzenMaxWelt();
+  let herzen = Math.max(1, herzenJetzt());
   let lp = gegner.lp;
   const schaden = gegner.schaden ?? 20;
   let stapel = mischen(fragen);
@@ -38,8 +40,8 @@ export async function kampf(gegner, roheFragen) {
         tonSchalter()),
       el("div", { class: "feedback info" },
         `So funktioniert der Kampf: Jede richtige Antwort trifft den Gegner (−${schaden} Lebenspunkte). `,
-        `Bei einer falschen Antwort verlierst du ein Herz. Du hast ${herzenMax} Herzen`,
-        herzenMax > 3 ? " (+1 durch dein Bronze-Abzeichen)." : "."),
+        `Bei einer falschen Antwort verlierst du ein Herz. Du hast ${herzen} von ${herzenMax} Herzen.`,
+        herzen < herzenMax ? " Tipp: Du kannst vorher in der Welt Herzen sammeln oder im Kampf einen Heiltrank trinken." : ""),
       el("div", { class: "knopfleiste" }, k));
     fokus(k);
   });
@@ -99,6 +101,11 @@ export async function kampf(gegner, roheFragen) {
         fokus(w);
       });
       leiste.append(pruef);
+      const hilfe = hilfsmittelKnopf(r, {
+        ort: "kampf",
+        heilen: () => { if (herzen >= herzenMax) return false; herzen++; zeichneHerzen(); return true; },
+      });
+      if (hilfe) leiste.prepend(hilfe);
 
       zeigen(
         el("div", { class: "kampf-kopf" },
@@ -124,6 +131,8 @@ export async function kampf(gegner, roheFragen) {
   }
 
   const sieg = lp <= 0;
+  // Übrige Herzen zurück in die Welt (nach einer Niederlage bleibt eins)
+  herzenSetzen(Math.max(1, herzen));
   kampfErgebnis({
     gegner: gegner.name, quest: gegner.quest ?? null, sieg,
     richtig: verlauf.filter((f) => f.ok).length, falsch: verlauf.filter((f) => !f.ok).length,

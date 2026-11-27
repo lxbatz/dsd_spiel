@@ -217,7 +217,7 @@ async function wilma() {
         "Finn hat schon ein Bild von den Kleinen gemalt. Das sollst du bekommen – als Dank fürs Suchen und Zuhören.",
       ], B);
       erledigen("dorf_mimi");
-      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Mimi ist weg!", gegenstaende: ["katzenbild"], fanfare: true });
+      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Mimi ist weg!", gegenstaende: ["katzenbild"], hilfsmittel: { heiltrank: 1, feder: 1 }, fanfare: true });
       return;
     }
     if (nebenquestsOffen() && !istErledigt("dorf_markt")) {
@@ -234,7 +234,7 @@ async function wilma() {
         "*flüstert* Du warst wunderbar! Alle Kunden waren zufrieden – und so höflich warst du!",
         "Die Kunden haben dir Trinkgeld gegeben. Das gehört dir. Und Mimi hat dir die ganze Zeit zugeschaut.",
       ], B);
-      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Ein Tag am Marktstand", gegenstaende: ["trinkgeld"], fanfare: true });
+      await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Ein Tag am Marktstand", gegenstaende: ["trinkgeld"], hilfsmittel: { feder: 1, lupe: 1 }, fanfare: true });
       return;
     }
     await dialog(S, istErledigt("dorf_markt")
@@ -284,7 +284,7 @@ async function borin(welt) {
   if (!geschafft) return;
   erledigen("dorf_borin");
   await dialog(S, "Rote Haare, braune Jacke, eine Katze … Das war Finn! Danke! Jetzt weiß ich, wo ich ihn suchen muss.", B);
-  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?", fanfare: true });
+  await belohnung({ xp: 50, grund: "Quest abgeschlossen: Wo ist Finn?", hilfsmittel: { heiltrank: 1 }, fanfare: true });
 }
 
 // ---------- Nebenquests: Finn und die Werkstatt ----------
@@ -342,7 +342,7 @@ async function finnSprichtMitBorin() {
   ], bild("npc_borin"));
   erledigen("dorf_finn");
   await dialog("Finn", `Danke, Borin! Und danke dir, ${name}. Hier, das ist mein Lieblingslesezeichen. Es soll dir Glück bringen.`, bild("npc_finn"));
-  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Finns Geheimnis", gegenstaende: ["lesezeichen_finn"], fanfare: true });
+  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Finns Geheimnis", gegenstaende: ["lesezeichen_finn"], hilfsmittel: { lupe: 2 }, fanfare: true });
 }
 
 async function werkstatt(welt) {
@@ -362,7 +362,7 @@ async function werkstatt(welt) {
     "Wir haben das Tor schon am Kräutergarten eingebaut. Schau es dir an! Du hast Talent fürs Handwerk.",
   ], B);
   welt?.aktualisieren?.();
-  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Borins Werkstatt", gegenstaende: ["schmiedehammer"], fanfare: true });
+  await belohnung({ xp: 50, grund: "Nebenquest abgeschlossen: Borins Werkstatt", gegenstaende: ["schmiedehammer"], hilfsmittel: { heiltrank: 1, feder: 1 }, fanfare: true });
 }
 
 async function katzenkorb(welt) {

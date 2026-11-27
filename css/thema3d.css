@@ -97,3 +97,7 @@ body.kino #spiel::before, body.kino #spiel::after { height: 11vh; }
 body.kino #hud, body.kino .kompass, body.kino #joystick, body.kino #aktion-knopf, body.kino #hinweis { opacity: 0; pointer-events: none; }
 .ton-schalter { color: var(--hell); border-color: rgba(201, 162, 78, .7); background: rgba(255, 255, 255, .06); }
 .ton-schalter:hover { background: rgba(255, 255, 255, .14); }
+
+.hilfsmittel-menue { background: #1d1b2c; border-color: rgba(201, 162, 78, .7); color: #f0e8d8; }
+.hilfsmittel-eintrag { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .15); }
+.hilfsmittel-eintrag:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }

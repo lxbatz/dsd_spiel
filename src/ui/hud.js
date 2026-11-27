@@ -3,8 +3,9 @@
 import { el, zeigen, knopf, fokus, schliessen, istOffen, toast, textZeigen, bestaetigen } from "./fenster.js";
 import { bild } from "./bilder.js";
 import { heldenpassAnzeigen, kennungErfragen } from "./heldenpass.js";
+import { HILFSMITTEL } from "../inhalte/hilfsmittel.js";
 import {
-  zustand, beobachten, stufeVon, xpGeben, geben, speichern,
+  zustand, beobachten, stufeVon, xpGeben, geben, speichern, herzenJetzt, herzenMax, vorrat,
   zuruecksetzen, spielstandDatei, spielstandLesen, spielstandUebernehmen,
 } from "../zustand.js";
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
@@ -52,6 +53,13 @@ function hudAktualisieren() {
     ? `${zustand.xp} XP · noch ${s.bis - zustand.xp} XP bis Stufe ${s.stufe + 1}`
     : `${zustand.xp} XP · höchste Stufe`;
   reichAnzeigen();
+  const herzen = document.getElementById("hud-herzen");
+  if (herzen && zustand.held) {
+    const n = herzenJetzt(), max = herzenMax();
+    herzen.textContent = "❤️".repeat(n) + "🤍".repeat(max - n);
+    herzen.title = `Deine Herzen: ${n} von ${max}`;
+    herzen.classList.toggle("viele", max > 6);
+  }
 }
 beobachten(hudAktualisieren);
 
@@ -86,6 +94,13 @@ function inventarAnzeigen() {
             })) : null);
         }))
       : el("p", {}, "Dein Inventar ist noch leer."),
+    el("h3", {}, "Hilfsmittel"),
+    el("div", { class: "gegenstaende" }, Object.entries(HILFSMITTEL).map(([id, h]) => el("div", { class: "gegenstand" + (vorrat(id) ? "" : " leer") },
+      el("div", { class: "icon" }, h.icon),
+      el("b", {}, `${h.name} × ${vorrat(id)}`),
+      el("small", {}, h.text),
+      id === "heiltrank" && vorrat(id) && window.eldoria?.spiel3d ? el("div", {}, knopf("Trinken", () => { window.eldoria.spiel3d.heiltrankTrinken(); inventarAnzeigen(); })) : null))),
+    el("p", { class: "untertitel" }, "Hilfsmittel bekommst du von besiegten Gegnern, in Nebenquests und bei jeder neuen Stufe. In Aufgaben benutzt du sie mit „🎒 Hilfsmittel einsetzen“ (eins pro Aufgabe)."),
     el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen)),
   );
 }

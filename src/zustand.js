@@ -2,6 +2,7 @@
 // Sichern und Laden als Datei (.sav), damit man das Gerät wechseln kann.
 
 import { GEGENSTAENDE } from "./inhalte/gegenstaende.js";
+import { STUFEN_GESCHENK } from "./inhalte/hilfsmittel.js";
 import { STUFEN, stufeVon, spielstandLesen, dateiErzeugen } from "./spielstand.js";
 
 export { STUFEN, stufeVon, spielstandLesen };
@@ -36,6 +37,9 @@ function neu() {
     spielerId: neueId(), // zufällige Kennung, damit das Dashboard Dateien derselben Person erkennt
     statistik: neueStatistik(),
     pruefung: {},        // Probeprüfung in der Feste Schattenzahn: teil -> { punkte, max, bestanden, versuche, datum }
+    herzen: null,        // Lebensenergie in der Welt (null = voll)
+    vorrat: {},          // Hilfsmittel: id aus HILFSMITTEL -> Anzahl
+    besiegt: 0,          // besiegte kleine Gegner (für die Statistik)
   };
 }
 
@@ -53,6 +57,7 @@ function laden() {
 function ergaenzen(daten) {
   const z = { ...neu(), ...daten };
   z.statistik = { ...neueStatistik(), ...(daten.statistik ?? {}) };
+  z.vorrat = { ...(daten.vorrat ?? {}) };
   if (!daten.spielerId) z.spielerId = neueId();
   return z;
 }
@@ -78,11 +83,22 @@ export function speichern() {
 /** Gibt XP und meldet, ob eine neue Stufe erreicht wurde. */
 export function xpGeben(menge, grund) {
   const vorher = stufeVon(zustand.xp).stufe;
+  const herzenVorher = herzenMax();
   zustand.xp += menge;
   zustand.protokoll.push({ xp: menge, grund, datum: new Date().toISOString() });
-  speichern();
   const nachher = stufeVon(zustand.xp);
-  return { aufgestiegen: nachher.stufe > vorher, stufe: nachher };
+  const aufgestiegen = nachher.stufe > vorher;
+  let geschenk = null, mehrHerzen = 0;
+  if (aufgestiegen) {
+    // Neue Stufe: Herzen wieder voll, ein Hilfsmittel als Geschenk, ab und zu ein Herz mehr
+    mehrHerzen = herzenMax() - herzenVorher;
+    zustand.herzen = null;
+    geschenk = STUFEN_GESCHENK[(nachher.stufe - 2) % STUFEN_GESCHENK.length];
+    zustand.vorrat ??= {};
+    zustand.vorrat[geschenk] = (zustand.vorrat[geschenk] ?? 0) + 1;
+  }
+  speichern();
+  return { aufgestiegen, stufe: nachher, geschenk, mehrHerzen };
 }
 
 export function hat(gegenstandId) {
@@ -90,6 +106,31 @@ export function hat(gegenstandId) {
 }
 
 /** Prüft, ob irgendein Gegenstand im Inventar diesen Effekt hat. */
+// ---------- Herzen und Hilfsmittel (Action) ----------
+
+/** Herzen: 3 zu Beginn, +1 auf Stufe 3, 6, 9, 12 und 15, +1 durch das Bronze-Abzeichen. */
+export function herzenMax() {
+  const stufe = stufeVon(zustand.xp).stufe;
+  return 3 + [3, 6, 9, 12, 15].filter((s) => stufe >= s).length + (hatEffekt("extra_herz") ? 1 : 0);
+}
+export function herzenJetzt() {
+  const max = herzenMax();
+  return zustand.herzen == null ? max : Math.max(0, Math.min(max, zustand.herzen));
+}
+export function herzenSetzen(n) {
+  const max = herzenMax();
+  zustand.herzen = Math.max(0, Math.min(max, n));
+  if (zustand.herzen === max) zustand.herzen = null;
+  speichern();
+}
+/** Wie viele Hilfsmittel einer Art man hat. */
+export function vorrat(id) { return zustand.vorrat?.[id] ?? 0; }
+export function vorratAendern(id, n) {
+  zustand.vorrat ??= {};
+  zustand.vorrat[id] = Math.max(0, (zustand.vorrat[id] ?? 0) + n);
+  speichern();
+}
+
 export function hatEffekt(effekt) {
   return zustand.gegenstaende.some((id) => GEGENSTAENDE[id]?.effekt === effekt);
 }

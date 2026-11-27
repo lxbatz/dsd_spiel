@@ -30,6 +30,8 @@ import { Effekte, punktSkalaSetzen } from "./effekte.js";
 import { Intro } from "./intro.js";
 import { textur, lichtTextur } from "./texturen.js";
 import { Touchsteuerung } from "./steuerung.js";
+import { Action } from "./action.js";
+import { herzenJetzt, herzenMax, herzenSetzen, vorrat, vorratAendern } from "../zustand.js";
 import { STUFEN, startStufe, gewaehlteStufe, stufeSpeichern, Messung, istTouch } from "./qualitaet.js";
 
 const BAUER = { dorf: dorfBauen, halle: halleBauen, turm: inselnBauen, nichts: nichtsBauen, aurelia: aureliaBauen, scriptoria: scriptoriaBauen, vocantia: vocantiaBauen, treppenturm: treppenturmBauen, schattenzahn: festeBauen };
@@ -92,6 +94,8 @@ export class Spiel3D {
       aktion: () => { const o = this.naechstesObjekt(); if (o && !this.beschaeftigt && !istOffen()) this.interagieren(o); },
     });
 
+    this.action = new Action(this);
+
     new ResizeObserver(() => this.groesseAnpassen()).observe(behaelter);
     this.groesseAnpassen();
     this.eingabe();
@@ -153,8 +157,8 @@ export class Spiel3D {
   einstellungen() {
     hudEinstellungen({
       steuerung: () => istTouch()
-        ? "Laufen: Joystick links oder auf eine Stelle tippen · Sprechen: runder Knopf rechts oder Figur antippen · Kamera: wischen, mit zwei Fingern zoomen"
-        : "Laufen: W A S D oder Pfeiltasten (oder Klick auf eine Stelle) · Sprechen/Benutzen: E, Leertaste oder Klick · Kamera: Maus ziehen, Mausrad zoomt, C setzt sie zurück · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik: M · Menü: Esc",
+        ? "Laufen: Joystick links oder auf eine Stelle tippen · Sprechen: runder Knopf rechts oder Figur antippen · Angreifen: Schwertknopf oder Gegner antippen · Kamera: wischen, mit zwei Fingern zoomen"
+        : "Laufen: W A S D oder Pfeiltasten (oder Klick auf eine Stelle) · Sprechen/Benutzen: E, Leertaste oder Klick · Kamera: Maus ziehen, Mausrad zoomt, C setzt sie zurück · Angreifen: F, rechte Maustaste oder Klick auf den Gegner · Heiltrank: H · Aufgaben: Q · Inventar: I · Heldenpass: P · Musik: M · Menü: Esc",
       zusatz: () => {
         const gewaehlt = gewaehlteStufe();
         const knoepfe = [["auto", "Automatisch"], ...Object.entries(STUFEN).map(([k, v]) => [k, v.name])].map(([k, name]) => {
@@ -375,6 +379,7 @@ export class Spiel3D {
     this.ersteAktualisierung = true;
     this.aktualisieren();
     this.ersteAktualisierung = false;
+    this.action.karteGewechselt(karte);
     try { this.renderer.compile(karte.szene, this.kamera); } catch { /* egal */ }
     toast(`📍 ${karte.def.name}`);
     if (!sofort) {
@@ -437,6 +442,8 @@ export class Spiel3D {
         if (obj) this.interagieren(obj);
       }
       if (k === "c" && this.held) this.yaw = this.held.gruppe.rotation.y + Math.PI;
+      if (k === "f" && !ev.repeat) this.action.angreifen();
+      if (k === "h" && !ev.repeat) this.heiltrankTrinken();
     });
     window.addEventListener("keyup", (ev) => this.tasten.delete(ev.key.toLowerCase()));
     window.addEventListener("blur", () => this.tasten.clear());
@@ -444,7 +451,10 @@ export class Spiel3D {
     // Maus: ziehen dreht die Kamera, Klick läuft zur Stelle oder spricht an
     const leinwand = this.renderer.domElement;
     let ziehen = null;
+    leinwand.addEventListener("contextmenu", (ev) => ev.preventDefault());
     leinwand.addEventListener("pointerdown", (ev) => {
+      // Rechte Maustaste: angreifen
+      if (ev.pointerType === "mouse" && ev.button === 2) { if (!istOffen() && !this.beschaeftigt) this.action.angreifen(); return; }
       if (ev.pointerType !== "mouse" || ev.button !== 0) return;
       ziehen = { x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY };
       leinwand.setPointerCapture(ev.pointerId);
@@ -479,6 +489,15 @@ export class Spiel3D {
     const r = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.kamera);
+    // Klick auf einen Gegner: angreifen (Nahkämpfer laufen erst hin, wenn er zu weit weg ist)
+    const gegner = this.action.gegnerUnterZeiger(this.raycaster);
+    if (gegner) {
+      const nah = ["kriegerin", "barde"].includes(zustand.held?.klasse ?? "kriegerin");
+      const ab = gegner.gruppe.position.distanceTo(this.held.gruppe.position);
+      if (nah && ab > 3.2) this.laufZiel = { punkt: gegner.gruppe.position.clone(), festSeit: 0 };
+      else this.action.angreifen(gegner);
+      return;
+    }
     const ziele = this.karte.objekte.filter((o) => o.interaktiv && o.modell.visible);
     const treffer = this.raycaster.intersectObjects(ziele.map((o) => o.modell), true)[0];
     if (treffer) {
@@ -855,6 +874,7 @@ export class Spiel3D {
       }
     }
     karte.effekte.update(dt);
+    this.action.update(dt, t);
     if (this.gestartet) {
       this.bewegen(dt);
       this.held.animieren(t, this.tempo / TEMPO, dt);
@@ -911,6 +931,18 @@ export class Spiel3D {
         toast(`Grafik auf „${STUFEN[naechste].name}“ gestellt, damit es flüssiger läuft.`);
       }
     }
+  }
+
+  /** Taste H oder Inventar: Heiltrank trinken (zwei Herzen). */
+  heiltrankTrinken() {
+    if (vorrat("heiltrank") < 1) { toast("Du hast keinen Heiltrank. Besiege kleine Gegner – manchmal lassen sie einen fallen."); return false; }
+    if (herzenJetzt() >= herzenMax()) { toast("Deine Herzen sind schon voll."); return false; }
+    vorratAendern("heiltrank", -1);
+    herzenSetzen(herzenJetzt() + 2);
+    ton("herz");
+    this.karte?.effekte.herzchen(this.held.gruppe.position.clone().setY(this.held.gruppe.position.y + 1.2));
+    toast("🧪 Heiltrank getrunken: +2 Herzen");
+    return true;
   }
 
   /** Für Tiere: nur Kacheln und feste Objekte, mit kleinerem Radius. */

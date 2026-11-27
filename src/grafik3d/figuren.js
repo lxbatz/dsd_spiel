@@ -374,6 +374,16 @@ export function figurBauen(d, schluessel = null) {
         kopf.rotation.x += (Math.sin(zeit * 0.3) * 0.03 - kopf.rotation.x) * k;
       }
     }
+    // Angriff: der rechte Arm holt aus und schlägt nach vorn, der Oberkörper dreht mit
+    if (angriff >= 0) {
+      angriff += dt / angriffDauer;
+      const k = Math.min(1, angriff);
+      const schwung = k < 0.35 ? -2.4 * (k / 0.35) : -2.4 + 3.2 * ((k - 0.35) / 0.65);
+      arme[1].rotation.x = schwung * (1 - Math.max(0, k - 0.85) / 0.15);
+      ellbogen[1].rotation.x = -0.3;
+      rumpf.rotation.y = Math.sin(k * Math.PI) * -0.45;
+      if (angriff >= 1) angriff = -1;
+    }
     // Blinzeln
     blinzeln -= dt;
     augen.scale.y = blinzeln < 0.12 ? 0.15 : 1;
@@ -381,7 +391,9 @@ export function figurBauen(d, schluessel = null) {
     extras?.(zeit, dt);
   };
   const sprechen = (an, zeit = performance.now() / 1000) => { sprichtSeit = an ? zeit : -1; };
-  return { gruppe: wurzel, animieren, kopf, sprechen };
+  let angriff = -1, angriffDauer = 0.35;
+  const angreifen = (dauer = 0.35) => { angriff = 0; angriffDauer = dauer; };
+  return { gruppe: wurzel, animieren, kopf, sprechen, angreifen };
 }
 
 // ---------- Frisuren ----------
