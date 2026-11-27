@@ -2,6 +2,8 @@
 
 Browser-Rollenspiel für DaF-Lernende (A2, Berufskolleg) zur Vorbereitung auf das **DSD I PRO**.
 Hauptversion ist die 3D-Version (`index.html`, Three.js, ES-Module ohne Build-Schritt).
+Nur die 3D-Version wird weiterentwickelt und getestet. Die 16-Bit-Version (`snes.html`) und die klassische Version (`klassisch.html`)
+bleiben als Dokumentation der Anfänge stehen und bekommen keine Anpassungen mehr.
 
 ## Prüfungsformat ist die Grundlage
 
