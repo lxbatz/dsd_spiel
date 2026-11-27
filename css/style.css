@@ -431,7 +431,7 @@ body.kino #angriff-knopf { opacity: 0; pointer-events: none; }
 .aussehen { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; margin: 6px 0 10px; }
 .aussehen-vorschau { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 132px; }
 .aussehen-portrait { width: 128px; height: 128px; image-rendering: pixelated; border-radius: 10px; border: 2px solid var(--gold-dunkel); }
-.aussehen-figur { width: 80px; height: 120px; image-rendering: pixelated; }
+.aussehen-figur { width: 132px; height: 190px; cursor: grab; }
 .aussehen-name { font-weight: bold; font-size: 14px; text-align: center; }
 .aussehen-auswahl { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 6px; }
 .aussehen-zeile { display: flex; gap: 8px; align-items: center; }
@@ -445,7 +445,7 @@ body.kino #angriff-knopf { opacity: 0; pointer-events: none; }
 @media (max-width: 480px) {
   .aussehen-vorschau { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; }
   .aussehen-portrait { width: 96px; height: 96px; }
-  .aussehen-figur { width: 64px; height: 96px; }
+  .aussehen-figur { width: 96px; height: 138px; }
   .aussehen-name { width: 100%; }
   .aussehen-titel { width: 100%; }
   .aussehen-zeile { flex-wrap: wrap; gap: 4px; }

@@ -3,10 +3,10 @@
 
 import { el, zeigen, knopf, schliessen } from "./fenster.js";
 import { zustand, speichern } from "../zustand.js";
-import { figurBild } from "../grafik16/figuren.js";
+import { vorschauElement, vorschauSetzen } from "../grafik3d/vorschau.js";
 import {
   HAUTFARBEN, HAARFARBEN, AUGENFARBEN, KLEIDFARBEN, FRISUREN, BAERTE,
-  aussehenFuer, portraitUrl, klassenName,
+  aussehenFuer, portraitFuer, portraitUrl, klassenName, klassenTextur,
 } from "../held.js";
 
 /**
@@ -17,18 +17,15 @@ export function aussehenEditor({ klasse, wahl = {} }) {
   let k = klasse;
   const w = { ...wahl };
   const portrait = el("img", { class: "aussehen-portrait", alt: "Porträt deiner Figur" });
-  const figur = el("canvas", { class: "aussehen-figur", width: 80, height: 120, "aria-label": "Deine Figur" });
+  const figur = vorschauElement();   // 3D-Vorschau der echten Spielfigur (null ohne WebGL)
   const name = el("div", { class: "aussehen-name" });
   const zeilen = [];
 
   const neuZeichnen = () => {
     portrait.src = portraitUrl(k, w);
-    const ctx = figur.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, figur.width, figur.height);
-    ctx.drawImage(figurBild(aussehenFuer(k, w), "unten", 0).alsCanvas(1), 0, 0, 80, 120);
-    name.textContent = klassenName({ klasse: k, aussehen: w });
     const d = aussehenFuer(k, w);
+    if (figur) vorschauSetzen(d, klassenTextur(k), portraitFuer(k, w));
+    name.textContent = klassenName({ klasse: k, aussehen: w });
     for (const z of zeilen) z.markieren(d);
   };
 
