@@ -178,8 +178,11 @@ Vorsicht bei Angaben, die die Grammatik ändern (z. B. „aus Polen“, aber „
 
 ## Übungsmodus und Kampfmodus
 
-- **Quests und Tore (Übungsmodus):** Bei einem Fehler darf man es noch einmal versuchen. Nach zwei Fehlversuchen erscheint „Lösung zeigen“.
-- **Bosskampf:** Jede Frage hat nur einen Versuch. Richtig = Schaden am Gegner, falsch = ein Herz weniger (danach wird die Lösung gezeigt). Fragen werden zufällig gezogen. Lebenspunkte und Schaden stehen beim Gegner (`lp`, `schaden`).
+- **Quests und Tore (Übungsmodus):** Bei einem Fehler darf man es noch einmal versuchen. Nach zwei Fehlversuchen erscheint „Lösung zeigen“. Eine Aufgabe mit gezeigter Lösung kommt am Ende der Folge noch einmal (ohne Lösungsknopf); `aufgabenFolge` ist erst fertig, wenn alles selbst gelöst ist.
+- **XP nach Versuchen:** Die nächste `belohnung()` nach einer Aufgabenfolge zieht XP ab: erster Versuch voll, zweiter halb, danach ein Viertel, gezeigte Lösung nichts (`leistungWert` in `src/ui/aufgaben.js`). Freie Texte und Sprechaufgaben zählen immer voll. Beim freiwilligen Wiederholen einer erledigten Quest wird nichts abgezogen.
+- **Hilfsmittel:** Jeder Aufgabentyp kann `hilfen: { feder(), lupe() }` anbieten (liefern `true`, wenn sie etwas bewirkt haben). Der Knopf „Hilfsmittel einsetzen“ zeigt nur die passenden. Neue Hilfsmittel in `src/inhalte/hilfsmittel.js`; als Belohnung: `belohnung({ …, hilfsmittel: { feder: 1 } })`.
+- **Zauberspiegel (`muster`):** Ein Muster zählt erst bei einem fertigen Satz (mehr Wörter als der Treffer, Satzende . ! ? oder neue Zeile). Mit `wert: (z) => …` muss zusätzlich ein Wert aus dem Spielstand (z. B. der Name aus dem Heldenpass) genau so im Satz stehen.
+- **Bosskampf:** Jede Frage hat nur einen Versuch. Richtig = Schaden am Gegner, falsch = ein Herz weniger (danach wird die Lösung gezeigt). Fragen werden zufällig gezogen. Lebenspunkte und Schaden stehen beim Gegner (`lp`, `schaden`). Die Herzen kommen aus der Welt (`herzenJetzt()`), übrige Herzen gehen danach zurück.
 
 ## XP im Spiel
 
