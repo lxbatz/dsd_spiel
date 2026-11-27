@@ -2,7 +2,7 @@
 // jede falsche Antwort kostet ein Herz. Kein zweiter Versuch pro Frage.
 
 import { el, zeigen, knopf, fokus } from "./fenster.js";
-import { aufgabeErstellen, aufgabeAufloesen, lesetextElement } from "./aufgaben.js";
+import { aufgabeErstellen, aufgabeAufloesen, lesetextElement, dsdBezugElement } from "./aufgaben.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { sprechenStoppen } from "./sprechen.js";
 import { kampfErgebnis, herzenJetzt, herzenMax as herzenMaxWelt, herzenSetzen } from "../zustand.js";
@@ -38,6 +38,7 @@ export async function kampf(gegner, roheFragen) {
         el("img", { class: "portrait", src: gegner.bild, alt: "" }),
         el("div", { style: "flex:1" }, el("h2", {}, gegner.name), el("div", { class: "rede" }, gegner.einleitung)),
         tonSchalter()),
+      dsdBezugElement(gegner.quest),
       el("div", { class: "feedback info" },
         `So funktioniert der Kampf: Jede richtige Antwort trifft den Gegner (−${schaden} Lebenspunkte). `,
         `Bei einer falschen Antwort verlierst du ein Herz. Du hast ${herzen} von ${herzenMax} Herzen.`,

@@ -7,7 +7,6 @@ import { RenderPass } from "../../vendor/three-addons/postprocessing/RenderPass.
 import { UnrealBloomPass } from "../../vendor/three-addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "../../vendor/three-addons/postprocessing/OutputPass.js";
 import { KARTEN } from "../welt/karten.js";
-import { KLASSEN } from "../inhalte/klassen.js";
 import { zustand, ortSetzen } from "../zustand.js";
 import { ton } from "../ton.js";
 import { istOffen, schliessen, hinweis, toast, beimSchliessen, el, knopf } from "../ui/fenster.js";
@@ -17,6 +16,7 @@ import { musik, grollen } from "../musik.js";
 import { AUSSEHEN } from "../grafik16/figuren.js";
 import { PORTRAITS, portraitBild } from "../grafik16/portraits.js";
 import { figurBauen } from "./figuren.js";
+import { heldSchluessel, heldAussehen, heldPortraitAngaben, klassenTextur } from "../held.js";
 import { E, welt, dorfBauen, objektBauen } from "./welt.js";
 import { halleBauen } from "./halle3d.js";
 import { inselnBauen } from "./inseln3d.js";
@@ -263,7 +263,7 @@ export class Spiel3D {
   }
 
   heldSchluessel() {
-    return zustand.held ? (KLASSEN[zustand.held.klasse]?.textur ?? "held_neu") : "held_neu";
+    return heldSchluessel(zustand.held);
   }
 
   heldBauen() {
@@ -271,7 +271,7 @@ export class Spiel3D {
     const rot = this.held?.gruppe.rotation.y ?? Math.PI;
     this.held?.gruppe.removeFromParent();
     this.heldKey = this.heldSchluessel();
-    this.held = figurBauen(AUSSEHEN[this.heldKey], this.heldKey);
+    this.held = figurBauen(heldAussehen(zustand.held), klassenTextur(zustand.held?.klasse), heldPortraitAngaben(zustand.held));
     if (pos) this.held.gruppe.position.copy(pos);
     this.held.gruppe.rotation.y = rot;
     this.karte?.szene.add(this.held.gruppe);

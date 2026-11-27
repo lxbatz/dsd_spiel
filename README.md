@@ -128,6 +128,8 @@ Dann im Browser `http://localhost:8000` öffnen.
 
 - **Sprungcodes (nur für Lehrkräfte):** Mit einem Sprungcode springt man direkt an eine Stelle im Spiel (z. B. „Turm: vor dem Torwächter“ oder „Insel der Waage: Anfang“), ohne vorher alle Aufgaben zu lösen. Den Code im Titelbildschirm unter „🔑 Code eingeben“ oder im Spiel unter „Code“ eingeben. Ein eigener Code öffnet ein Menü mit allen Stellen. Der Spielstand gilt danach als Testspielstand (im Lehrerzimmer mit 🧪 markiert). Die Codes selbst stehen nicht im Repository, nur ihre Prüfsummen; die Stellen sind in `src/inhalte/sprungpunkte.js` festgelegt.
 - **Lehrercodes** für Teamarbeit, mündliche Beiträge, das Sprechsiegel usw.: `tools/lehrercodes.html` öffnen (ebenfalls über den Webserver, z. B. `http://localhost:8000/tools/lehrercodes.html`). Die Codes haben eine eingebaute Prüfsumme (`src/codesignatur.js`) und funktionieren sofort im Spiel – in `codes.js` muss nichts eingetragen werden. Im Spiel: ☰ Menü → Lehrercode einlösen.
+- **Eigene Figur:** Im Heldenpass gestaltet man die Figur selbst: Heldin oder Held, Hautfarbe, Haarfarbe, Frisur (auch Kapuze oder Zauberhut), Bart, Augenfarbe und Kleidung. Die Vorschau zeigt Porträt und Figur. Später geht das im Heldenpass über „🎨 Aussehen ändern“. Das Aussehen gilt für die 3D-Figur, das Porträt in der Kopfleiste und die 16-Bit-Version. Mit „Heldin“ oder „Held“ heißt die Klasse z. B. „Kriegerin“ oder „Krieger“ (`src/held.js`, `src/ui/aussehen.js`).
+- **Bezug zur Prüfung:** Über den Aufgaben und vor Bosskämpfen steht ein kurzer Hinweis, zu welchem Teil des DSD I PRO die Quest passt, z. B. „🎓 Wie im DSD I PRO: Leseverstehen, Teil 1“ oder „🎓 Übung für das DSD I PRO: Hörverstehen, Teil 2“ (`DSD_BEZUG` in `src/inhalte/quests.js`).
 - **Texte der Schüler:** Freie Texte (Vorstellung, Einleitung) werden im Heldenpass unter „Meine Texte“ gespeichert und können kopiert werden.
 - **Passwort für die Lehrerseiten:** Lehrerzimmer (`tools/dashboard.html`) und Lehrercodes (`tools/lehrercodes.html`) fragen beim Öffnen nach einem Passwort (`tools/sperre.js`). Es gilt, bis der Browser-Tab geschlossen wird. Im Repository steht nur die SHA-256-Prüfsumme. Das ist eine Hürde gegen neugierige Blicke, kein echter Schutz: Wer den Quelltext liest, kommt auch ohne Passwort an die Seiten. Ein neues Passwort setzt man, indem man die Prüfsumme von `eldoria-lehrerzimmer|<Passwort>` in `tools/sperre.js` einträgt.
 - **Vollbild:** Beim Klick auf „Weiterspielen“ oder „Das Abenteuer beginnt“ wechselt das Spiel in den Vollbildmodus (`src/ui/vollbild.js`). Mit Esc verlässt man ihn; im Menü gibt es den Schalter „Vollbild an/aus“. Wer ihn dort ausschaltet, startet beim nächsten Mal ohne Vollbild. Auf dem iPhone und in eingebetteten Ansichten (z. B. im Artefakt) unterstützt der Browser das nicht; dort fehlt der Schalter.
@@ -167,6 +169,8 @@ tools/sperre.js        Passwortabfrage für Lehrerzimmer und Lehrercodes
 src/grafik3d/action.js Kleine Gegner, Angriffe der Klassen, Comic-Wörter, Beute, Game Over
 src/ton.js             Soundeffekte (Web Audio, ohne Dateien)
 src/ui/hilfsmittel.js  Knopf „Hilfsmittel einsetzen“ in Aufgaben und Bosskämpfen
+src/held.js            Aussehen der eigenen Figur (Heldin/Held, Haut, Haare, Frisur, Bart, Augen, Kleidung)
+src/ui/aussehen.js     Editor für das Aussehen (Heldenpass)
 tools/vorschau3d.html  Alle 3D-Figuren ansehen
 vendor/                Three.js (MIT), Phaser (MIT, nur ältere Versionen)
 ```

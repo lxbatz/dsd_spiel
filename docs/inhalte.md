@@ -22,10 +22,10 @@ Alle Lerninhalte liegen in `src/inhalte/`. Für neue Aufgaben muss man nichts am
 | `schattenzahn_hoeren.js` | Feste Schattenzahn: Probeprüfung Hörverstehen (5 Teile, 24 Items) |
 | `schattenzahn_lesen.js` | Feste Schattenzahn: Probeprüfung Leseverstehen (5 Teile, 24 Items) |
 | `schattenzahn_finale.js` | Feste Schattenzahn: Schriftliche Kommunikation (Forumsbeitrag), Mündliche Kommunikation (Gespräch, Präsentation, Nachfragen), Morgraths Worte und der Endkampf |
-| `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen) |
+| `quests.js` | Liste aller Quests für die Statistik und das Lehrerzimmer (neue Quests hier eintragen). Dazu `DSD_BEZUG`: zu welchem Prüfungsteil eine Quest passt (`"wie"` = Format wie in der Prüfung, `"uebung"` = bereitet darauf vor). Der Hinweis erscheint über den Aufgaben und vor dem Bosskampf. Neue Quests hier mit eintragen |
 | `gegenstaende.js` | Gegenstände und ihre Wirkung |
 | `codes.js` | Ältere Lehrercodes und Sprungcodes (nur Prüfsummen). Neue Lehrercodes erzeugt `tools/lehrercodes.html` mit eingebauter Prüfsumme (`src/codesignatur.js`), sie brauchen keinen Eintrag hier |
-| `klassen.js` | Heldenklassen im Heldenpass |
+| `klassen.js` | Heldenklassen im Heldenpass (mit Namen für Heldin und Held). Das Aussehen der eigenen Figur steht in `src/held.js` |
 
 Die Dialoge der Figuren stehen in `src/welt/dorf.js`, `src/welt/halle.js` und `src/welt/turm.js`.
 

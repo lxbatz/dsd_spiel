@@ -34,7 +34,7 @@ offiziellen Prüfungsdateien ins Repository. Nur Formate und Muster nachbauen, a
 ## Technik und Ablauf
 
 - Inhalte: `src/inhalte/*.js`, Karten: `src/welt/*.js`, 3D: `src/grafik3d/*.js`. Die Aufgabentypen stehen in `src/ui/aufgaben.js`, die Anleitung in `docs/inhalte.md`.
-- Neue Quests in `src/inhalte/quests.js` eintragen (Lehrerzimmer), Ziele in `src/welt/ziele.js`, Sprungpunkte in `src/inhalte/sprungpunkte.js`.
+- Neue Quests in `src/inhalte/quests.js` eintragen (Lehrerzimmer, dazu der Prüfungsbezug in `DSD_BEZUG`), Ziele in `src/welt/ziele.js`, Sprungpunkte in `src/inhalte/sprungpunkte.js`.
 - Sprungcodes stehen nur als SHA-256-Hash in `src/inhalte/codes.js`, die Klartext-Codes nie ins Repository.
 - Vor dem Commit mit einem automatischen Playwright-Durchlauf testen (Sprungpunkt setzen, Objekte benutzen, Aufgaben lösen).
 - Keine Modellbezeichnungen in Commits, Code oder Doku.

@@ -3,6 +3,8 @@ import { bild } from "./bilder.js";
 import { KLASSEN } from "../inhalte/klassen.js";
 import { zustand, stufeVon, speichern } from "../zustand.js";
 import { TEXT_NAMEN } from "../inhalte/quests.js";
+import { heldBild, klassenName } from "../held.js";
+import { aussehenEditor, aussehenAendern } from "./aussehen.js";
 
 const FELDER = [
   ["name", "Vorname (Heldenname)", "z. B. Mira", true],
@@ -44,6 +46,7 @@ export function heldenpassFormular() {
     let klasse = "barde";
     const eingaben = {};
     const meldung = el("div", { class: "feedback schlecht", hidden: true });
+    const editor = aussehenEditor({ klasse });
 
     const klassenKnoepfe = Object.entries(KLASSEN).map(([id, k]) => {
       const b = el("button", { type: "button", class: "klasse" + (id === klasse ? " gewaehlt" : "") },
@@ -52,6 +55,7 @@ export function heldenpassFormular() {
         klasse = id;
         klassenKnoepfe.forEach((x) => x.classList.remove("gewaehlt"));
         b.classList.add("gewaehlt");
+        editor.klasseSetzen(id);
       });
       return b;
     });
@@ -65,6 +69,8 @@ export function heldenpassFormular() {
     const ok = knopf("Heldenpass ausstellen ✔", () => {
       const held = { klasse };
       for (const [id] of FELDER) held[id] = eingaben[id].value.trim();
+      const aussehen = editor.wert();
+      if (Object.keys(aussehen).length) held.aussehen = aussehen;
       if (!held.name) {
         meldung.textContent = "Bitte schreib deinen Vornamen in den Heldenpass.";
         meldung.hidden = false;
@@ -80,6 +86,8 @@ export function heldenpassFormular() {
       el("div", { class: "formular" }, felder),
       el("h3", {}, "Wähle deine Heldenklasse"),
       el("div", { class: "klassen" }, klassenKnoepfe),
+      el("h3", {}, "Gestalte deine Figur"),
+      editor.element,
       meldung,
       el("div", { class: "knopfleiste" }, knopf("Später", () => fertig(null), "knopf zweitrangig"), ok),
     );
@@ -114,14 +122,13 @@ export function heldenpassAnzeigen() {
     return;
   }
   const s = stufeVon(zustand.xp);
-  const k = KLASSEN[h.klasse];
   const texte = Object.entries(zustand.texte);
   zeigen(
     el("div", { class: "dialog" },
-      el("img", { class: "portrait", src: bild(k?.textur), alt: "" }),
+      el("img", { class: "portrait", src: heldBild(h), alt: "" }),
       el("div", {},
         el("h2", {}, h.name),
-        el("div", { class: "untertitel" }, `${k?.name ?? ""} · Stufe ${s.stufe}: ${s.titel} · ${zustand.xp} XP`),
+        el("div", { class: "untertitel" }, `${klassenName(h)} · Stufe ${s.stufe}: ${s.titel} · ${zustand.xp} XP`),
         zustand.erledigt.schattenzahn_finale ? el("div", { class: "ehrentitel" }, "🌟 Meister der Vier Sprachkräfte") : null)),
     el("dl", { class: "pass-ansicht" },
       FELDER.slice(1).map(([id, label]) => el("div", {}, el("dt", {}, label), el("dd", {}, h[id] || "–")))),
@@ -132,7 +139,9 @@ export function heldenpassAnzeigen() {
           el("summary", {}, `${TEXT_NAMEN[id] ?? id} (${new Date(t.datum).toLocaleDateString("de-DE")})`),
           el("div", { class: "lesetext" }, t.text)))
       : el("p", {}, "Noch keine Texte."),
-    el("div", { class: "knopfleiste" }, knopf("Schließen", schliessen)),
+    el("div", { class: "knopfleiste" },
+      knopf("🎨 Aussehen ändern", () => aussehenAendern({ zurueck: heldenpassAnzeigen }), "knopf zweitrangig"),
+      knopf("Schließen", schliessen)),
   );
 }
 

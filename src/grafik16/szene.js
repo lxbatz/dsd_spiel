@@ -1,7 +1,7 @@
 // Phaser-Szenen der 16-Bit-Version.
 
 import { KARTEN } from "../welt/karten.js";
-import { KLASSEN } from "../inhalte/klassen.js";
+import { heldSchluessel, heldAussehen } from "../held.js";
 import { zustand, ortSetzen } from "../zustand.js";
 import { istOffen, schliessen, hinweis, toast, beimSchliessen } from "../ui/fenster.js";
 import { hudSperreSetzen } from "../ui/hud.js";
@@ -20,6 +20,20 @@ function texturAusBild(szene, schluessel, bild) {
   szene.textures.addCanvas(schluessel, bild.alsCanvas(1));
 }
 
+/** Legt das Spritesheet und die Laufanimationen einer Figur an (auch später für die eigene Heldenfigur). */
+function figurAnlegen(szene, schluessel, d) {
+  if (szene.textures.exists(`${schluessel}_16`)) return;
+  const tex = szene.textures.addCanvas(`${schluessel}_16`, figurBlatt(d).alsCanvas(1));
+  for (let zeile = 0; zeile < RICHTUNGEN.length; zeile++) {
+    for (let n = 0; n < BILDER_PRO_RICHTUNG; n++) tex.add(zeile * BILDER_PRO_RICHTUNG + n, 0, n * SPRITE_B, zeile * SPRITE_H, SPRITE_B, SPRITE_H);
+  }
+  RICHTUNGEN.forEach((r, zeile) => {
+    const f = (n) => ({ key: `${schluessel}_16`, frame: zeile * BILDER_PRO_RICHTUNG + n });
+    szene.anims.create({ key: `${schluessel}_${r}_laufen`, frames: [f(1), f(0), f(2), f(0)], frameRate: 8, repeat: -1 });
+    szene.anims.create({ key: `${schluessel}_${r}_stehen`, frames: [f(0), f(0), f(0), f(3), f(3)], frameRate: 3, repeat: -1 });
+  });
+}
+
 // ---------- Laden ----------
 
 export class Boot16 extends Phaser.Scene {
@@ -27,17 +41,7 @@ export class Boot16 extends Phaser.Scene {
 
   create() {
     // Figuren als Spritesheets
-    for (const [schluessel, d] of Object.entries(AUSSEHEN)) {
-      const tex = this.textures.addCanvas(`${schluessel}_16`, figurBlatt(d).alsCanvas(1));
-      for (let zeile = 0; zeile < RICHTUNGEN.length; zeile++) {
-        for (let n = 0; n < BILDER_PRO_RICHTUNG; n++) tex.add(zeile * BILDER_PRO_RICHTUNG + n, 0, n * SPRITE_B, zeile * SPRITE_H, SPRITE_B, SPRITE_H);
-      }
-      RICHTUNGEN.forEach((r, zeile) => {
-        const f = (n) => ({ key: `${schluessel}_16`, frame: zeile * BILDER_PRO_RICHTUNG + n });
-        this.anims.create({ key: `${schluessel}_${r}_laufen`, frames: [f(1), f(0), f(2), f(0)], frameRate: 8, repeat: -1 });
-        this.anims.create({ key: `${schluessel}_${r}_stehen`, frames: [f(0), f(0), f(0), f(3), f(3)], frameRate: 3, repeat: -1 });
-      });
-    }
+    for (const [schluessel, d] of Object.entries(AUSSEHEN)) figurAnlegen(this, schluessel, d);
     texturAusBild(this, "boss16_0", torwaechterBild(0));
     texturAusBild(this, "boss16_1", torwaechterBild(1));
     this.anims.create({ key: "boss16", frames: [{ key: "boss16_0" }, { key: "boss16_1" }], frameRate: 1.5, repeat: -1 });
@@ -171,7 +175,9 @@ export class Karte16 extends Phaser.Scene {
   }
 
   heldSchluessel() {
-    return zustand.held ? (KLASSEN[zustand.held.klasse]?.textur ?? "held_neu") : "held_neu";
+    const key = heldSchluessel(zustand.held);
+    figurAnlegen(this, key, heldAussehen(zustand.held));
+    return key;
   }
 
   objektErzeugen(o) {

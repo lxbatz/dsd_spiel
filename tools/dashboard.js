@@ -127,7 +127,7 @@ function auswerten(z, gespeichert, dateiname) {
     name: z.held?.name || "(ohne Heldenpass)",
     kennung: z.held?.kennung ?? "",
     test: Boolean(z.testmodus),
-    heldenklasse: KLASSEN[z.held?.klasse]?.name ?? "",
+    heldenklasse: KLASSEN[z.held?.klasse]?.[z.held?.aussehen?.form] ?? KLASSEN[z.held?.klasse]?.name ?? "",
     xp: z.xp ?? 0,
     stufe: stufeVon(z.xp ?? 0),
     erledigt: QUESTS.filter((q) => quests[q.id].erledigt).length,

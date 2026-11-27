@@ -420,3 +420,33 @@ body.touch #angriff-knopf:not([hidden]) {
 #angriff-knopf span { font-size: 28px; line-height: 1; }
 #angriff-knopf small { font-size: 10px; font-weight: bold; }
 body.kino #angriff-knopf { opacity: 0; pointer-events: none; }
+
+/* Hinweis zum Bezug auf die DSD-Prüfung über den Aufgaben */
+.dsd-bezug {
+  display: inline-block; margin: 6px 0 2px; padding: 3px 10px; border-radius: 999px;
+  font-size: 13px; background: #f3e4c0; color: var(--tinte); border: 1px solid var(--gold-dunkel);
+}
+
+/* Aussehen der eigenen Figur */
+.aussehen { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; margin: 6px 0 10px; }
+.aussehen-vorschau { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 132px; }
+.aussehen-portrait { width: 128px; height: 128px; image-rendering: pixelated; border-radius: 10px; border: 2px solid var(--gold-dunkel); }
+.aussehen-figur { width: 80px; height: 120px; image-rendering: pixelated; }
+.aussehen-name { font-weight: bold; font-size: 14px; text-align: center; }
+.aussehen-auswahl { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 6px; }
+.aussehen-zeile { display: flex; gap: 8px; align-items: center; }
+.aussehen-titel { width: 72px; flex: none; font-size: 14px; font-weight: bold; }
+.aussehen-knoepfe { display: flex; flex-wrap: wrap; gap: 5px; }
+.aussehen .farbfeld { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #0004; padding: 0; cursor: pointer; }
+.aussehen .farbfeld.gewaehlt { outline: 3px solid var(--blau); outline-offset: 1px; }
+.aussehen .wahl { font: inherit; font-size: 13px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--pergament-2); background: #fffaf0; color: var(--tinte); cursor: pointer; }
+.aussehen .wahl.gewaehlt { border-color: var(--blau); background: #e9f0fb; font-weight: bold; }
+.knopf.klein { font-size: 13px; padding: 4px 10px; }
+@media (max-width: 480px) {
+  .aussehen-vorschau { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; }
+  .aussehen-portrait { width: 96px; height: 96px; }
+  .aussehen-figur { width: 64px; height: 96px; }
+  .aussehen-name { width: 100%; }
+  .aussehen-titel { width: 100%; }
+  .aussehen-zeile { flex-wrap: wrap; gap: 4px; }
+}

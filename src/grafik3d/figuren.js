@@ -176,11 +176,12 @@ function aufGesicht(x, y, aussen = 0) {
 
 /**
  * Baut eine Figur aus einer AUSSEHEN-Beschreibung.
+ * portrait: eigene Porträt-Angaben (Augen, Ausdruck), sonst PORTRAITS[schluessel].
  * Liefert { gruppe, animieren(zeit, tempo, dt), kopf, sprechen(an) }.
  * Ursprung: zwischen den Füßen, Blick in Richtung +z.
  */
-export function figurBauen(d, schluessel = null) {
-  const p = (schluessel && PORTRAITS[schluessel]) || {};
+export function figurBauen(d, schluessel = null, portrait = null) {
+  const p = portrait ?? ((schluessel && PORTRAITS[schluessel]) || {});
   const wurzel = new THREE.Group();
   const koerperGanz = gruppe(wurzel);      // federt beim Gehen
   const t = new Teile();

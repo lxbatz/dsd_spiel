@@ -101,3 +101,11 @@ body.kino #hud, body.kino .kompass, body.kino #joystick, body.kino #aktion-knopf
 .hilfsmittel-menue { background: #1d1b2c; border-color: rgba(201, 162, 78, .7); color: #f0e8d8; }
 .hilfsmittel-eintrag { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .15); }
 .hilfsmittel-eintrag:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }
+
+.dsd-bezug { background: rgba(242, 207, 116, .12); color: var(--gold-text); border-color: rgba(201, 162, 78, .7); }
+
+.aussehen-portrait { border-color: var(--goldrand); }
+.aussehen .wahl { background: rgba(255, 255, 255, .06); color: var(--hell); border-color: rgba(201, 162, 78, .6); }
+.aussehen .wahl.gewaehlt { background: rgba(242, 207, 116, .2); border-color: var(--gold-text); color: var(--gold-text); }
+.aussehen .farbfeld { border-color: #fff5; }
+.aussehen .farbfeld.gewaehlt { outline-color: var(--gold-text); }

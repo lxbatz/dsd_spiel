@@ -35,6 +35,13 @@ import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { sprechen, sprechenStoppen } from "./sprechen.js";
 import { ton } from "../ton.js";
 import { hilfsmittelKnopf } from "./hilfsmittel.js";
+import { dsdHinweis } from "../inhalte/quests.js";
+
+/** Kurzer Hinweis, zu welchem Teil der DSD-I-PRO-Prüfung eine Quest passt (oder null). */
+export function dsdBezugElement(id) {
+  const t = dsdHinweis(id);
+  return t ? el("div", { class: "dsd-bezug", title: "So übst du für die Prüfung" }, "🎓 ", t) : null;
+}
 
 // ---------- Hilfen ----------
 
@@ -682,6 +689,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         kopf?.() ?? null,
         el("h2", {}, titel),
         el("div", { class: "fortschritt" }, [untertitel, zaehlung].filter(Boolean).join(" · ")),
+        dsdBezugElement(id),
         wiederholung ? el("div", { class: "feedback info" }, "🔁 Diese Aufgabe hast du vorhin mit der Lösung gesehen. Jetzt löst du sie selbst!") : null,
         lesetextElement(a.lesetext ?? lesetext),
         hoertextElement(a.hoertext),
@@ -770,6 +778,7 @@ export async function pruefungsFolge({ id, titel, untertitel, aufgaben: roh, bes
         kopf?.() ?? null,
         el("h2", {}, titel),
         el("div", { class: "fortschritt" }, [untertitel, a.teil, `Aufgabe ${i + 1} von ${aufgaben.length}`].filter(Boolean).join(" · ")),
+        dsdBezugElement(id),
         i === 0 && hinweis ? el("div", { class: "feedback info" }, hinweis) : null,
         lesetextElement(a.lesetext),
         hoertextElement(a.hoertext),

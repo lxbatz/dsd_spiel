@@ -102,3 +102,65 @@ export const TEXT_NAMEN = {
   pruefung_schreiben: "Probeprüfung: Mein Forumsbeitrag (Grotte der Schreiber)",
   pruefung_stichworte: "Probeprüfung: Stichwörter für die Präsentation (Kaverne der Stimmen)",
 };
+
+// Bezug zur DSD-I-PRO-Prüfung (siehe docs/dsd_pruefung.md). Wird über den Aufgaben und vor Bosskämpfen
+// als kurzer Hinweis gezeigt. "wie": Format wie in der Prüfung. "uebung": bereitet auf diesen Teil vor.
+const SK = "Schriftliche Kommunikation";
+const MK = "Mündliche Kommunikation";
+const HV = "Hörverstehen";
+const LV = "Leseverstehen";
+export const DSD_BEZUG = {
+  dorf_heldenpass: ["uebung", `${MK}, Teil 1 (über sich sprechen)`],
+  dorf_wilma: ["uebung", `${MK}, Teil 1 (Fragen und Antworten)`],
+  dorf_finn: ["uebung", `${LV} (einen Brief verstehen)`],
+  dorf_markt: ["uebung", `${MK} (ein Gespräch führen)`],
+  dorf_werkstatt: ["uebung", `${LV} (Bestellung und Anleitung verstehen)`],
+  ...Object.fromEntries(["dorf_mimi_start", "dorf_mimi_aldric", "dorf_mimi_borin", "dorf_mimi_finn"].map((id) => [id, ["uebung", `${HV} (Einzelheiten heraushören)`]])),
+  ...Object.fromEntries(["lythara_tor1", "lythara_tor2", "lythara_tor3", "lythara_tor4", "lythara_tor5", "lythara_einleitung", "lythara_q1_boss"]
+    .map((id) => [id, ["uebung", `${SK} (Einleitung des Beitrags)`]])),
+  ...Object.fromEntries(["s1", "s2", "s3", "text", "boss"].flatMap((t) => [
+    [`lythara_q2_${t}`, ["uebung", `${SK}, Teilaufgabe 1 (Aussagen mit eigenen Worten wiedergeben)`]],
+    [`lythara_q3_${t}`, ["uebung", `${SK}, Teilaufgabe 2 (eigene Erfahrungen)`]],
+    [`lythara_q4_${t}`, ["uebung", `${SK}, Teilaufgabe 3 (Meinung begründen)`]],
+    [`lythara_q5_${t}`, ["uebung", `${SK} (Schluss des Beitrags)`]],
+  ])),
+  lythara_buch: ["wie", `${SK} (ganzer Beitrag mit allen drei Teilaufgaben)`],
+  ...Object.fromEntries(["aurelia_q1_m1", "aurelia_q1_m2", "aurelia_q1_m3", "aurelia_q1_reisende"].map((id) => [id, ["uebung", `${HV}, Teil 2 (Durchsagen)`]])),
+  ...Object.fromEntries(["aurelia_q2_g1", "aurelia_q2_g2", "aurelia_q2_g3", "aurelia_q2_ohrenprobe"].map((id) => [id, ["uebung", `${HV}, Teil 1 (kurze Gespräche)`]])),
+  ...Object.fromEntries(["aurelia_q3_p1", "aurelia_q3_p2", "aurelia_q3_p3", "aurelia_q3_notizbuch"].map((id) => [id, ["uebung", `${HV}, Teil 2 (Telefonansagen)`]])),
+  aurelia_q4_w1: ["wie", `${HV}, Teil 1 (Alltagsszenen)`],
+  aurelia_q4_w2: ["wie", `${HV}, Teil 3 (Interview, richtig/falsch)`],
+  aurelia_q4_w3: ["wie", `${HV}, Teil 4 (Bericht, A/B/C)`],
+  aurelia_q4_abnahme: ["wie", `${HV}, Teil 1 (Alltagsszenen, jeder Text zweimal)`],
+  aurelia_q5_s1: ["wie", `${HV}, Teil 5 (Meinungen zuordnen)`],
+  aurelia_q5_s2: ["wie", `${HV}, Teil 5 (Meinungen, nur einmal hören)`],
+  aurelia_q5_boss: ["uebung", `${HV}, alle fünf Teile`],
+  scriptoria_q1: ["wie", `${LV}, Teil 1 (Brief mit Wortliste)`],
+  scriptoria_q2: ["wie", `${LV}, Teil 2 (Abschnitte zuordnen)`],
+  scriptoria_q3_a1: ["wie", `${LV}, Teil 3 (Regeln, richtig/falsch)`],
+  scriptoria_q3_a2: ["wie", `${LV}, Teil 3 (Regeln, richtig/falsch)`],
+  scriptoria_q3_probe: ["uebung", `${LV} (Signalwörter und Umschreibungen)`],
+  scriptoria_q4_t1: ["wie", `${LV}, Teil 4 (Informationstext, A/B/C)`],
+  scriptoria_q4_t2: ["wie", `${LV}, Teil 4 (Informationstext, A/B/C)`],
+  scriptoria_q5_w1: ["wie", `${LV}, Teil 5 (Überschriften zuordnen)`],
+  scriptoria_q5_w2: ["wie", `${LV}, Teil 5 (Überschriften zuordnen)`],
+  scriptoria_boss: ["uebung", `${LV}, alle fünf Teile`],
+  vocantia_q1: ["wie", `${MK}, Teil 1 (Gespräch)`],
+  vocantia_q2: ["uebung", `${MK} (nachfragen und reagieren)`],
+  vocantia_q3: ["uebung", `${MK}, Teil 2 (etwas beschreiben und erklären)`],
+  vocantia_q4: ["uebung", `${MK} (Meinung sagen und begründen)`],
+  vocantia_q5: ["wie", `${MK}, Teil 2 (Präsentation mit Nachfragen)`],
+  vocantia_boss: ["uebung", `${MK}, Teil 1 und 2`],
+  schattenzahn_hoeren: ["wie", `${HV}: die ganze Prüfung mit allen fünf Teilen`],
+  schattenzahn_lesen: ["wie", `${LV}: die ganze Prüfung mit allen fünf Teilen`],
+  schattenzahn_schreiben: ["wie", `${SK}: die ganze Prüfung`],
+  schattenzahn_sprechen: ["wie", `${MK}: Teil 1 und Teil 2`],
+  schattenzahn_boss: ["uebung", "alle vier Prüfungsteile"],
+};
+
+/** Kurzer Hinweistext zum DSD-Bezug einer Quest oder null. */
+export function dsdHinweis(id) {
+  const b = id && DSD_BEZUG[id];
+  if (!b) return null;
+  return b[0] === "wie" ? `Wie im DSD I PRO: ${b[1]}` : `Übung für das DSD I PRO: ${b[1]}`;
+}

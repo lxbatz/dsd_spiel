@@ -1,7 +1,6 @@
 // Kopfleiste (Name, Stufe, XP) und die Fenster Aufgaben, Inventar, Code, Menü.
 
 import { el, zeigen, knopf, fokus, schliessen, istOffen, toast, textZeigen, bestaetigen } from "./fenster.js";
-import { bild } from "./bilder.js";
 import { heldenpassAnzeigen, kennungErfragen } from "./heldenpass.js";
 import { HILFSMITTEL } from "../inhalte/hilfsmittel.js";
 import {
@@ -9,7 +8,7 @@ import {
   zuruecksetzen, spielstandDatei, spielstandLesen, spielstandUebernehmen,
 } from "../zustand.js";
 import { GEGENSTAENDE } from "../inhalte/gegenstaende.js";
-import { KLASSEN } from "../inhalte/klassen.js";
+import { heldBild } from "../held.js";
 import { CODES } from "../inhalte/codes.js";
 import { codePruefen } from "../codesignatur.js";
 import { SPRUNGPUNKTE, sprungZustand } from "../inhalte/sprungpunkte.js";
@@ -46,7 +45,7 @@ function hudAktualisieren() {
   // Nach dem Sieg über Morgrath trägt man den Ehrentitel statt des Stufentitels
   const titel = zustand.erledigt.schattenzahn_finale ? "Meister der Vier Sprachkräfte" : s.titel;
   document.getElementById("hud-stufe").textContent = `Stufe ${s.stufe} · ${titel}`;
-  document.getElementById("hud-bild").src = bild(h ? KLASSEN[h.klasse]?.textur : "held_neu");
+  document.getElementById("hud-bild").src = heldBild(h);
   const anteil = s.bis ? (zustand.xp - s.ab) / (s.bis - s.ab) : 1;
   document.getElementById("hud-xp-fuellung").style.width = `${Math.round(anteil * 100)}%`;
   document.getElementById("hud-xp-text").textContent = s.bis
