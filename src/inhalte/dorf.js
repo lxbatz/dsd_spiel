@@ -9,10 +9,15 @@ import { sauber, grossAnfang, ortMit, teileListe, aufzaehlen, alterAlsZahl } fro
 
 const zuLang = (text, maxWoerter) => text.split(/\s+/).length > maxWoerter;
 
-function traumberuf(z) {
+/** Der Traumberuf aus dem Heldenpass, wenn er brauchbar ist (sonst null). */
+function berufAusPass(z) {
   const b = sauber(z.held?.beruf);
-  if (!b || zuLang(b, 4) || /\b(möchte|werden|ich)\b/i.test(b)) return "Krankenpfleger";
+  if (!b || zuLang(b, 4) || /\b(möchte|werden|ich)\b/i.test(b)) return null;
   return grossAnfang(b);
+}
+
+function traumberuf(z) {
+  return berufAusPass(z) ?? "Krankenpfleger";
 }
 
 function vorstellungsLuecke(z) {
@@ -105,13 +110,13 @@ export const VORSTELLEN = [
       return "Deine Stichpunkte aus dem Heldenpass: " + (teile.join(" · ") || "–");
     },
     muster: [
-      { such: "ich heiße|ich heisse|mein name ist", ok: "Du nennst deinen Namen.", fehlt: "Nenne deinen Namen: Ich heiße …" },
-      { such: "jahre alt", ok: "Du nennst dein Alter.", fehlt: "Nenne dein Alter: Ich bin … Jahre alt." },
-      { such: "\\bkomme\\b[^.!?]*\\baus", ok: "Du sagst, woher du kommst.", fehlt: "Woher kommst du? Ich komme aus …" },
-      { such: "\\bwohne\\b", ok: "Du sagst, wo du wohnst.", fehlt: "Wo wohnst du? Ich wohne in …" },
-      { such: "spreche\\b", ok: "Du nennst deine Sprachen.", fehlt: "Welche Sprachen sprichst du? Ich spreche …" },
+      { such: "ich heiße|ich heisse|mein name ist", wert: (z) => grossAnfang(sauber(z.held?.name ?? "")), ok: "Du nennst deinen Namen.", fehlt: "Nenne deinen Namen: Ich heiße …" },
+      { such: "jahre alt", wert: (z) => alterAlsZahl(z.held?.alter), ok: "Du nennst dein Alter.", fehlt: "Nenne dein Alter: Ich bin … Jahre alt." },
+      { such: "\\bkomme\\b[^.!?]*\\baus", wert: (z) => grossAnfang(sauber(z.held?.land ?? "")), ok: "Du sagst, woher du kommst.", fehlt: "Woher kommst du? Ich komme aus …" },
+      { such: "\\bwohne\\b", wert: (z) => grossAnfang(sauber(z.held?.wohnort ?? "")), ok: "Du sagst, wo du wohnst.", fehlt: "Wo wohnst du? Ich wohne in …" },
+      { such: "spreche\\b", wert: (z) => teileListe(z.held?.sprachen ?? ""), ok: "Du nennst deine Sprachen.", fehlt: "Welche Sprachen sprichst du? Ich spreche …" },
       { such: "hobby|gern|freizeit", ok: "Du erzählst von deinen Hobbys.", fehlt: "Was machst du gern? In meiner Freizeit …" },
-      { such: "möchte.*werden|traumberuf", ok: "Du nennst deinen Traumberuf.", fehlt: "Was möchtest du werden? Ich möchte … werden." },
+      { such: "möchte.*werden|traumberuf", wert: berufAusPass, ok: "Du nennst deinen Traumberuf.", fehlt: "Was möchtest du werden? Ich möchte … werden." },
     ],
     checkliste: [
       "Ich habe in ganzen Sätzen geschrieben.",

@@ -93,6 +93,9 @@ button { font: inherit; cursor: pointer; }
 .knopf:disabled { opacity: .5; cursor: not-allowed; }
 .knopfzeile { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 .knopfzeile .knopfleiste { margin-top: 0; margin-left: auto; }
+.knopfzeile .knopfmitte { flex: 1; display: flex; justify-content: center; }
+.knopfzeile .knopfmitte:empty { flex: 0; }
+.xp-abzug { color: var(--text-leise, #6a6680); font-size: 14px; margin-top: -4px; }
 .knopf.abbrechen { font-weight: normal; font-size: 14px; padding: 6px 12px; }
 
 /* Dialog */
@@ -185,6 +188,7 @@ textarea.freitext {
 .analyse { margin-top: 10px; font-size: 14px; }
 .analyse li.ok { color: var(--gruen); }
 .analyse li.fehlt { color: var(--rot); }
+.analyse li.halb { color: #b5740a; }
 .stichpunkte { font-size: 14px; background: #fffaf0; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; }
 
 .feedback { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 15px; line-height: 1.45; }

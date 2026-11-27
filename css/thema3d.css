@@ -56,6 +56,7 @@ body { background: #10121a; }
 .rf-zeile, .zuordnen-tabelle td { border-color: rgba(201, 162, 78, .25); }
 .analyse li.ok { color: #8af09a; }
 .analyse li.fehlt { color: #ff9a9a; }
+.analyse li.halb { color: #ffd27a; }
 .lp-balken { border-color: var(--goldrand); }
 .klasse { background: #f6f0dc; }
 .klasse img { width: 72px; height: 72px; border-radius: 8px; image-rendering: pixelated; }

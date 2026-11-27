@@ -86,12 +86,14 @@ function questAuswerten(z, q) {
       info.aufgaben = erster.fragen.map((f, i) => ({ nr: i + 1, frage: f.frage, typ: f.typ, ersterVersuch: f.ok, fehler: f.ok ? 0 : 1 }));
     }
   } else if (st?.erster) {
-    const a = st.erster.aufgaben;
+    const alle = st.erster.aufgaben;
+    // Wiederholungen (nach „Lösung zeigen“) zählen nur bei der Zeit, nicht als eigene Aufgaben
+    const a = alle.filter((x) => !x.wiederholung);
     info.aufgaben = a;
     info.rate = a.length ? a.filter((x) => x.ersterVersuch).length / a.length : null;
     info.fehler = a.reduce((s, x) => s + (x.fehler ?? 0), 0);
     info.loesung = a.filter((x) => x.loesungGezeigt).length;
-    info.sekunden = a.reduce((s, x) => s + (x.sekunden ?? 0), 0);
+    info.sekunden = alle.reduce((s, x) => s + (x.sekunden ?? 0), 0);
     info.datum = st.erster.datum;
   }
   info.status = erledigt ? (info.rate == null ? "ohne" : stufeKlasse(info.rate)) : (info.abgebrochen || info.durchgaenge || info.versuche ? "begonnen" : "offen");

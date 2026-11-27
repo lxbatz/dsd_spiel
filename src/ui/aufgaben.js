@@ -368,6 +368,36 @@ export function abschriftFinden(text, quellen, erlaubt = []) {
 const quellText = (lt) => { const t = lesetextHolen(lt); return t ? [t.titel, t.text].filter(Boolean).join("\n") : ""; };
 const kuerzen = (t, n = 80) => (t.length > n ? `${t.slice(0, n).trimEnd()} …` : t);
 
+// Zauberspiegel: Ein Muster zählt erst, wenn der Satz dazu fertig ist – also mehr enthält als die
+// gesuchten Wörter und mit . ! ? oder einer neuen Zeile endet. „Ich heiße“ allein reicht nicht.
+// mu.wert (optional): Funktion des Spielstands, die Wörter liefert (z. B. den Namen aus dem Heldenpass).
+// Dann muss mindestens eines davon genau so geschrieben (Groß/klein, Umlaute) im selben Satz stehen.
+const ENDE = /[.!?\n]/;
+const WORT = /[\p{L}\p{N}]+/gu;
+const wortZahl = (t) => (t.match(WORT) ?? []).length;
+export function musterPruefen(text, mu) {
+  const re = new RegExp(mu.such, "giu");
+  const werte = (typeof mu.wert === "function" ? [mu.wert(zustand)].flat() : []).map((w) => String(w ?? "").trim()).filter(Boolean);
+  let halb = false, wertFehlt = null;
+  for (const m of text.matchAll(re)) {
+    const anfang = m.index, ende = m.index + m[0].length;
+    // Leere Treffer (Prüfungen wie „nicht abgeschrieben“) und Muster mit eigenem Satzende (Überschrift, Frage) zählen sofort
+    if (!m[0] || ENDE.test(m[0])) return { ok: true };
+    let a = anfang; while (a > 0 && !ENDE.test(text[a - 1])) a--;
+    let b = ende; while (b < text.length && !ENDE.test(text[b])) b++;
+    const fertig = b < text.length;
+    const rest = wortZahl(text.slice(a, anfang)) + wortZahl(text.slice(ende, b));
+    if (!fertig || rest < 1) { halb = true; continue; }
+    if (werte.length) {
+      const satz = text.slice(a, b);
+      if (!werte.some((w) => new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}])`, "u").test(satz))) { wertFehlt = werte.join(" / "); continue; }
+    }
+    return { ok: true };
+  }
+  if (wertFehlt) return { ok: false, wert: wertFehlt };
+  return { ok: false, halb };
+}
+
 function freitext(a) {
   const leiste = umlautLeiste();
   const vorlage = typeof a.vorlage === "function" ? a.vorlage(zustand) : a.vorlage;
@@ -388,8 +418,11 @@ function freitext(a) {
     const n = woerterZaehlen(feld.value);
     zaehler.textContent = `${n} Wörter${a.minWoerter ? ` (mindestens ${a.minWoerter})` : ""}`;
     analyse.replaceChildren(...(a.muster ?? []).map((mu) => {
-      const ok = new RegExp(mu.such, "iu").test(feld.value);
-      return el("li", { class: ok ? "ok" : "fehlt" }, ok ? `✔ ${mu.ok}` : `✘ ${mu.fehlt}`);
+      const e = musterPruefen(feld.value, mu);
+      if (e.ok) return el("li", { class: "ok" }, `✔ ${mu.ok}`);
+      if (e.wert) return el("li", { class: "fehlt halb" }, `✘ ${mu.fehlt} Schreib es genau wie in deinem Heldenpass: „${e.wert}“.`);
+      if (e.halb) return el("li", { class: "fehlt halb" }, `✘ ${mu.fehlt} Schreib den Satz zu Ende (mit Punkt).`);
+      return el("li", { class: "fehlt" }, `✘ ${mu.fehlt}`);
     }));
     const { stellen } = abschrift();
     warnung.hidden = !stellen.length;
@@ -492,18 +525,26 @@ const ABBRUCH = Symbol("abbruch");
 /**
  * Zeigt eine Folge von Aufgaben im Übungsmodus:
  * Bei Fehlern darf man es noch einmal versuchen, nach zwei Fehlversuchen
- * kann man sich die Lösung zeigen lassen.
+ * kann man sich die Lösung zeigen lassen. Eine Aufgabe mit gezeigter Lösung kommt am Ende
+ * noch einmal (ohne „Lösung zeigen“): Eine Quest ist erst geschafft, wenn alles selbst gelöst ist.
  * Mit „Quest abbrechen“ kann man jederzeit aufhören; dann wird nichts gespeichert.
- * Liefert { gesamt, ersterVersuch } (Anzahl beim ersten Versuch richtig gelöst)
+ * Liefert { gesamt, ersterVersuch, faktor } (faktor: Anteil der XP, siehe leistungWert)
  * oder { abgebrochen: true }.
  */
 export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lesetext, kopf }) {
   const aufgaben = roh.map(aufgabeAufloesen)
     .map((a) => (a.typ === "freitext" && lesetext && !a.lesetext ? { ...a, vergleich: [...(a.vergleich ?? []), lesetext] } : a));
+  const schonErledigt = Boolean(id && zustand.erledigt?.[id]);
+  leistungOffen = null;
   let ersterVersuch = 0;
   const protokoll = [];
-  for (let i = 0; i < aufgaben.length; i++) {
+  const werte = aufgaben.map(() => 0);
+  // Warteschlange: [Index der Aufgabe, Wiederholung?]
+  const schlange = aufgaben.map((_, i) => [i, false]);
+  for (let schritt = 0; schritt < schlange.length; schritt++) {
+    const [i, wiederholung] = schlange[schritt];
     const a = aufgaben[i];
+    const letzte = schritt === schlange.length - 1;
     const start = performance.now();
     let fehlerZahl = 0, loesungGezeigt = false;
     const ok = await new Promise((fertig) => {
@@ -511,6 +552,7 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
       const abbruch = knopf("Quest abbrechen", () => fertig(ABBRUCH), "knopf zweitrangig abbrechen");
       const feedback = el("div", { class: "feedback", hidden: true });
       const leiste = el("div", { class: "knopfleiste" });
+      const mitte = el("div", { class: "knopfmitte" });
       let versuche = 0;
 
       const melden = (art, text) => {
@@ -519,9 +561,10 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         feedback.hidden = !text;
       };
 
-      const weiterKnopf = (warRichtig) => {
-        const w = knopf(i === aufgaben.length - 1 ? "Fertig ✔" : "Nächste Aufgabe ▸", () => fertig(warRichtig));
+      const weiterKnopf = (warRichtig, nochmal = false) => {
+        const w = knopf(nochmal ? "Weiter ▸" : letzte ? "Fertig ✔" : "Nächste Aufgabe ▸", () => fertig(warRichtig));
         leiste.replaceChildren(w);
+        mitte.replaceChildren();
         fokus(w);
       };
 
@@ -529,8 +572,9 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         r.loesungZeigen();
         r.sperren();
         loesungGezeigt = true;
-        melden("info", ["So ist es richtig.", a.erklaerung].filter(Boolean).join("\n"));
-        weiterKnopf(false);
+        melden("info", ["So ist es richtig.", a.erklaerung,
+          "Merk dir die Lösung gut! Diese Aufgabe kommt am Ende noch einmal. Die Quest ist erst geschafft, wenn du sie selbst löst. Für diese Aufgabe gibt es keine XP."].filter(Boolean).join("\n"));
+        weiterKnopf(false, true);
       }, "knopf zweitrangig");
 
       const pruefKnopf = knopf("Prüfen", () => {
@@ -544,21 +588,25 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         }
         versuche++;
         fehlerZahl = versuche;
-        melden("schlecht", [e.meldung, versuche >= 2 ? "Du kannst es noch einmal versuchen oder dir die Lösung zeigen lassen." : "Versuch es noch einmal!"].join("\n"));
-        if (versuche >= 2 && !leiste.contains(loesungKnopf) && a.typ !== "freitext") leiste.prepend(loesungKnopf);
+        const loesungErlaubt = versuche >= 2 && !wiederholung && a.typ !== "freitext";
+        melden("schlecht", [e.meldung, loesungErlaubt ? "Versuch es noch einmal. Oder lass dir die Lösung zeigen. Dann kommt die Aufgabe später noch einmal." : "Versuch es noch einmal!"].join("\n"));
+        if (loesungErlaubt && !leiste.contains(loesungKnopf)) leiste.prepend(loesungKnopf);
       });
       leiste.append(pruefKnopf);
+      if (hilfsmittelKnopf) { const k = hilfsmittelKnopf(r, a); if (k) mitte.append(k); }
 
+      const zaehlung = aufgaben.length > 1 ? (wiederholung ? `Wiederholung: Aufgabe ${i + 1}` : `Aufgabe ${i + 1} von ${aufgaben.length}`) : (wiederholung ? "Wiederholung" : null);
       zeigen(
         kopf?.() ?? null,
         el("h2", {}, titel),
-        el("div", { class: "fortschritt" }, [untertitel, aufgaben.length > 1 ? `Aufgabe ${i + 1} von ${aufgaben.length}` : null].filter(Boolean).join(" · ")),
+        el("div", { class: "fortschritt" }, [untertitel, zaehlung].filter(Boolean).join(" · ")),
+        wiederholung ? el("div", { class: "feedback info" }, "🔁 Diese Aufgabe hast du vorhin mit der Lösung gesehen. Jetzt löst du sie selbst!") : null,
         lesetextElement(a.lesetext ?? lesetext),
         hoertextElement(a.hoertext),
         el("div", { class: "frage" }, a.frage),
         r.element,
         feedback,
-        el("div", { class: "knopfzeile" }, abbruch, leiste),
+        el("div", { class: "knopfzeile" }, abbruch, mitte, leiste),
       );
       fokus(r.erstesFeld);
     });
@@ -568,16 +616,46 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
       questErgebnis(id, protokoll, { abgebrochen: true });
       return { abgebrochen: true };
     }
-    if (ok) ersterVersuch++;
+    if (loesungGezeigt) schlange.push([i, true]);
+    if (!wiederholung) {
+      if (ok) ersterVersuch++;
+      werte[i] = leistungWert(a, fehlerZahl, loesungGezeigt);
+    }
     protokoll.push({
-      nr: i + 1, frage: a.frage, typ: a.typ, fehler: fehlerZahl, ersterVersuch: Boolean(ok), loesungGezeigt,
+      nr: i + 1, frage: a.frage, typ: a.typ, fehler: fehlerZahl, ersterVersuch: Boolean(ok) && !wiederholung, loesungGezeigt,
+      ...(wiederholung ? { wiederholung: true } : {}),
       sekunden: Math.round((performance.now() - start) / 1000),
       ...(a.typ === "freitext" ? { woerter: woerterZaehlen(zustand.texte[a.id]?.text ?? "") } : {}),
     });
   }
   questErgebnis(id, protokoll);
-  return { gesamt: aufgaben.length, ersterVersuch };
+  const faktor = aufgaben.length ? werte.reduce((x, y) => x + y, 0) / aufgaben.length : 1;
+  // Die nächste Belohnung (XP) richtet sich nach dieser Leistung – aber nicht beim freiwilligen Wiederholen.
+  if (!schonErledigt) leistungOffen = { faktor, zeit: Date.now(), fehler: protokoll.reduce((x, p) => x + (p.wiederholung ? 0 : p.fehler), 0), loesungen: protokoll.filter((p) => p.loesungGezeigt).length };
+  return { gesamt: aufgaben.length, ersterVersuch, faktor };
 }
+
+/**
+ * Wie viel eine Aufgabe für die XP zählt: beim ersten Versuch alles, beim zweiten die Hälfte,
+ * danach ein Viertel. Mit gezeigter Lösung nichts. Freie Texte und Sprechaufgaben zählen immer voll.
+ */
+export function leistungWert(a, fehler, loesungGezeigt) {
+  if (loesungGezeigt) return 0;
+  if (a.typ === "freitext" || a.typ === "sprechen") return 1;
+  return fehler === 0 ? 1 : fehler === 1 ? 0.5 : 0.25;
+}
+
+let leistungOffen = null;
+/** Holt (einmalig) die Leistung der letzten Aufgabenfolge, wenn sie gerade erst beendet wurde. */
+export function leistungAbholen() {
+  const l = leistungOffen;
+  leistungOffen = null;
+  return l && Date.now() - l.zeit < 3 * 60 * 1000 ? l : null;
+}
+
+// Knopf „Hilfsmittel einsetzen“ zwischen „Quest abbrechen“ und „Prüfen“ (wird vom Inventar gesetzt).
+let hilfsmittelKnopf = null;
+export function hilfsmittelAnmelden(fn) { hilfsmittelKnopf = fn; }
 
 // ---------- Prüfungsmodus (Probeprüfung) ----------
 

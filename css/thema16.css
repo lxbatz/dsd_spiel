@@ -61,6 +61,7 @@ body { background: #0b0a16; }
 .zuordnen-tabelle td { border-color: #3a4a9a; }
 .analyse li.ok { color: #8af09a; }
 .analyse li.fehlt { color: #ff9a9a; }
+.analyse li.halb { color: #ffd27a; }
 .lp-balken { border-color: var(--snes-rahmen); }
 .klasse img { width: 64px; height: 64px; border-radius: 3px; }
 .klasse { background: #f6f0dc; }
