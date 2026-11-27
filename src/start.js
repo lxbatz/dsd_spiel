@@ -3,6 +3,7 @@
 import { zustand, zuruecksetzen, spielzeitZaehlen, speichern } from "./zustand.js";
 import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
 import { hudZeigen, codeAnzeigen, autoSicherungTakt } from "./ui/hud.js";
+import "./ton.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 import { vollbildBeimStart } from "./ui/vollbild.js";

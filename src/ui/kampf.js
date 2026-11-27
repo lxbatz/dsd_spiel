@@ -9,6 +9,7 @@ import { hatEffekt, kampfErgebnis } from "../zustand.js";
 import { mischen, zufall } from "../hilfen.js";
 import { musik, aktuelleMusik, spieleJingle } from "../musik.js";
 import { tonSchalter } from "./tonschalter.js";
+import { ton } from "../ton.js";
 
 /**
  * gegner: { name, bild (Data-URL), lp, schaden, einleitung, spott: [..], sieg: [..], niederlage: [..] }
@@ -78,12 +79,14 @@ export async function kampf(gegner, roheFragen) {
           void portrait.offsetWidth;
           portrait.classList.add("treffer");
           window.dispatchEvent(new CustomEvent("eldoria:treffer"));
+          ton("treffer");
           feedback.className = "feedback gut";
           feedback.textContent = ["Treffer! 💥", a.erklaerung].filter(Boolean).join(" ");
         } else {
           herzen--;
           zeichneHerzen();
           window.dispatchEvent(new CustomEvent("eldoria:schaden"));
+          ton("schaden");
           r.loesungZeigen();
           feedback.className = "feedback schlecht";
           feedback.textContent = ["Der Gegner wehrt ab! Du verlierst ein Herz.", a.erklaerung, "Diese Frage kommt später noch einmal."].filter(Boolean).join(" ");

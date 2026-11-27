@@ -9,6 +9,7 @@ import { OutputPass } from "../../vendor/three-addons/postprocessing/OutputPass.
 import { KARTEN } from "../welt/karten.js";
 import { KLASSEN } from "../inhalte/klassen.js";
 import { zustand, ortSetzen } from "../zustand.js";
+import { ton } from "../ton.js";
 import { istOffen, schliessen, hinweis, toast, beimSchliessen, el, knopf } from "../ui/fenster.js";
 import { hudSperreSetzen, hudEinstellungen } from "../ui/hud.js";
 import { bildSetzen } from "../ui/bilder.js";
@@ -570,6 +571,7 @@ export class Spiel3D {
     try {
       const api = this.weltApi(this.karte, reise);
       await (obj.aktion ? obj.aktion(api) : obj.def.aktion(api));
+      if (reise.ziel) ton("portal");
     } catch (fehler) {
       console.error(fehler);
       toast("Hoppla, da ist etwas schiefgelaufen.");

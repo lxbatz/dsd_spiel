@@ -33,6 +33,7 @@ import { hatEffekt, textSpeichern, zustand, questErgebnis } from "../zustand.js"
 import { TEXTE } from "../inhalte/texte.js";
 import { hoertextElement, hoerenStoppen } from "./hoeren.js";
 import { sprechen, sprechenStoppen } from "./sprechen.js";
+import { ton } from "../ton.js";
 
 // ---------- Hilfen ----------
 
@@ -559,6 +560,8 @@ export async function aufgabenFolge({ id, titel, untertitel, aufgaben: roh, lese
         feedback.className = `feedback ${art}`;
         feedback.replaceChildren(...text.split("\n").flatMap((z, j) => (j ? [el("br"), z] : [z])));
         feedback.hidden = !text;
+        if (art === "gut") ton("richtig");
+        else if (art === "schlecht") ton("falsch");
       };
 
       const weiterKnopf = (warRichtig, nochmal = false) => {

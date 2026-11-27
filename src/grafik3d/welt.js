@@ -10,6 +10,7 @@ import { windMaterial, schmetterlingeBauen, voegelBauen, blaetterBauen, lichtpun
 import { katzeBauen, katzeVerhalten } from "./katze.js";
 import { dialog } from "../ui/fenster.js";
 import { zustand } from "../zustand.js";
+import { ton } from "../ton.js";
 
 export const E = 2; // Welteinheiten pro Kachel
 export const welt = (t) => t * E + E / 2;
@@ -527,6 +528,7 @@ export function dorfBauen(szene, raster, kontext) {
     dynamisch: true,
     async aktion(api) {
       verhalten?.gestreichelt();
+      ton("katze");
       api.effekte.herzchen(new THREE.Vector3(katze.gruppe.position.x, 0.6, katze.gruppe.position.z));
       const saetze = [
         "Mimi schnurrt: „Rrrrr …“ Sie ist die Katze von Händlerin Wilma.",
