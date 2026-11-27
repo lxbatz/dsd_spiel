@@ -433,7 +433,7 @@ export class Spiel3D {
     window.addEventListener("keydown", (ev) => {
       if (ignorieren(ev)) return;
       const k = ev.key.toLowerCase();
-      if (istOffen() || this.beschaeftigt || !this.gestartet) return;
+      if (istOffen() || this.beschaeftigt || !this.gestartet || this.action.gameOver) return;
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(k)) ev.preventDefault();
       this.tasten.add(k);
       this.laufZiel = null;
@@ -485,7 +485,7 @@ export class Spiel3D {
 
   /** Tippen/Klicken: Objekt ansprechen oder zur Stelle laufen. */
   tippen(x, y) {
-    if (!this.gestartet || this.beschaeftigt || istOffen() || !this.karte) return;
+    if (!this.gestartet || this.beschaeftigt || istOffen() || !this.karte || this.action.gameOver) return;
     const r = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.kamera);
@@ -573,7 +573,7 @@ export class Spiel3D {
   }
 
   async interagieren(obj) {
-    if (this.beschaeftigt) return;
+    if (this.beschaeftigt || this.action.gameOver) return;
     this.beschaeftigt = true;
     this.tasten.clear();
     this.touch.zuruecksetzen();
@@ -622,7 +622,7 @@ export class Spiel3D {
 
   /** Ein Auslöser der Karte (z. B. „die Figur betritt den Vorhof“) startet einen Ablauf wie ein Gespräch. */
   async ausloesen(a) {
-    if (this.beschaeftigt) return;
+    if (this.beschaeftigt || this.action.gameOver) return;
     this.beschaeftigt = true;
     this.tasten.clear();
     this.touch.zuruecksetzen();
@@ -654,7 +654,7 @@ export class Spiel3D {
   bewegen(dt) {
     const k = this.tasten;
     let vor = 0, seit = 0;
-    const frei = !this.beschaeftigt && !istOffen();
+    const frei = !this.beschaeftigt && !istOffen() && !this.action.gameOver;
     if (frei) {
       if (k.has("w") || k.has("arrowup")) vor += 1;
       if (k.has("s") || k.has("arrowdown")) vor -= 1;

@@ -691,7 +691,13 @@ export class Action {
 
   /** Alle Herzen weg: zurück ins Dorf, ohne etwas zu verlieren. */
   async verloren() {
+    if (this.gameOver) return;
     this.gameOver = true;
+    // Bis zum Fenster nichts mehr anfangen: keine Gespräche, kein Weiterlaufen
+    const s = this.spiel;
+    s.tasten.clear();
+    s.touch.zuruecksetzen();
+    s.laufZiel = null;
     ton("gameover");
     await new Promise((r) => setTimeout(r, 700));
     await new Promise((weiter) => {
@@ -706,6 +712,13 @@ export class Action {
       fokus(k);
     });
     schliessen();
+    // Falls trotzdem noch ein Gespräch oder Ablauf offen war, ist sein Fenster jetzt weg: sauber beenden,
+    // sonst bleibt die Figur im Dorf stehen und die Knöpfe oben reagieren nicht mehr.
+    s.gespraech = null;
+    s.heldBlick = null;
+    s.kino = null;
+    if (s.skriptLauf) { s.skriptLauf.fertig(); s.skriptLauf = null; }
+    s.beschaeftigt = false;
     herzenSetzen(herzenMax());
     speichern();
     this.gameOver = false;
