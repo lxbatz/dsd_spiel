@@ -103,7 +103,7 @@ function himmelBauen(szene, mitte) {
     side: THREE.BackSide, depthWrite: false, fog: false,
     uniforms: {
       oben: { value: new THREE.Color("#2f7fd8") }, horizont: { value: new THREE.Color("#cfe8f8") },
-      rotOben: { value: new THREE.Color("#3a060c") }, rotHorizont: { value: new THREE.Color("#d8482a") },
+      rotOben: { value: new THREE.Color("#7a2c12") }, rotHorizont: { value: new THREE.Color("#f4954a") },
       sonne: { value: new THREE.Vector3(0.45, 0.16, 0.78).normalize() },
       unheil: { value: 0 },
     },
@@ -860,11 +860,11 @@ export function aureliaBauen(szene, raster, kontext) {
   let frei = sollFrei(), zuletzt = -1;
   const F = (a) => new THREE.Color(a);
   const farben = {
-    bg: [F("#5a1a18"), F("#bcdcf4")], nebel: [F("#4a1612"), F("#cfe4f2")],
-    hemiOben: [F("#a8504a"), F("#d8ecff")], hemiUnten: [F("#3a1a14"), F("#c8b490")],
-    sonne: [F("#ff7a50"), F("#fff0d8")],
-    fern: [F("#0c0a10"), F("#5ab0e8")], nah: [F("#100c12"), F("#4aa8e0")],
-    wolke: [F("#4a2a2a"), F("#ffffff")], wolkeGlut: [F("#8a2a1a"), F("#d8e8f8")],
+    bg: [F("#a8562e"), F("#bcdcf4")], nebel: [F("#a05a30"), F("#cfe4f2")],
+    hemiOben: [F("#f2b080"), F("#d8ecff")], hemiUnten: [F("#7a4a2c"), F("#c8b490")],
+    sonne: [F("#ffb070"), F("#fff0d8")],
+    fern: [F("#2a1a1a"), F("#5ab0e8")], nah: [F("#32201c"), F("#4aa8e0")],
+    wolke: [F("#9a5a3a"), F("#ffffff")], wolkeGlut: [F("#d0702e"), F("#d8e8f8")],
   };
   const mische = (ziel, [a, b], t) => ziel.copy(a).lerp(b, t);
   animationen.push((zeit, dt = 0.016) => {
@@ -877,9 +877,9 @@ export function aureliaBauen(szene, raster, kontext) {
     szene.fog.near = 60 + frei * 30; szene.fog.far = 260 + frei * 160;
     mische(hemi.color, farben.hemiOben, frei);
     mische(hemi.groundColor, farben.hemiUnten, frei);
-    hemi.intensity = 0.8 + frei * 0.45;
+    hemi.intensity = 1.1 + frei * 0.15;
     mische(sonne.color, farben.sonne, frei);
-    sonne.intensity = 1.4 + frei * 1.4;
+    sonne.intensity = 2.1 + frei * 0.7;
     mische(meer.fern.color, farben.fern, frei);
     mische(meer.nah.color, farben.nah, frei);
     meer.fern.roughness = meer.nah.roughness = 0.08 + frei * 0.12;

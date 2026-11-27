@@ -45,6 +45,7 @@ button { font: inherit; cursor: pointer; }
 .xp-balken { height: 10px; background: #0006; border: 1px solid var(--rand); border-radius: 6px; overflow: hidden; }
 #hud-xp-fuellung { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold-dunkel), var(--gold)); transition: width .4s; }
 #hud-xp-text { font-size: 11px; opacity: .8; margin-top: 2px; }
+#hud-reich { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; margin-left: auto; padding: 0 6px; }
 .hud-knoepfe { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
 .hud-knoepfe button {
   background: #3a3356; color: var(--pergament); border: 1px solid var(--rand);
@@ -254,6 +255,9 @@ input.code-eingabe { font: inherit; font-size: 20px; letter-spacing: 2px; text-t
 }
 @keyframes rein { from { transform: translateX(30px); opacity: 0; } }
 
+@media (max-width: 1280px) {
+  #hud-reich .reich-lang { display: none; }
+}
 @media (max-width: 640px) {
   .formular, .pass-ansicht { grid-template-columns: 1fr; }
   .klassen { grid-template-columns: repeat(2, 1fr); }
@@ -303,7 +307,7 @@ body.touch:not(.im-spiel) #joystick { display: none; }
 @media (max-width: 760px), (max-height: 500px) {
   #hud { gap: 8px; padding: 4px 8px; }
   .hud-held { min-width: 0; }
-  #hud-stufe, #hud-xp-text { display: none; }
+  #hud-stufe, #hud-xp-text, #hud-reich .reich-lang { display: none; }
   .hud-xp { min-width: 60px; }
   .hud-knoepfe { gap: 4px; }
   .hud-knoepfe button { font-size: 18px; padding: 3px 7px; }

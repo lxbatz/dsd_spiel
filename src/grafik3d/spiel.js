@@ -694,8 +694,11 @@ export class Spiel3D {
         this.laufZiel.festSeit = g.position.distanceTo(vorher) < schritt * 0.2 ? this.laufZiel.festSeit + dt : 0;
         if (this.laufZiel.festSeit > 0.4) this.laufZiel = null;
       }
-      // Kamera schwenkt langsam hinter die Figur (nicht beim Rückwärtsgehen)
-      if ((vor >= 0 || automatisch) && !(this.manuellBis > performance.now())) {
+      // Kamera schwenkt langsam hinter die Figur (nicht beim Rückwärtsgehen).
+      // Steht die Figur an einer Kante oder Wand fest, bleibt die Kamera ruhig – sonst dreht sie sich im Kreis.
+      const bewegt = g.position.distanceTo(vorher) > schritt * 0.3;
+      this.festZeit = bewegt ? 0 : (this.festZeit ?? 0) + dt;
+      if ((vor >= 0 || automatisch) && this.festZeit < 0.15 && !(this.manuellBis > performance.now())) {
         this.yaw += winkelDiff(this.yaw, g.rotation.y + Math.PI) * Math.min(1, dt * (automatisch ? 1.0 : 1.6));
       }
       // Staubwölkchen
@@ -799,6 +802,9 @@ export class Spiel3D {
       this.kameraAnteil = this.kameraAnteil ?? 1;
       this.kameraAnteil += (sollAbstand - this.kameraAnteil) * Math.min(1, dt * (sollAbstand < this.kameraAnteil ? 14 : 2.5));
       ziel = new THREE.Vector3().lerpVectors(kopf, voll, this.kameraAnteil);
+      // Muss die Kamera nah heran (Mauer, Bäume oder Rand hinter der Figur), steigt sie zusätzlich nach oben.
+      // So schaut sie von oben auf die Figur statt aus ihrem Kopf – das Bild springt und dreht nicht mehr wild.
+      if (this.kameraAnteil < 0.7) ziel.y = Math.min(ziel.y + (0.7 - this.kameraAnteil) * 3.2, p.y + (this.karte.bau.kamera?.maxHoehe ?? 7) - 0.3);
       this.kamera.position.lerp(ziel, 1 - Math.exp(-dt * 7));
       blick = new THREE.Vector3(p.x, p.y + 1.55, p.z).addScaledVector(rechts, 0.42);
     }

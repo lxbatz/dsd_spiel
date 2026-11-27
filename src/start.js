@@ -2,7 +2,7 @@
 
 import { zustand, zuruecksetzen, spielzeitZaehlen, speichern } from "./zustand.js";
 import { el, zeigen, knopf, fokus, schliessen, dialog, bestaetigen } from "./ui/fenster.js";
-import { hudZeigen, codeAnzeigen } from "./ui/hud.js";
+import { hudZeigen, codeAnzeigen, autoSicherungTakt } from "./ui/hud.js";
 import { bild } from "./ui/bilder.js";
 import { musik } from "./musik.js";
 import { vollbildBeimStart } from "./ui/vollbild.js";
@@ -55,6 +55,7 @@ function spielzeitMessen() {
   zeitmessung = setInterval(() => {
     if (document.hidden) return;
     spielzeitZaehlen(15);
+    autoSicherungTakt(15);
     if (++takte % 4 === 0) speichern();
   }, 15000);
   document.addEventListener("visibilitychange", () => { if (document.hidden) speichern(); });

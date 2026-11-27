@@ -21,6 +21,18 @@ import { johannesBild, alexanderBild, claudeBild } from "../grafik16/credits_bil
 
 const hud = document.getElementById("hud");
 
+// Name des Reichs, in dem man gerade ist (spät geladen, damit es keinen Import-Kreis gibt)
+let KARTEN = null;
+import("../welt/karten.js").then((m) => { KARTEN = m.KARTEN; hudAktualisieren(); });
+function reichAnzeigen() {
+  const feld = document.getElementById("hud-reich");
+  if (!feld) return;
+  const name = KARTEN?.[zustand.ort?.karte]?.name ?? "";
+  const [kurz, lang] = name.split(" – ");
+  feld.replaceChildren(...(name ? [el("span", { class: "reich-icon" }, "📍 "), el("b", {}, kurz), lang ? el("span", { class: "reich-lang" }, ` – ${lang}`) : ""] : []));
+  feld.title = name ? `Hier bist du gerade: ${name}` : "";
+}
+
 export function hudZeigen() {
   hud.hidden = false;
   hudAktualisieren();
@@ -39,6 +51,7 @@ function hudAktualisieren() {
   document.getElementById("hud-xp-text").textContent = s.bis
     ? `${zustand.xp} XP · noch ${s.bis - zustand.xp} XP bis Stufe ${s.stufe + 1}`
     : `${zustand.xp} XP · höchste Stufe`;
+  reichAnzeigen();
 }
 beobachten(hudAktualisieren);
 
@@ -171,20 +184,54 @@ async function dateiSpeichern(meldung) {
   if (plattform) {
     try {
       await plattform.save({ filename: name, data: inhalt });
+      gesichert();
       toast("💾 Spielstand gespeichert");
     } catch (e) {
       if (e?.code !== "declined") { meldung.hidden = false; meldung.className = "feedback schlecht"; meldung.textContent = "Speichern ist hier leider nicht möglich."; }
     }
     return;
   }
+  herunterladen(name, inhalt);
+  toast(`💾 ${name} wird heruntergeladen`);
+}
+
+function herunterladen(name, inhalt) {
   const url = URL.createObjectURL(new Blob([inhalt], { type: "application/octet-stream" }));
   const a = el("a", { href: url, download: name });
   document.body.append(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-  toast(`💾 ${name} wird heruntergeladen`);
+  gesichert();
 }
+
+// ---------- Automatische Sicherung ----------
+// Viele vergessen das Speichern und spielen beim nächsten Mal an einem anderen Gerät.
+// Deshalb lädt das Spiel alle 30 Minuten Spielzeit die Spielstand-Datei von selbst herunter,
+// wenn es seit der letzten Datei Fortschritt gab. Beim Schließen der Seite warnt der Browser.
+const AUTO_SEKUNDEN = 30 * 60;
+let seitSicherung = 0;
+const fortschritt = () => `${zustand.xp}|${Object.keys(zustand.erledigt ?? {}).length}|${Object.keys(zustand.texte ?? {}).length}|${(zustand.gegenstaende ?? []).length}`;
+let stand = fortschritt();
+const ungesichert = () => Boolean(zustand.held) && fortschritt() !== stand;
+function gesichert() { stand = fortschritt(); seitSicherung = 0; }
+
+/** Wird regelmäßig mit der gespielten Zeit aufgerufen (siehe start.js). */
+export function autoSicherungTakt(sekunden) {
+  seitSicherung += sekunden;
+  if (seitSicherung < AUTO_SEKUNDEN || !ungesichert() || window.claude?.use) return;
+  const { name, inhalt } = spielstandDatei("sav");
+  herunterladen(name.replace(/\.sav$/, "_auto.sav"), inhalt);
+  toast("💾 Automatisch gesichert! Die Datei liegt in deinem Download-Ordner. Am anderen Gerät: Menü → Spielstand laden.", 9000);
+}
+/** Für Tests: tut so, als wären 30 Minuten vergangen. */
+export function autoSicherungJetzt() { seitSicherung = AUTO_SEKUNDEN; autoSicherungTakt(0); }
+
+window.addEventListener("beforeunload", (e) => {
+  if (!ungesichert() || window.claude?.use) return;
+  e.preventDefault();
+  e.returnValue = "Du hast deinen Spielstand noch nicht als Datei gespeichert.";
+});
 
 function dateiLaden(meldung) {
   const eingabe = el("input", { type: "file", accept: ".sav,.json,.txt", style: "display:none" });
